@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="SettingsTitle.Text" xml:space="preserve"><value>设置</value></data>
+  <data name="ThemeLabel.Text" xml:space="preserve"><value>外观主题</value></data>
+  <data name="ThemeSystem.Content" xml:space="preserve"><value>跟随系统</value></data>
+  <data name="ThemeLight.Content" xml:space="preserve"><value>浅色</value></data>
+  <data name="ThemeDark.Content" xml:space="preserve"><value>深色</value></data>
+  <data name="LanguageLabel.Text" xml:space="preserve"><value>语言</value></data>
+  <data name="LanguageRestartNote.Text" xml:space="preserve"><value>重启应用后完全生效</value></data>
+  <data name="StatusWaiting.Text" xml:space="preserve"><value>等待连接中...</value></data>
+  <data name="NoMediaPlaying.Text" xml:space="preserve"><value>暂无媒体播放</value></data>
+  <data name="UnknownArtist.Text" xml:space="preserve"><value>未知艺术家</value></data>
+  <data name="UnknownAlbum.Text" xml:space="preserve"><value>未知专辑</value></data>
+  <data name="TrayShowPlayer.Text" xml:space="preserve"><value>显示播放器</value></data>
+  <data name="TrayExit.Text" xml:space="preserve"><value>退出</value></data>
+  <data name="DeviceNameLabel.Text" xml:space="preserve"><value>设备名称</value></data>
+  <data name="DiscoveryPortLabel.Text" xml:space="preserve"><value>发现端口</value></data>
+  <data name="DataPortLabel.Text" xml:space="preserve"><value>数据端口</value></data>
+  <data name="CommandPortLabel.Text" xml:space="preserve"><value>指令端口</value></data>
+  <data name="DiscoveryPortCard.Description" xml:space="preserve"><value>用于在局域网内广播存在。（默认：5001）</value></data>
+  <data name="DataPortCard.Description" xml:space="preserve"><value>用于接收手机发来的音乐信息。（默认：5000）</value></data>
+  <data name="CommandPortCard.Description" xml:space="preserve"><value>用于向手机发送播放/暂停控制指令。（默认：5002）</value></data>
+  <data name="SaveSettingsBtn.Content" xml:space="preserve"><value>保存并重启</value></data>
+  <data name="DeviceNameCard.Description" xml:space="preserve"><value>在局域网中标识这台电脑</value></data>
+  <data name="NetworkPortsLabel.Text" xml:space="preserve"><value>网络端口</value></data>
+  <data name="NetworkPortsExpander.Description" xml:space="preserve"><value>用于局域网通讯的 UDP 端口</value></data>
+  <data name="LanguageCard.Description" xml:space="preserve"><value>需要重启应用后生效</value></data>
+  <data name="NavPlayer.Content" xml:space="preserve"><value>播放器</value></data>
+</root>

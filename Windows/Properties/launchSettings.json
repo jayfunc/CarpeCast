@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WindowsMediaReceiver (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "WindowsMediaReceiver (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

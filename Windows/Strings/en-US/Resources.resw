@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="SettingsTitle.Text" xml:space="preserve"><value>Settings</value></data>
+  <data name="ThemeLabel.Text" xml:space="preserve"><value>Theme</value></data>
+  <data name="ThemeSystem.Content" xml:space="preserve"><value>System default</value></data>
+  <data name="ThemeLight.Content" xml:space="preserve"><value>Light</value></data>
+  <data name="ThemeDark.Content" xml:space="preserve"><value>Dark</value></data>
+  <data name="LanguageLabel.Text" xml:space="preserve"><value>Language</value></data>
+  <data name="LanguageRestartNote.Text" xml:space="preserve"><value>Requires restart to fully apply.</value></data>
+  <data name="StatusWaiting.Text" xml:space="preserve"><value>Waiting for connection...</value></data>
+  <data name="NoMediaPlaying.Text" xml:space="preserve"><value>No Media Playing</value></data>
+  <data name="UnknownArtist.Text" xml:space="preserve"><value>Unknown Artist</value></data>
+  <data name="UnknownAlbum.Text" xml:space="preserve"><value>Unknown Album</value></data>
+  <data name="TrayShowPlayer.Text" xml:space="preserve"><value>Show Player</value></data>
+  <data name="TrayExit.Text" xml:space="preserve"><value>Exit</value></data>
+  <data name="DeviceNameLabel.Text" xml:space="preserve"><value>Device Name</value></data>
+  <data name="DiscoveryPortLabel.Text" xml:space="preserve"><value>Discovery Port</value></data>
+  <data name="DataPortLabel.Text" xml:space="preserve"><value>Data Port</value></data>
+  <data name="CommandPortLabel.Text" xml:space="preserve"><value>Command Port</value></data>
+  <data name="DiscoveryPortCard.Description" xml:space="preserve"><value>Used to broadcast existence on local network. (Default: 5001)</value></data>
+  <data name="DataPortCard.Description" xml:space="preserve"><value>Used to receive music info from phone. (Default: 5000)</value></data>
+  <data name="CommandPortCard.Description" xml:space="preserve"><value>Used to send play/pause commands to phone. (Default: 5002)</value></data>
+  <data name="SaveSettingsBtn.Content" xml:space="preserve"><value>Save &amp; Restart</value></data>
+  <data name="DeviceNameCard.Description" xml:space="preserve"><value>Identify your PC on the network</value></data>
+  <data name="NetworkPortsLabel.Text" xml:space="preserve"><value>Network Ports</value></data>
+  <data name="NetworkPortsExpander.Description" xml:space="preserve"><value>UDP ports used for connection</value></data>
+  <data name="LanguageCard.Description" xml:space="preserve"><value>Requires restart</value></data>
+  <data name="NavPlayer.Content" xml:space="preserve"><value>Player</value></data>
+</root>
