@@ -1,6 +1,6 @@
-using System;
+﻿using System;
 
-namespace WindowsMediaReceiver.Services;
+namespace CarpeCast.Services;
 
 public interface ISmtcService
 {
@@ -12,4 +12,5 @@ public interface ISmtcService
     void Initialize();
     void UpdateMediaState(string title, string artist, string album, bool isPlaying, double position, double duration);
     void UpdateTimeline(double position, double duration);
+    void ClearMediaState();
 }

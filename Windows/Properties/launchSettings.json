@@ -1,9 +1,9 @@
 {
   "profiles": {
-    "WindowsMediaReceiver (Package)": {
+    "CarpeCast (Package)": {
       "commandName": "MsixPackage"
     },
-    "WindowsMediaReceiver (Unpackaged)": {
+    "CarpeCast (Unpackaged)": {
       "commandName": "Project"
     }
   }

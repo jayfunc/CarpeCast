@@ -1,8 +1,8 @@
-using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml.Controls;
 using Microsoft.Extensions.DependencyInjection;
-using WindowsMediaReceiver.ViewModels;
+using CarpeCast.ViewModels;
 
-namespace WindowsMediaReceiver.Views;
+namespace CarpeCast.Views;
 
 public sealed partial class PlayerPage : Page
 {

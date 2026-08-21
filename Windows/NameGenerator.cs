@@ -1,6 +1,6 @@
-using System;
+﻿using System;
 
-namespace WindowsMediaReceiver
+namespace CarpeCast
 {
     public static class NameGenerator
     {

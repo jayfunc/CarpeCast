@@ -1,12 +1,12 @@
-using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI;
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using WindowsMediaReceiver.ViewModels;
+using CarpeCast.ViewModels;
 
-namespace WindowsMediaReceiver.Views;
+namespace CarpeCast.Views;
 
 public sealed partial class DevicesPage : Page
 {

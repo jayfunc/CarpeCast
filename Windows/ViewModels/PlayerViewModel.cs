@@ -1,12 +1,12 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using WindowsMediaReceiver.Models;
-using WindowsMediaReceiver.Services;
+using CarpeCast.Models;
+using CarpeCast.Services;
 using Microsoft.UI.Dispatching;
 
-namespace WindowsMediaReceiver.ViewModels;
+namespace CarpeCast.ViewModels;
 
 public partial class PlayerViewModel : ObservableObject
 {
@@ -20,6 +20,21 @@ public partial class PlayerViewModel : ObservableObject
 
     [ObservableProperty]
     public partial MediaState Media { get; set; } = new();
+
+    [ObservableProperty]
+    public partial string DisplayTitle { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial string DisplayArtist { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial string DisplayAlbum { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial double CurrentPosition { get; set; }
+
+    [ObservableProperty]
+    public partial double CurrentDuration { get; set; }
 
     [ObservableProperty]
     public partial string FormattedPosition { get; set; } = "00:00";
@@ -38,10 +53,13 @@ public partial class PlayerViewModel : ObservableObject
     public Microsoft.UI.Xaml.Visibility WaitingVisibility => IsWaitingForConnection ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
     public Microsoft.UI.Xaml.Visibility ConnectedVisibility => !IsWaitingForConnection ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
 
-    public PlayerViewModel(INetworkService networkService, ISmtcService smtcService)
+    public DevicesViewModel DevicesVM { get; }
+
+    public PlayerViewModel(INetworkService networkService, ISmtcService smtcService, DevicesViewModel devicesVm)
     {
         _networkService = networkService;
         _smtcService = smtcService;
+        DevicesVM = devicesVm;
         _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
         _networkService.MediaStateReceived += NetworkService_MediaStateReceived;
@@ -51,10 +69,33 @@ public partial class PlayerViewModel : ObservableObject
         _smtcService.NextPressed += async (s, e) => await NextCommand.ExecuteAsync(null);
         _smtcService.PreviousPressed += async (s, e) => await PreviousCommand.ExecuteAsync(null);
 
+        DevicesVM.ActiveDeviceChanged += DevicesVM_ActiveDeviceChanged;
+
         _uiTimer = new Microsoft.UI.Xaml.DispatcherTimer();
         _uiTimer.Interval = TimeSpan.FromMilliseconds(500);
         _uiTimer.Tick += UiTimer_Tick;
         _uiTimer.Start();
+    }
+
+    private void DevicesVM_ActiveDeviceChanged(object? sender, EventArgs e)
+    {
+        _dispatcherQueue.TryEnqueue(() =>
+        {
+            if (DevicesVM.ActiveDevice?.LastMediaState != null)
+            {
+                var fakeArgs = new MediaStateReceivedEventArgs
+                {
+                    State = DevicesVM.ActiveDevice.LastMediaState,
+                    SenderEndpoint = DevicesVM.ActiveDevice.Endpoint,
+                    SenderIp = DevicesVM.ActiveDevice.IPAddress
+                };
+                NetworkService_MediaStateReceived(this, fakeArgs);
+            }
+            else
+            {
+                ResetState();
+            }
+        });
     }
 
     public void StartNetworking()
@@ -67,13 +108,31 @@ public partial class PlayerViewModel : ObservableObject
     {
         _dispatcherQueue.TryEnqueue(() =>
         {
+            if (e.SenderEndpoint == null || _networkService.ActiveEndpoint == null) return;
+            if (!e.SenderEndpoint.Equals(_networkService.ActiveEndpoint)) return;
+
             if (e.IsDisconnect)
             {
                 ResetState();
+                _networkService.ActiveEndpoint = null;
                 return;
             }
 
             var newState = e.State;
+
+            bool hasMedia = !string.IsNullOrWhiteSpace(newState.Title) && newState.Title != "Unknown";
+
+            var loader = new Microsoft.Windows.ApplicationModel.Resources.ResourceLoader();
+
+            DisplayTitle = hasMedia ? newState.Title : (loader.GetString("NoMediaPlaying/Text") ?? "No Media Playing");
+            
+            DisplayArtist = !string.IsNullOrWhiteSpace(newState.Artist) && newState.Artist != "Unknown" 
+                ? newState.Artist 
+                : (loader.GetString("UnknownArtist/Text") ?? "Unknown Artist");
+
+            DisplayAlbum = !string.IsNullOrWhiteSpace(newState.Album) && newState.Album != "Unknown"
+                ? newState.Album 
+                : (loader.GetString("UnknownAlbum/Text") ?? "Unknown Album");
             
             bool titleChanged = Media.Title != newState.Title;
             bool playStateChanged = Media.IsPlaying != newState.IsPlaying;
@@ -83,10 +142,21 @@ public partial class PlayerViewModel : ObservableObject
             
             _lastUpdateTime = DateTime.Now;
             _basePosition = Media.Position;
+            CurrentDuration = Media.Duration;
+            CurrentPosition = _basePosition;
             FormattedDuration = FormatTime(Media.Duration);
+            FormattedPosition = FormatTime(_basePosition);
             PlayPauseIcon = Media.IsPlaying ? "\uE769" : "\uE768"; // Pause : Play
 
-            _smtcService.UpdateMediaState(Media.Title, Media.Artist, Media.Album, Media.IsPlaying, Media.Position, Media.Duration);
+            if (hasMedia)
+            {
+                _smtcService.UpdateMediaState(Media.Title, Media.Artist, Media.Album, Media.IsPlaying, Media.Position, Media.Duration);
+                _smtcService.UpdateTimeline(CurrentPosition, CurrentDuration);
+            }
+            else
+            {
+                _smtcService.ClearMediaState();
+            }
         });
     }
 
@@ -99,6 +169,7 @@ public partial class PlayerViewModel : ObservableObject
             if (estimatedPosition > Media.Duration) estimatedPosition = Media.Duration;
 
             Media.Position = estimatedPosition;
+            CurrentPosition = estimatedPosition;
             FormattedPosition = FormatTime(estimatedPosition);
             
             _smtcService.UpdateTimeline(estimatedPosition, Media.Duration);
@@ -135,9 +206,17 @@ public partial class PlayerViewModel : ObservableObject
     {
         Media = new MediaState();
         IsWaitingForConnection = true;
+        
+        var loader = new Microsoft.Windows.ApplicationModel.Resources.ResourceLoader();
+        DisplayTitle = loader.GetString("NoMediaPlaying/Text") ?? "No Media Playing";
+        DisplayArtist = loader.GetString("UnknownArtist/Text") ?? "Unknown Artist";
+        DisplayAlbum = loader.GetString("UnknownAlbum/Text") ?? "Unknown Album";
+
         FormattedPosition = "00:00";
         FormattedDuration = "00:00";
+        CurrentPosition = 0;
+        CurrentDuration = 0;
         PlayPauseIcon = "\uE768";
-        _smtcService.UpdateMediaState("", "", "", false, 0, 0);
+        _smtcService.ClearMediaState();
     }
 }

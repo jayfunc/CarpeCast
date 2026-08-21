@@ -1,21 +1,21 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using WindowsMediaReceiver.Models;
+using CarpeCast.Models;
 
-namespace WindowsMediaReceiver.Services;
+namespace CarpeCast.Services;
 
 public class NetworkService : INetworkService
 {
     private readonly ISettingsService _settings;
     private CancellationTokenSource? _cts;
     private UdpClient? _dataClient;
-    private EndPoint? _androidEndpoint;
-    private int _androidCommandPort = 5002;
+
+    public IPEndPoint? ActiveEndpoint { get; set; }
 
     public event EventHandler<MediaStateReceivedEventArgs>? MediaStateReceived;
 
@@ -93,7 +93,7 @@ public class NetworkService : INetworkService
                 while (!token.IsCancellationRequested)
                 {
                     var result = await _dataClient.ReceiveAsync();
-                    _androidEndpoint = result.RemoteEndPoint;
+                    var incomingEndpoint = result.RemoteEndPoint;
 
                     string jsonString = Encoding.UTF8.GetString(result.Buffer);
                     using var document = JsonDocument.Parse(jsonString);
@@ -103,8 +103,8 @@ public class NetworkService : INetworkService
                         MediaStateReceived?.Invoke(this, new MediaStateReceivedEventArgs
                         {
                             State = new MediaState(),
-                            CommandPort = _androidCommandPort,
-                            SenderIp = result.RemoteEndPoint.Address.ToString(),
+                            SenderIp = incomingEndpoint.Address.ToString(),
+                            SenderEndpoint = incomingEndpoint,
                             IsDisconnect = true
                         });
                         continue;
@@ -123,16 +123,18 @@ public class NetworkService : INetworkService
                         RemoteOsVersion = document.RootElement.TryGetProperty("osVersion", out var osProp) ? osProp.GetString() ?? "Android" : "Android"
                     };
 
+                    int cmdPort = 5002;
                     if (document.RootElement.TryGetProperty("commandPort", out var cmdPortProp))
                     {
-                        _androidCommandPort = cmdPortProp.GetInt32();
+                        cmdPort = cmdPortProp.GetInt32();
                     }
 
                     MediaStateReceived?.Invoke(this, new MediaStateReceivedEventArgs
                     {
                         State = state,
-                        CommandPort = _androidCommandPort,
-                        SenderIp = result.RemoteEndPoint.Address.ToString()
+                        CommandPort = cmdPort,
+                        SenderIp = result.RemoteEndPoint.Address.ToString(),
+                        SenderEndpoint = incomingEndpoint
                     });
                 }
             }
@@ -145,16 +147,31 @@ public class NetworkService : INetworkService
 
     public async Task SendCommandAsync(string command)
     {
-        if (_androidEndpoint is IPEndPoint ipEndpoint)
+        if (ActiveEndpoint != null)
+        {
+            await SendCommandToEndpointAsync(command, ActiveEndpoint);
+        }
+    }
+
+    public async Task SendCommandToEndpointAsync(string command, IPEndPoint endpoint)
+    {
+        if (_dataClient != null)
         {
             try
             {
-                using var client = new UdpClient();
-                var endpoint = new IPEndPoint(ipEndpoint.Address, _androidCommandPort);
                 byte[] data = Encoding.UTF8.GetBytes(command);
-                await client.SendAsync(data, data.Length, endpoint);
+                await _dataClient.SendAsync(data, data.Length, endpoint);
             }
             catch { }
         }
+    }
+
+    public void DisconnectLocal()
+    {
+        MediaStateReceived?.Invoke(this, new MediaStateReceivedEventArgs
+        {
+            State = new MediaState(),
+            IsDisconnect = true
+        });
     }
 }

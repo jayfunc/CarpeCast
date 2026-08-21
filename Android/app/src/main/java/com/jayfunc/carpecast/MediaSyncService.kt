@@ -118,38 +118,57 @@ class MediaSyncService : NotificationListenerService() {
             })
         }
         
-        if (activeControllers.isNotEmpty()) {
-            sendMediaState(activeControllers.first())
-        }
+        sendMediaState(activeControllers.firstOrNull())
     }
 
-    private fun sendMediaState(controller: MediaController) {
-        val metadata = controller.metadata
-        val playbackState = controller.playbackState
-
-        val title = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE) ?: "Unknown"
-        val artist = metadata?.getString(MediaMetadata.METADATA_KEY_ARTIST) ?: "Unknown"
-        val album = metadata?.getString(MediaMetadata.METADATA_KEY_ALBUM) ?: ""
-        val isPlaying = playbackState?.state == PlaybackState.STATE_PLAYING
-        var position = playbackState?.position ?: 0L
-        if (playbackState?.state == PlaybackState.STATE_PLAYING) {
-            val timeDelta = android.os.SystemClock.elapsedRealtime() - playbackState.lastPositionUpdateTime
-            position += (timeDelta * playbackState.playbackSpeed).toLong()
+    private fun sendMediaState(controller: MediaController?) {
+        val prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
+        
+        var title = ""
+        var artist = ""
+        var album = ""
+        var isPlaying = false
+        var position = 0L
+        var duration = 0L
+        
+        if (controller != null) {
+            val allowAll = prefs.getBoolean("allow_all_sources", true)
+            val allowedSet = prefs.getStringSet("allowed_sources", emptySet()) ?: emptySet()
+            if (!allowAll && !allowedSet.contains(controller.packageName)) return
+            
+            val metadata = controller.metadata
+            val playbackState = controller.playbackState
+            title = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE) ?: "Unknown"
+            artist = metadata?.getString(MediaMetadata.METADATA_KEY_ARTIST) ?: "Unknown"
+            album = metadata?.getString(MediaMetadata.METADATA_KEY_ALBUM) ?: ""
+            isPlaying = playbackState?.state == PlaybackState.STATE_PLAYING
+            position = playbackState?.position ?: 0L
+            if (playbackState?.state == PlaybackState.STATE_PLAYING) {
+                val timeDelta = android.os.SystemClock.elapsedRealtime() - playbackState.lastPositionUpdateTime
+                position += (timeDelta * playbackState.playbackSpeed).toLong()
+            }
+            duration = metadata?.getLong(MediaMetadata.METADATA_KEY_DURATION) ?: 0L
+            
+            val albumArt = metadata?.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
+                ?: metadata?.getBitmap(MediaMetadata.METADATA_KEY_ART)
+            
+            MediaStateRepository.updateMediaState(
+                title = title, artist = artist, album = album, isPlaying = isPlaying,
+                position = position, duration = duration, albumArt = albumArt, packageName = controller.packageName
+            )
+        } else {
+            MediaStateRepository.updateMediaState(
+                title = "", artist = "", album = "", isPlaying = false,
+                position = 0L, duration = 0L, albumArt = null, packageName = null
+            )
         }
-        val duration = metadata?.getLong(MediaMetadata.METADATA_KEY_DURATION) ?: 0L
-        val albumArt = metadata?.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
-            ?: metadata?.getBitmap(MediaMetadata.METADATA_KEY_ART)
-        val pName = controller.packageName
-
-        MediaStateRepository.updateMediaState(
-            title = title, artist = artist, album = album, isPlaying = isPlaying,
-            position = position, duration = duration, albumArt = albumArt, packageName = pName
-        )
 
         val ip = selectedPcIp ?: return
-
-        val prefs = getSharedPreferences("settings", MODE_PRIVATE)
         val deviceName = prefs.getString("device_name", "Android Device") ?: "Android Device"
+        val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as android.app.UiModeManager
+        val isTv = uiModeManager.currentModeType == android.content.res.Configuration.UI_MODE_TYPE_TELEVISION
+        val isTablet = (resources.configuration.screenLayout and android.content.res.Configuration.SCREENLAYOUT_SIZE_MASK) >= android.content.res.Configuration.SCREENLAYOUT_SIZE_LARGE
+        val devType = if (isTv) "TV" else if (isTablet) "Tablet" else "Phone"
 
         val json = JSONObject().apply {
             put("title", title)
@@ -160,7 +179,7 @@ class MediaSyncService : NotificationListenerService() {
             put("duration", duration)
             put("commandPort", commandPort)
             put("deviceName", deviceName)
-            put("deviceType", "Phone")
+            put("deviceType", devType)
             put("osVersion", "Android ${android.os.Build.VERSION.RELEASE}")
         }
         
@@ -222,7 +241,7 @@ class MediaSyncService : NotificationListenerService() {
                             
                             if (selectedPcIp == packet.address) {
                                 Handler(Looper.getMainLooper()).post {
-                                    activeControllers.firstOrNull()?.let { sendMediaState(it) }
+                                    sendMediaState(activeControllers.firstOrNull())
                                 }
                             }
                         }
@@ -264,13 +283,24 @@ class MediaSyncService : NotificationListenerService() {
         // 2. Data Socket (Send & Receive)
         try {
             dataSocket = DatagramSocket()
-            dataSocket?.soTimeout = 2000
+            Thread {
+                try {
+                    val buffer = ByteArray(1024)
+                    while (isRunning) {
+                        val packet = DatagramPacket(buffer, buffer.size)
+                        dataSocket?.receive(packet)
+                        val cmd = String(packet.data, 0, packet.length)
+                        handleCommand(cmd)
+                    }
+                } catch (e: Exception) {}
+            }.start()
         } catch (e: Exception) { }
 
         // 3. Command Thread (For Sender Mode)
         Thread {
             try {
-                commandSocket = DatagramSocket(commandPort)
+                commandSocket = DatagramSocket(0) // Bind to ephemeral port
+                commandPort = commandSocket?.localPort ?: 5002
                 val buffer = ByteArray(1024)
                 while (isRunning) {
                     val packet = DatagramPacket(buffer, buffer.size)
@@ -291,7 +321,7 @@ class MediaSyncService : NotificationListenerService() {
             if (ipStr != null && discoveredPcs.containsKey(ipStr)) {
                 selectedPcIp = discoveredPcs[ipStr]
                 MediaStateRepository.updateSelectedPcIp(ipStr)
-                activeControllers.firstOrNull()?.let { sendMediaState(it) }
+                sendMediaState(activeControllers.firstOrNull())
             }
             return START_STICKY
         }

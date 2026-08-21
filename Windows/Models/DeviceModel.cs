@@ -1,10 +1,12 @@
-using System;
+﻿using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace WindowsMediaReceiver.Models;
+namespace CarpeCast.Models;
 
 public partial class DeviceModel : ObservableObject
 {
+    public System.Net.IPEndPoint? Endpoint { get; set; }
+
     [ObservableProperty]
     public partial string IPAddress { get; set; } = string.Empty;
 
@@ -17,4 +19,5 @@ public partial class DeviceModel : ObservableObject
     [ObservableProperty]
     public partial string OsVersion { get; set; } = string.Empty;
 
+    public MediaState? LastMediaState { get; set; }
 }

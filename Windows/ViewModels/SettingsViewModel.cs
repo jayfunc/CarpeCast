@@ -1,8 +1,8 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using WindowsMediaReceiver.Services;
+using CarpeCast.Services;
 
-namespace WindowsMediaReceiver.ViewModels;
+namespace CarpeCast.ViewModels;
 
 public partial class SettingsViewModel : ObservableObject
 {

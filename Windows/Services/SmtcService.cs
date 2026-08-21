@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using Windows.Media;
 using Windows.Media.Playback;
 
-namespace WindowsMediaReceiver.Services;
+namespace CarpeCast.Services;
 
 public class SmtcService : ISmtcService
 {
@@ -51,6 +51,8 @@ public class SmtcService : ISmtcService
     public void UpdateMediaState(string title, string artist, string album, bool isPlaying, double position, double duration)
     {
         if (_smtc == null) return;
+        
+        _smtc.IsEnabled = true;
 
         var updater = _smtc.DisplayUpdater;
         updater.Type = MediaPlaybackType.Music;
@@ -85,5 +87,16 @@ public class SmtcService : ISmtcService
             EndTime = TimeSpan.FromMilliseconds(duration)
         };
         _smtc.UpdateTimelineProperties(timeline);
+    }
+
+    public void ClearMediaState()
+    {
+        if (_smtc == null) return;
+        
+        _smtc.PlaybackStatus = MediaPlaybackStatus.Closed;
+        var updater = _smtc.DisplayUpdater;
+        updater.ClearAll();
+        updater.Update();
+        _smtc.IsEnabled = false;
     }
 }

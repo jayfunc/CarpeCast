@@ -1,6 +1,6 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace WindowsMediaReceiver.ViewModels;
+namespace CarpeCast.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {

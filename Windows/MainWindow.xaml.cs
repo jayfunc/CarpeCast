@@ -1,12 +1,12 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Runtime.InteropServices;
-using WindowsMediaReceiver.Views;
-using WindowsMediaReceiver.ViewModels;
+using CarpeCast.Views;
+using CarpeCast.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace WindowsMediaReceiver;
+namespace CarpeCast;
 
 public sealed partial class MainWindow : Window
 {
@@ -15,13 +15,18 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         ViewModel = App.Current.Services.GetRequiredService<MainViewModel>();
+        
+        // Force early instantiation so they subscribe to NetworkService events immediately
+        App.Current.Services.GetRequiredService<PlayerViewModel>();
+        App.Current.Services.GetRequiredService<DevicesViewModel>();
+
         this.InitializeComponent();
 
         this.ExtendsContentIntoTitleBar = true;
         this.SetTitleBar(AppTitleBar);
 
         // Apply theme from settings
-        var settingsService = App.Current.Services.GetRequiredService<WindowsMediaReceiver.Services.ISettingsService>();
+        var settingsService = App.Current.Services.GetRequiredService<CarpeCast.Services.ISettingsService>();
         if (this.Content is FrameworkElement root)
         {
             root.RequestedTheme = settingsService.AppTheme switch

@@ -1,4 +1,4 @@
-using Windows.ApplicationModel;
+﻿using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -11,10 +11,10 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
 using Microsoft.Extensions.DependencyInjection;
-using WindowsMediaReceiver.Services;
-using WindowsMediaReceiver.ViewModels;
+using CarpeCast.Services;
+using CarpeCast.ViewModels;
 
-namespace WindowsMediaReceiver;
+namespace CarpeCast;
 
 /// <summary>
 /// Provides application-specific behavior to supplement the default Application class.

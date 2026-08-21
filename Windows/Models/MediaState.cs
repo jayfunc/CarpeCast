@@ -1,6 +1,6 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace WindowsMediaReceiver.Models;
+namespace CarpeCast.Models;
 
 public partial class MediaState : ObservableObject
 {

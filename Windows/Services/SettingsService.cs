@@ -1,6 +1,6 @@
-using Windows.Storage;
+﻿using Windows.Storage;
 
-namespace WindowsMediaReceiver.Services;
+namespace CarpeCast.Services;
 
 public class SettingsService : ISettingsService
 {

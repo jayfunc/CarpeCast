@@ -15,6 +15,7 @@
     <string name="waiting_for_pc">正在等待电脑端连接...</string>
     <string name="connection_status">连接状态</string>
     <string name="grant_service_permission">授予通知监听权限</string>
+    <string name="disconnect">断开连接</string>
 
     <!-- Bottom Navigation -->
     <string name="nav_player">播放控制</string>
@@ -34,10 +35,10 @@
     <string name="language_english">English</string>
     <string name="language_chinese">简体中文</string>
     <string name="settings_device_name">设备名称</string>
-    <string name="settings_discovery_port">发现端口 (默认: 5001)</string>
-    <string name="settings_discovery_port_desc">用于在局域网中发现设备。</string>
-    <string name="settings_command_port">命令接收端口 (默认: 5002)</string>
-    <string name="settings_command_port_desc">用于接收来自电脑的播放/暂停等指令。</string>
+    <string name="settings_discovery_port">发现端口</string>
+    <string name="settings_discovery_port_desc">用于在局域网中发现设备。默认: 5001</string>
+    <string name="settings_command_port">命令接收端口</string>
+    <string name="settings_command_port_desc">用于接收来自电脑的播放/暂停等指令。默认: 5002</string>
     <string name="settings_allowed_sources">允许的播放源</string>
     <string name="settings_allowed_sources_desc">选择要同步播放状态的应用</string>
     <string name="dialog_allowed_sources_title">选择允许的播放源</string>

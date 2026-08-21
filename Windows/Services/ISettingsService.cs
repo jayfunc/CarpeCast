@@ -1,4 +1,4 @@
-namespace WindowsMediaReceiver.Services;
+﻿namespace CarpeCast.Services;
 
 public interface ISettingsService
 {
