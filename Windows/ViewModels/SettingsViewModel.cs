@@ -120,7 +120,7 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private async System.Threading.Tasks.Task DownloadAndroid()
     {
-        await Windows.System.Launcher.LaunchUriAsync(new Uri("https://github.com/jayfunc/CarpeCast/releases"));
+        await Windows.System.Launcher.LaunchUriAsync(new Uri("https://github.com/jayfunc/CarpeCast"));
     }
 
     [RelayCommand]

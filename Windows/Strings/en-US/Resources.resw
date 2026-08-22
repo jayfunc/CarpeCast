@@ -81,4 +81,7 @@
   <data name="AboutBetterLyricsDesc.Text" xml:space="preserve"><value>For the best desktop lyric experience, try BetterLyrics.</value></data>
   <data name="DownloadAndroidTitle.Text" xml:space="preserve"><value>CarpeCast for Android</value></data>
   <data name="DownloadAndroidDesc.Text" xml:space="preserve"><value>Get the Android app to sync playback with your phone.</value></data>
+  <data name="SelectDevice.PlaceholderText" xml:space="preserve">
+    <value>Select Device</value>
+  </data>
 </root>

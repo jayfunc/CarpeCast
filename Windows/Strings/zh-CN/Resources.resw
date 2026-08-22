@@ -81,4 +81,7 @@
   <data name="AboutBetterLyricsDesc.Text" xml:space="preserve"><value>推荐搭配 BetterLyrics 获得最佳的桌面歌词体验。</value></data>
   <data name="DownloadAndroidTitle.Text" xml:space="preserve"><value>下载安卓版 CarpeCast</value></data>
   <data name="DownloadAndroidDesc.Text" xml:space="preserve"><value>在手机上安装 CarpeCast 以实现音乐同步。</value></data>
+  <data name="SelectDevice.PlaceholderText" xml:space="preserve">
+    <value>选择设备</value>
+  </data>
 </root>

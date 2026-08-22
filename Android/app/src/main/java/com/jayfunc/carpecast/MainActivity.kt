@@ -898,7 +898,7 @@ fun SettingsScreen(onNavigateToSources: () -> Unit) {
             ) {
                 val intent = Intent(
                     Intent.ACTION_VIEW,
-                    android.net.Uri.parse("https://github.com/jayfunc/CarpeCast/releases")
+                    android.net.Uri.parse("https://github.com/jayfunc/CarpeCast")
                 )
                 context.startActivity(intent)
             }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -43,15 +43,7 @@ public partial class PlayerViewModel : ObservableObject
     public partial string FormattedDuration { get; set; } = "00:00";
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(WaitingVisibility))]
-    [NotifyPropertyChangedFor(nameof(ConnectedVisibility))]
-    public partial bool IsWaitingForConnection { get; set; } = true;
-
-    [ObservableProperty]
     public partial string PlayPauseIcon { get; set; } = "\uE768"; // Play icon
-
-    public Microsoft.UI.Xaml.Visibility WaitingVisibility => IsWaitingForConnection ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
-    public Microsoft.UI.Xaml.Visibility ConnectedVisibility => !IsWaitingForConnection ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
 
     public DevicesViewModel DevicesVM { get; }
 
@@ -75,6 +67,8 @@ public partial class PlayerViewModel : ObservableObject
         _uiTimer.Interval = TimeSpan.FromMilliseconds(500);
         _uiTimer.Tick += UiTimer_Tick;
         _uiTimer.Start();
+
+        ResetState();
     }
 
     private void DevicesVM_ActiveDeviceChanged(object? sender, EventArgs e)
@@ -138,7 +132,6 @@ public partial class PlayerViewModel : ObservableObject
             bool playStateChanged = Media.IsPlaying != newState.IsPlaying;
 
             Media = newState;
-            IsWaitingForConnection = false;
             
             _lastUpdateTime = DateTime.Now;
             _basePosition = Media.Position;
@@ -205,7 +198,6 @@ public partial class PlayerViewModel : ObservableObject
     private void ResetState()
     {
         Media = new MediaState();
-        IsWaitingForConnection = true;
         
         var loader = new Microsoft.Windows.ApplicationModel.Resources.ResourceLoader();
         DisplayTitle = loader.GetString("NoMediaPlaying/Text") ?? "No Media Playing";
