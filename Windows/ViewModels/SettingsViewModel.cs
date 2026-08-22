@@ -62,7 +62,24 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     public partial bool IsRestartRequired { get; set; }
 
-    public string VersionPrefix => $"v1.0.0 ({VersionInfo.Date} - ";
+    public string VersionPrefix
+    {
+        get
+        {
+            string version = "1.0.0";
+            try
+            {
+                var v = Windows.ApplicationModel.Package.Current.Id.Version;
+                version = $"{v.Major}.{v.Minor}.{v.Build}";
+            }
+            catch
+            {
+                var v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+                if (v != null) version = $"{v.Major}.{v.Minor}.{v.Build}";
+            }
+            return $"v{version} ({VersionInfo.Date} - ";
+        }
+    }
     public string CommitHash => VersionInfo.Hash;
     public Uri CommitUri => new Uri($"https://github.com/jayfunc/CarpeCast/commit/{VersionInfo.Hash}");
 
