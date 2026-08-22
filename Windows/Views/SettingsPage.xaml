@@ -176,14 +176,38 @@
                 x:Uid="DownloadAndroidCard"
                 Command="{x:Bind ViewModel.DownloadAndroidCommand}"
                 IsClickEnabled="True">
-                <tk:SettingsCard.HeaderIcon>
-                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8CF;" />
-                </tk:SettingsCard.HeaderIcon>
                 <tk:SettingsCard.Header>
-                    <TextBlock x:Uid="DownloadAndroidTitle" Text="CarpeCast for Android" />
+                    <Grid>
+                        <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+                            <Grid.RenderTransform>
+                                <TranslateTransform X="0" Y="8" />
+                            </Grid.RenderTransform>
+                            <Image
+                                Width="22"
+                                Height="22"
+                                Source="/Assets/Square150x150Logo.scale-200.png" />
+                            <Image
+                                Width="14"
+                                Height="14"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom"
+                                Source="/Assets/android-logo.svg">
+                                <Image.RenderTransform>
+                                    <TranslateTransform X="4" Y="4" />
+                                </Image.RenderTransform>
+                            </Image>
+                        </Grid>
+                        <TextBlock
+                            x:Uid="DownloadAndroidTitle"
+                            Margin="42,0,0,0"
+                            Text="CarpeCast for Android" />
+                    </Grid>
                 </tk:SettingsCard.Header>
                 <tk:SettingsCard.Description>
-                    <TextBlock x:Uid="DownloadAndroidDesc" Text="Get the Android app to sync playback with your phone." />
+                    <TextBlock
+                        x:Uid="DownloadAndroidDesc"
+                        Margin="42,0,0,0"
+                        Text="Get the Android app to sync playback with your phone." />
                 </tk:SettingsCard.Description>
                 <FontIcon
                     FontFamily="Segoe Fluent Icons"
@@ -197,7 +221,7 @@
                 Command="{x:Bind ViewModel.OpenBetterLyricsCommand}"
                 IsClickEnabled="True">
                 <tk:SettingsCard.HeaderIcon>
-                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE946;" />
+                    <ImageIcon Source="/Assets/BetterLyricsLogo.png" />
                 </tk:SettingsCard.HeaderIcon>
                 <tk:SettingsCard.Header>
                     <TextBlock x:Uid="AboutBetterLyricsTitle" Text="BetterLyrics" />

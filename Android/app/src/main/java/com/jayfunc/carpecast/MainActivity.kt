@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -347,7 +348,9 @@ fun PlayerScreen(state: MediaState) {
                             .fillMaxWidth(0.8f),
                         contentAlignment = Alignment.Center
                     ) {
-                        Box(modifier = Modifier.fillMaxWidth().aspectRatio(1f)) {
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)) {
                             if (state.albumArt != null) {
                                 Image(
                                     bitmap = state.albumArt!!.asImageBitmap(),
@@ -387,7 +390,8 @@ fun PlayerScreen(state: MediaState) {
                                     try {
                                         val appInfo = pm.getApplicationInfo(state.packageName, 0)
                                         val appLabel = pm.getApplicationLabel(appInfo).toString()
-                                        val icon = pm.getApplicationIcon(appInfo).toBitmap().asImageBitmap()
+                                        val icon = pm.getApplicationIcon(appInfo).toBitmap()
+                                            .asImageBitmap()
                                         Pair(appLabel, icon)
                                     } catch (e: PackageManager.NameNotFoundException) {
                                         null
@@ -405,7 +409,8 @@ fun PlayerScreen(state: MediaState) {
                                             .padding(12.dp)
                                             .clip(RoundedCornerShape(50))
                                             .clickable {
-                                                val intent = pm.getLaunchIntentForPackage(state.packageName)
+                                                val intent =
+                                                    pm.getLaunchIntentForPackage(state.packageName)
                                                 if (intent != null) {
                                                     context.startActivity(intent)
                                                 }
@@ -414,7 +419,10 @@ fun PlayerScreen(state: MediaState) {
                                     ) {
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                                            modifier = Modifier.padding(
+                                                horizontal = 10.dp,
+                                                vertical = 6.dp
+                                            )
                                         ) {
                                             Image(
                                                 bitmap = icon,
@@ -424,7 +432,9 @@ fun PlayerScreen(state: MediaState) {
                                             Spacer(modifier = Modifier.width(6.dp))
                                             Text(
                                                 text = appLabel,
-                                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                                                style = MaterialTheme.typography.labelMedium.copy(
+                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                                )
                                             )
                                         }
                                     }
@@ -748,8 +758,16 @@ fun SettingsScreen(onNavigateToSources: () -> Unit) {
             val uriHandler = LocalUriHandler.current
             val annotatedString = buildAnnotatedString {
                 append("v${BuildConfig.VERSION_NAME} (${BuildConfig.GIT_DATE} - ")
-                pushStringAnnotation(tag = "URL", annotation = "https://github.com/jayfunc/CarpeCast/commit/${BuildConfig.GIT_HASH}")
-                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline)) {
+                pushStringAnnotation(
+                    tag = "URL",
+                    annotation = "https://github.com/jayfunc/CarpeCast/commit/${BuildConfig.GIT_HASH}"
+                )
+                withStyle(
+                    style = SpanStyle(
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline
+                    )
+                ) {
                     append(BuildConfig.GIT_HASH)
                 }
                 pop()
@@ -757,7 +775,10 @@ fun SettingsScreen(onNavigateToSources: () -> Unit) {
             }
             ClickableText(
                 text = annotatedString,
-                style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center),
+                style = MaterialTheme.typography.bodySmall.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                ),
                 onClick = { offset ->
                     annotatedString.getStringAnnotations(tag = "URL", start = offset, end = offset)
                         .firstOrNull()?.let { annotation ->
@@ -869,20 +890,30 @@ fun SettingsScreen(onNavigateToSources: () -> Unit) {
             SettingItem(
                 title = stringResource(R.string.settings_download_windows_title),
                 desc = stringResource(R.string.settings_download_windows_desc),
-                icon = R.drawable.ic_desktop,
+                icon = R.drawable.ic_carpecast_logo,
+                tintIcon = false,
+                secondaryIcon = R.drawable.ic_windows11_logo,
+                tintSecondaryIcon = false,
                 position = SettingItemPosition.Top
-            ) { 
-                val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/jayfunc/CarpeCast/releases"))
+            ) {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    android.net.Uri.parse("https://github.com/jayfunc/CarpeCast/releases")
+                )
                 context.startActivity(intent)
             }
 
             SettingItem(
                 title = "BetterLyrics",
                 desc = stringResource(R.string.settings_betterlyrics_desc),
-                icon = R.drawable.ic_music,
+                icon = R.drawable.ic_betterlyrics_logo,
+                tintIcon = false,
                 position = SettingItemPosition.Bottom
-            ) { 
-                val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/jayfunc/BetterLyrics"))
+            ) {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    android.net.Uri.parse("https://github.com/jayfunc/BetterLyrics")
+                )
                 context.startActivity(intent)
             }
         }
@@ -1051,6 +1082,9 @@ fun SettingItem(
     desc: String? = null,
     value: String? = null,
     icon: Int,
+    tintIcon: Boolean = true,
+    secondaryIcon: Int? = null,
+    tintSecondaryIcon: Boolean = true,
     position: SettingItemPosition = SettingItemPosition.Single,
     onClick: () -> Unit
 ) {
@@ -1087,14 +1121,47 @@ fun SettingItem(
                 }
             } else null,
             leadingContent = {
-                Icon(
-                    painter = painterResource(id = icon),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .padding(start = 8.dp, end = 8.dp)
-                        .size(24.dp)
-                )
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                ) {
+                    if (tintIcon) {
+                        Icon(
+                            painter = painterResource(id = icon),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = icon),
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    if (secondaryIcon != null) {
+                        Box(
+                            modifier = Modifier.size(24.dp),
+                            contentAlignment = Alignment.BottomEnd
+                        ) {
+                            val secModifier = Modifier.size(12.dp).offset(x = 4.dp, y = 4.dp)
+                            if (tintSecondaryIcon) {
+                                Icon(
+                                    painter = painterResource(id = secondaryIcon),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = secModifier
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(id = secondaryIcon),
+                                    contentDescription = null,
+                                    modifier = secModifier
+                                )
+                            }
+                        }
+                    }
+                }
             })
     }
 }
