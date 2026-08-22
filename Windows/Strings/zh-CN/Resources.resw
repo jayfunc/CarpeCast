@@ -77,7 +77,7 @@
   <data name="ShowOnStartupLabel.Text" xml:space="preserve"><value>启动时显示主窗口</value></data>
   <data name="SystemStartupLabel.Text" xml:space="preserve"><value>打开 Windows 自启设置</value></data>
   <data name="SystemStartupDesc.Text" xml:space="preserve"><value>配置 CarpeCast 是否在登录 Windows 时自动启动。</value></data>
-  <data name="AboutBetterLyricsTitle.Text" xml:space="preserve"><value>BetterLyrics (桌面歌词)</value></data>
+  <data name="AboutBetterLyricsTitle.Text" xml:space="preserve"><value>BetterLyrics</value></data>
   <data name="AboutBetterLyricsDesc.Text" xml:space="preserve"><value>推荐搭配 BetterLyrics 获得最佳的桌面歌词体验。</value></data>
   <data name="DownloadAndroidTitle.Text" xml:space="preserve"><value>下载安卓版 CarpeCast</value></data>
   <data name="DownloadAndroidDesc.Text" xml:space="preserve"><value>在手机上安装 CarpeCast 以实现音乐同步。</value></data>

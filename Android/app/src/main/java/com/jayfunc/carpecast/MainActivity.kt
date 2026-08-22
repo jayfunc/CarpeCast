@@ -1185,7 +1185,7 @@ fun AllowedSourcesScreen(onBack: () -> Unit) {
             val apps = pm.getInstalledPackages(PackageManager.GET_META_DATA).filter {
                 it.applicationInfo != null && pm.getLaunchIntentForPackage(it.packageName) != null
             }.map {
-                val appInfo = it.applicationInfo
+                val appInfo = it.applicationInfo!!
                 val label = pm.getApplicationLabel(appInfo).toString()
                 val icon = pm.getApplicationIcon(appInfo).toBitmap().asImageBitmap()
                 Triple(it.packageName, label, icon)
