@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.jayfunc.carpecast"
-    compileSdk = 34
+    compileSdk = 35
 
     val gitDate = providers.exec { commandLine("git", "log", "-1", "--format=%cd", "--date=format:%Y-%m-%d %H:%M") }.standardOutput.asText.getOrElse("Unknown").trim()
     val gitHash = providers.exec { commandLine("git", "rev-parse", "--short", "HEAD") }.standardOutput.asText.getOrElse("Unknown").trim()
@@ -13,7 +13,7 @@ android {
     defaultConfig {
         applicationId = "com.jayfunc.carpecast"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
         
