@@ -24,6 +24,7 @@
 
     <!-- Settings -->
     <string name="settings_title">设置</string>
+    <string name="settings_network">网络</string>
     <string name="settings_theme">外观主题</string>
     <string name="settings_theme_desc">调整应用的深浅色外观</string>
     <string name="settings_language">语言</string>
@@ -35,6 +36,7 @@
     <string name="language_english">English</string>
     <string name="language_chinese">简体中文</string>
     <string name="settings_device_name">设备名称</string>
+    <string name="restore_default">恢复默认</string>
     <string name="settings_discovery_port">发现端口</string>
     <string name="settings_discovery_port_desc">用于在局域网中发现设备。默认: 5001</string>
     <string name="settings_command_port">命令接收端口</string>
@@ -45,4 +47,9 @@
     <string name="allow_all_sources">允许所有应用</string>
     <string name="no_media_apps_found">未找到音乐播放器</string>
     <string name="settings_save_restart">保存并重启服务</string>
+
+    <string name="settings_recommended">推荐</string>
+    <string name="settings_betterlyrics_desc">推荐搭配 BetterLyrics 获得最佳的桌面歌词体验。</string>
+    <string name="settings_download_windows_title">下载 PC 版 CarpeCast</string>
+    <string name="settings_download_windows_desc">在电脑上安装 CarpeCast 以实现音乐同步。</string>
 </resources>

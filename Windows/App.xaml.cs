@@ -1,4 +1,4 @@
-﻿using Windows.ApplicationModel;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -45,7 +45,12 @@ public partial class App : Application
     protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
         _window = new MainWindow();
-        _window.Activate();
+        
+        var settingsService = Services.GetRequiredService<ISettingsService>();
+        if (settingsService.ShowOnStartup)
+        {
+            _window.Activate();
+        }
     }
 
     private static IServiceProvider ConfigureServices()

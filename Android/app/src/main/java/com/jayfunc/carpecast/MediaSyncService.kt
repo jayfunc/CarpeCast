@@ -1,11 +1,7 @@
 package com.jayfunc.carpecast
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.media.MediaMetadata
 import android.media.session.MediaController
 import android.media.session.MediaSessionManager
@@ -14,9 +10,6 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.service.notification.NotificationListenerService
-import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,32 +23,40 @@ import java.util.concurrent.ConcurrentHashMap
 
 class MediaSyncService : NotificationListenerService() {
     private val TAG = "MediaSyncService"
-    
+
     private lateinit var mediaSessionManager: MediaSessionManager
     private var activeControllers: List<MediaController> = emptyList()
-    
+
     private var selectedPcIp: InetAddress? = null
     private val discoveredPcs = ConcurrentHashMap<String, InetAddress>()
     private val pcLastSeen = ConcurrentHashMap<String, Long>()
-    
+
     private var discoverySocket: DatagramSocket? = null
     private var dataSocket: DatagramSocket? = null
     private var commandSocket: DatagramSocket? = null
-    
+
     private val pcDataPorts = ConcurrentHashMap<String, Int>()
     private val pcInfoMap = ConcurrentHashMap<String, PcInfo>()
     private var discoveryPort = 5001
     private var commandPort = 5002
-    
-    @Volatile private var isRunning = false
-    
+
+    @Volatile
+    private var isRunning = false
+
     private val serviceScope = CoroutineScope(Dispatchers.IO + Job())
 
     private val settingsReceiver = object : android.content.BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == "com.jayfunc.carpecast.RELOAD_SETTINGS") {
-                val componentName = android.content.ComponentName(this@MediaSyncService, MediaSyncService::class.java)
-                updateControllers(mediaSessionManager.getActiveSessions(componentName))
+                val componentName = android.content.ComponentName(
+                    this@MediaSyncService,
+                    MediaSyncService::class.java
+                )
+                try {
+                    updateControllers(mediaSessionManager.getActiveSessions(componentName))
+                } catch (e: SecurityException) {
+                    android.util.Log.e("MediaSyncService", "Missing permission to control media", e)
+                }
             }
         }
     }
@@ -64,11 +65,11 @@ class MediaSyncService : NotificationListenerService() {
         super.onCreate()
         mediaSessionManager = getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
         isRunning = true
-        
+
         val prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
         discoveryPort = prefs.getInt("discovery_port", 5001)
         commandPort = prefs.getInt("command_port", 5002)
-        
+
         android.content.IntentFilter("com.jayfunc.carpecast.RELOAD_SETTINGS").also {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 registerReceiver(settingsReceiver, it, Context.RECEIVER_NOT_EXPORTED)
@@ -76,7 +77,7 @@ class MediaSyncService : NotificationListenerService() {
                 registerReceiver(settingsReceiver, it)
             }
         }
-        
+
         startNetworkThreads()
     }
 
@@ -95,17 +96,16 @@ class MediaSyncService : NotificationListenerService() {
     }
 
 
-
     private fun updateControllers(controllers: List<MediaController>?) {
         val prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
         val allowAll = prefs.getBoolean("allow_all_sources", true)
         val allowedSet = prefs.getStringSet("allowed_sources", emptySet()) ?: emptySet()
 
         // Anti-Loop: Filter out our own package, and enforce allow-list if enabled
-        activeControllers = controllers?.filter { 
+        activeControllers = controllers?.filter {
             it.packageName != packageName && (allowAll || allowedSet.contains(it.packageName))
         } ?: emptyList()
-        
+
         activeControllers.forEach { controller ->
             controller.registerCallback(object : MediaController.Callback() {
                 override fun onPlaybackStateChanged(state: PlaybackState?) {
@@ -117,25 +117,25 @@ class MediaSyncService : NotificationListenerService() {
                 }
             })
         }
-        
+
         sendMediaState(activeControllers.firstOrNull())
     }
 
     private fun sendMediaState(controller: MediaController?) {
         val prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
-        
+
         var title = ""
         var artist = ""
         var album = ""
         var isPlaying = false
         var position = 0L
         var duration = 0L
-        
+
         if (controller != null) {
             val allowAll = prefs.getBoolean("allow_all_sources", true)
             val allowedSet = prefs.getStringSet("allowed_sources", emptySet()) ?: emptySet()
             if (!allowAll && !allowedSet.contains(controller.packageName)) return
-            
+
             val metadata = controller.metadata
             val playbackState = controller.playbackState
             title = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE) ?: "Unknown"
@@ -144,17 +144,24 @@ class MediaSyncService : NotificationListenerService() {
             isPlaying = playbackState?.state == PlaybackState.STATE_PLAYING
             position = playbackState?.position ?: 0L
             if (playbackState?.state == PlaybackState.STATE_PLAYING) {
-                val timeDelta = android.os.SystemClock.elapsedRealtime() - playbackState.lastPositionUpdateTime
+                val timeDelta =
+                    android.os.SystemClock.elapsedRealtime() - playbackState.lastPositionUpdateTime
                 position += (timeDelta * playbackState.playbackSpeed).toLong()
             }
             duration = metadata?.getLong(MediaMetadata.METADATA_KEY_DURATION) ?: 0L
-            
+
             val albumArt = metadata?.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
                 ?: metadata?.getBitmap(MediaMetadata.METADATA_KEY_ART)
-            
+
             MediaStateRepository.updateMediaState(
-                title = title, artist = artist, album = album, isPlaying = isPlaying,
-                position = position, duration = duration, albumArt = albumArt, packageName = controller.packageName
+                title = title,
+                artist = artist,
+                album = album,
+                isPlaying = isPlaying,
+                position = position,
+                duration = duration,
+                albumArt = albumArt,
+                packageName = controller.packageName
             )
         } else {
             MediaStateRepository.updateMediaState(
@@ -164,10 +171,12 @@ class MediaSyncService : NotificationListenerService() {
         }
 
         val ip = selectedPcIp ?: return
-        val deviceName = prefs.getString("device_name", "Android Device") ?: "Android Device"
+        val deviceName = prefs.getString("device_name", android.os.Build.MODEL) ?: android.os.Build.MODEL
         val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as android.app.UiModeManager
-        val isTv = uiModeManager.currentModeType == android.content.res.Configuration.UI_MODE_TYPE_TELEVISION
-        val isTablet = (resources.configuration.screenLayout and android.content.res.Configuration.SCREENLAYOUT_SIZE_MASK) >= android.content.res.Configuration.SCREENLAYOUT_SIZE_LARGE
+        val isTv =
+            uiModeManager.currentModeType == android.content.res.Configuration.UI_MODE_TYPE_TELEVISION
+        val isTablet =
+            (resources.configuration.screenLayout and android.content.res.Configuration.SCREENLAYOUT_SIZE_MASK) >= android.content.res.Configuration.SCREENLAYOUT_SIZE_LARGE
         val devType = if (isTv) "TV" else if (isTablet) "Tablet" else "Phone"
 
         val json = JSONObject().apply {
@@ -182,15 +191,16 @@ class MediaSyncService : NotificationListenerService() {
             put("deviceType", devType)
             put("osVersion", "Android ${android.os.Build.VERSION.RELEASE}")
         }
-        
+
         val targetDataPort = pcDataPorts[ip.hostAddress] ?: 5000
-        
+
         Thread {
             try {
                 val data = json.toString().toByteArray()
                 val packet = DatagramPacket(data, data.size, ip, targetDataPort)
                 dataSocket?.send(packet)
-            } catch (e: Exception) { }
+            } catch (e: Exception) {
+            }
         }.start()
     }
 
@@ -201,7 +211,8 @@ class MediaSyncService : NotificationListenerService() {
                 val data = command.toByteArray()
                 val packet = DatagramPacket(data, data.size, ip, 5002)
                 dataSocket?.send(packet)
-            } catch (e: Exception) { }
+            } catch (e: Exception) {
+            }
         }.start()
     }
 
@@ -220,25 +231,28 @@ class MediaSyncService : NotificationListenerService() {
                         if (msg.startsWith("CARPECAST_RECEIVER:")) {
                             val parts = msg.split(":")
                             val deviceName = if (parts.size > 1) parts[1] else "PC"
-                            val dataPort = if (parts.size > 2) parts[2].toIntOrNull() ?: 5000 else 5000
+                            val dataPort =
+                                if (parts.size > 2) parts[2].toIntOrNull() ?: 5000 else 5000
                             val deviceType = if (parts.size > 3) parts[3] else "Desktop"
                             val osVersion = if (parts.size > 4) parts[4] else "Windows"
-                            
+
                             val ipString = packet.address.hostAddress ?: continue
                             val isNew = !discoveredPcs.containsKey(ipString)
                             discoveredPcs[ipString] = packet.address
                             pcDataPorts[ipString] = dataPort
                             pcInfoMap[ipString] = PcInfo(deviceName, deviceType, osVersion)
                             pcLastSeen[ipString] = System.currentTimeMillis()
-                            
+
                             if (isNew || MediaStateRepository.currentState.value.pcInfoMap[ipString]?.name != deviceName) {
                                 if (selectedPcIp == null) {
                                     selectedPcIp = packet.address
                                     MediaStateRepository.updateSelectedPcIp(ipString)
                                 }
-                                MediaStateRepository.updateAvailablePcs(discoveredPcs.keys().toList(), pcInfoMap.toMap())
+                                MediaStateRepository.updateAvailablePcs(
+                                    discoveredPcs.keys().toList(), pcInfoMap.toMap()
+                                )
                             }
-                            
+
                             if (selectedPcIp == packet.address) {
                                 Handler(Looper.getMainLooper()).post {
                                     sendMediaState(activeControllers.firstOrNull())
@@ -262,7 +276,7 @@ class MediaSyncService : NotificationListenerService() {
                             pcInfoMap.remove(entry.key)
                             iterator.remove()
                             changed = true
-                            
+
                             if (selectedPcIp?.hostAddress == entry.key) {
                                 selectedPcIp = null
                                 MediaStateRepository.updateSelectedPcIp(null)
@@ -274,10 +288,14 @@ class MediaSyncService : NotificationListenerService() {
                         }
                     }
                     if (changed) {
-                        MediaStateRepository.updateAvailablePcs(discoveredPcs.keys().toList(), pcInfoMap.toMap())
+                        MediaStateRepository.updateAvailablePcs(
+                            discoveredPcs.keys().toList(),
+                            pcInfoMap.toMap()
+                        )
                     }
                 }
-            } catch (e: Exception) { }
+            } catch (e: Exception) {
+            }
         }.start()
 
         // 2. Data Socket (Send & Receive)
@@ -292,9 +310,11 @@ class MediaSyncService : NotificationListenerService() {
                         val cmd = String(packet.data, 0, packet.length)
                         handleCommand(cmd)
                     }
-                } catch (e: Exception) {}
+                } catch (e: Exception) {
+                }
             }.start()
-        } catch (e: Exception) { }
+        } catch (e: Exception) {
+        }
 
         // 3. Command Thread (For Sender Mode)
         Thread {
@@ -308,14 +328,15 @@ class MediaSyncService : NotificationListenerService() {
                     val cmd = String(packet.data, 0, packet.length)
                     handleCommand(cmd)
                 }
-            } catch (e: Exception) { }
+            } catch (e: Exception) {
+            }
         }.start()
 
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val action = intent?.action
-        
+
         if (action == "ACTION_SELECT_PC") {
             val ipStr = intent.getStringExtra("ip")
             if (ipStr != null && discoveredPcs.containsKey(ipStr)) {
@@ -325,14 +346,14 @@ class MediaSyncService : NotificationListenerService() {
             }
             return START_STICKY
         }
-        
+
         if (action == "ACTION_DISCONNECT_PC") {
             sendDisconnectToPc()
             selectedPcIp = null
             MediaStateRepository.updateSelectedPcIp(null)
             return START_STICKY
         }
-        
+
         if (action != null && activeControllers.isNotEmpty()) {
             val controller = activeControllers.firstOrNull()
             when (action) {
@@ -343,6 +364,7 @@ class MediaSyncService : NotificationListenerService() {
                         controller?.transportControls?.play()
                     }
                 }
+
                 "ACTION_NEXT" -> controller?.transportControls?.skipToNext()
                 "ACTION_PREV" -> controller?.transportControls?.skipToPrevious()
             }
@@ -357,7 +379,7 @@ class MediaSyncService : NotificationListenerService() {
                 MediaStateRepository.updateSelectedPcIp(null)
                 return@post
             }
-            
+
             val controller = activeControllers.firstOrNull() ?: return@post
             val transportControls = controller.transportControls
             when (cmd) {
@@ -368,6 +390,7 @@ class MediaSyncService : NotificationListenerService() {
                         transportControls.play()
                     }
                 }
+
                 "PLAY" -> transportControls.play()
                 "PAUSE" -> transportControls.pause()
                 "NEXT" -> transportControls.skipToNext()
@@ -375,7 +398,7 @@ class MediaSyncService : NotificationListenerService() {
             }
         }
     }
-    
+
     private fun sendDisconnectToPc() {
         val targetIp = selectedPcIp ?: return
         val targetPort = pcDataPorts[targetIp.hostAddress] ?: return
@@ -386,7 +409,8 @@ class MediaSyncService : NotificationListenerService() {
                 }.toString()
                 val data = json.toByteArray()
                 dataSocket?.send(DatagramPacket(data, data.size, targetIp, targetPort))
-            } catch (e: Exception) { }
+            } catch (e: Exception) {
+            }
         }
     }
 

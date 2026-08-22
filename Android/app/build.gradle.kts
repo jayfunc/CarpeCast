@@ -7,12 +7,18 @@ android {
     namespace = "com.jayfunc.carpecast"
     compileSdk = 34
 
+    val gitDate = providers.exec { commandLine("git", "log", "-1", "--format=%cd", "--date=format:%Y-%m-%d %H:%M") }.standardOutput.asText.getOrElse("Unknown").trim()
+    val gitHash = providers.exec { commandLine("git", "rev-parse", "--short", "HEAD") }.standardOutput.asText.getOrElse("Unknown").trim()
+
     defaultConfig {
         applicationId = "com.jayfunc.carpecast"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
+        
+        buildConfigField("String", "GIT_DATE", "\"${gitDate}\"")
+        buildConfigField("String", "GIT_HASH", "\"${gitHash}\"")
     }
 
     buildTypes {
@@ -29,6 +35,7 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
+        buildConfig = true
         viewBinding = true
         compose = true
     }

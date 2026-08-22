@@ -70,4 +70,15 @@
   <data name="DevicesDescription.Text" xml:space="preserve"><value>Manage the currently connected device here</value></data>
   <data name="DevicesWaiting.Text" xml:space="preserve"><value>Waiting for connection...</value></data>
   <data name="DevicesDisconnect.Text" xml:space="preserve"><value>Disconnect</value></data>
+  <data name="RestoreDefaultBtn.Content" xml:space="preserve"><value>Restore Default</value></data>
+  <data name="RestartPromptInfoBar.Title" xml:space="preserve"><value>Restart Required</value></data>
+  <data name="RestartPromptInfoBar.Message" xml:space="preserve"><value>Some changes require restarting the app to take effect.</value></data>
+  <data name="RestartNowBtn.Content" xml:space="preserve"><value>Restart Now</value></data>
+  <data name="ShowOnStartupLabel.Text" xml:space="preserve"><value>Show main window on startup</value></data>
+  <data name="SystemStartupLabel.Text" xml:space="preserve"><value>Open Windows Startup Settings</value></data>
+  <data name="SystemStartupDesc.Text" xml:space="preserve"><value>Configure whether CarpeCast launches automatically when you log in to Windows.</value></data>
+  <data name="AboutBetterLyricsTitle.Text" xml:space="preserve"><value>BetterLyrics</value></data>
+  <data name="AboutBetterLyricsDesc.Text" xml:space="preserve"><value>For the best desktop lyric experience, try BetterLyrics.</value></data>
+  <data name="DownloadAndroidTitle.Text" xml:space="preserve"><value>CarpeCast for Android</value></data>
+  <data name="DownloadAndroidDesc.Text" xml:space="preserve"><value>Get the Android app to sync playback with your phone.</value></data>
 </root>

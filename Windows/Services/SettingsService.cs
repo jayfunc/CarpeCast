@@ -1,4 +1,4 @@
-﻿using Windows.Storage;
+using Windows.Storage;
 
 namespace CarpeCast.Services;
 
@@ -15,8 +15,25 @@ public class SettingsService : ISettingsService
     public string DeviceName { get; set; } = "PC";
     public int DiscoveryPort { get; set; } = 5001;
     public int DataPort { get; set; } = 5000;
-    public string AppTheme { get; set; } = "System";
+    
+    private string _appTheme = "System";
+    public string AppTheme 
+    { 
+        get => _appTheme;
+        set 
+        {
+            if (_appTheme != value)
+            {
+                _appTheme = value;
+                ThemeChanged?.Invoke(value);
+            }
+        }
+    }
+
     public string AppLanguage { get; set; } = "zh-CN";
+    public bool ShowOnStartup { get; set; } = true;
+
+    public event System.Action<string> ThemeChanged;
 
     public void Initialize()
     {
@@ -32,6 +49,7 @@ public class SettingsService : ISettingsService
 
         AppTheme = _localSettings.Values["AppTheme"] as string ?? "System";
         AppLanguage = _localSettings.Values["AppLanguage"] as string ?? "zh-CN";
+        ShowOnStartup = _localSettings.Values["ShowOnStartup"] is bool sos ? sos : true;
     }
 
     public void Save()
@@ -41,6 +59,7 @@ public class SettingsService : ISettingsService
         _localSettings.Values["DataPort"] = DataPort;
         _localSettings.Values["AppTheme"] = AppTheme;
         _localSettings.Values["AppLanguage"] = AppLanguage;
+        _localSettings.Values["ShowOnStartup"] = ShowOnStartup;
 
         if (Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride != AppLanguage)
         {

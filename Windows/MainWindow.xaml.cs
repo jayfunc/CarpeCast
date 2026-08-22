@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Runtime.InteropServices;
@@ -27,15 +27,26 @@ public sealed partial class MainWindow : Window
 
         // Apply theme from settings
         var settingsService = App.Current.Services.GetRequiredService<CarpeCast.Services.ISettingsService>();
-        if (this.Content is FrameworkElement root)
+        
+        void ApplyTheme(string themeStr)
         {
-            root.RequestedTheme = settingsService.AppTheme switch
+            var themeEnum = themeStr switch
             {
                 "Light" => ElementTheme.Light,
                 "Dark" => ElementTheme.Dark,
                 _ => ElementTheme.Default
             };
+            
+            if (this.Content is FrameworkElement root)
+            {
+                root.RequestedTheme = themeEnum;
+            }
+            TrayIcon.RequestedTheme = themeEnum;
         }
+
+        ApplyTheme(settingsService.AppTheme);
+
+        settingsService.ThemeChanged += ApplyTheme;
     }
 
     private void NavView_Loaded(object sender, RoutedEventArgs e)

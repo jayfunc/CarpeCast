@@ -39,6 +39,7 @@
 
         <tb:TaskbarIcon
             x:Name="TrayIcon"
+            ContextMenuMode="SecondWindow"
             IconSource="/Assets/AppIcon.ico"
             ToolTipText="CarpeCast">
             <tb:TaskbarIcon.ContextFlyout>
