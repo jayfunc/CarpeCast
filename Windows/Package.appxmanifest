@@ -13,7 +13,7 @@
     Publisher="CN=E1428B0E-DC1D-4EA4-ACB1-4556569D5BA9"
     Version="1.0.1.0" />
 
-  <mp:PhoneIdentity PhoneProductId="66036aea-67eb-4073-8e6b-eebb2b1e211c" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="d9793976-1726-4445-b0b9-6d0bf47c0fa6" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>CarpeCast</DisplayName>
@@ -27,7 +27,8 @@
   </Dependencies>
 
   <Resources>
-    <Resource Language="x-generate"/>
+	<Resource Language="en"/>
+	<Resource Language="zh-CN"/>
   </Resources>
 
   <Applications>
