@@ -33,11 +33,14 @@ jobs:
     - name: Build with PyInstaller
       working-directory: ./Mac
       run: |
-        # 将编译好的 mac_nowplaying 作为资源打包进 Python 独立程序中
-        pyinstaller --onefile --add-binary "mac_nowplaying:." sender.py 
+        # 使用 --windowed 打包成 macOS 标准的 .app 应用程序包
+        pyinstaller --windowed --add-binary "mac_nowplaying:." sender.py 
+        # 压缩 .app 以防 GitHub Actions 上传时吞掉顶层目录
+        cd dist
+        zip -ry Mac-Sender.zip sender.app
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Mac-Sender
-        path: Mac/dist/sender
+        name: Mac-Sender-App
+        path: Mac/dist/Mac-Sender.zip
