@@ -87,7 +87,7 @@ The Mac sender uses the private `MediaRemote` framework to globally capture trac
 To build the executable without a Mac:
 1. Push the `Mac` directory and the `.github` workflows to your GitHub repository.
 2. GitHub Actions will automatically compile the Swift helper and package the Python script with a graphical UI using PyInstaller.
-3. Download the `Mac-Sender` executable from the **Actions** tab.
+3. Download the `CarpeCast-Mac` executable from the **Actions** tab.
 
 *Note: The Mac sender includes a GUI and will automatically discover Windows receivers on your local network via UDP. Mac users may need to grant execution permissions (`chmod +x`) upon first run.*
 

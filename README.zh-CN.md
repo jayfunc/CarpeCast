@@ -87,7 +87,7 @@ Mac 发送端通过底层的 `MediaRemote` 框架全局抓取任意播放器（�
 如何云端自动打包（无 Mac 环境）：
 1. 将 `Mac` 目录与 `.github` 工作流文件 Push 到你的 GitHub 仓库中。
 2. GitHub Actions 会自动触发编译，利用原生的 `swiftc` 编译 Swift 辅助程序，并通过 `pyinstaller` 打包带有图形界面的 Python 脚本。
-3. 编译完成后，在 GitHub 仓库的 **Actions** 标签页即可下载打包好的 `Mac-Sender` 可执行文件。
+3. 编译完成后，在 GitHub 仓库的 **Actions** 标签页即可下载打包好的 `CarpeCast-Mac` 可执行文件。
 
 *测试注意事项：Mac 发送端包含图形界面，能通过 UDP 自动发现局域网内的 Windows 接收端，无需手动配置 IP。Mac 用户首次运行可能需要执行 `chmod +x` 赋予执行权限，或在系统安全设置中允许运行。*
 

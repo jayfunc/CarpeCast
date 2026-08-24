@@ -33,14 +33,18 @@ jobs:
     - name: Build with PyInstaller
       working-directory: ./Mac
       run: |
-        # 使用 --windowed 打包成 macOS 标准的 .app 应用程序包
-        pyinstaller --windowed --add-binary "mac_nowplaying:." sender.py 
+        # 将项目中已有的 Logo 转换为 macOS 专用的 .icns 格式
+        sips -s format icns ../Windows/Assets/CarpeCast-logo.png --out icon.icns
+        
+        # 使用 --windowed 打包，指定名字和图标
+        pyinstaller --windowed --name "CarpeCast" --icon=icon.icns --add-binary "mac_nowplaying:." sender.py 
+        
         # 压缩 .app 以防 GitHub Actions 上传时吞掉顶层目录
         cd dist
-        zip -ry Mac-Sender.zip sender.app
+        zip -ry CarpeCast-Mac.zip CarpeCast.app
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Mac-Sender-App
-        path: Mac/dist/Mac-Sender.zip
+        name: CarpeCast-Mac
+        path: Mac/dist/CarpeCast-Mac.zip
