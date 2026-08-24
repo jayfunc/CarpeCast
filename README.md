@@ -78,10 +78,24 @@ dotnet build Windows\CarpeCast.csproj
 dotnet run --project Windows\CarpeCast.csproj
 ```
 
+### Mac (Experimental)
+
+**Requirements:** GitHub account (for cloud building) or a local macOS environment with `swiftc` and Python 3.
+
+The Mac sender uses the private `MediaRemote` framework to globally capture track information from any player (Apple Music, Spotify, Chrome, etc.) and sends it to the Windows receiver over the local network. 
+
+To build the executable without a Mac:
+1. Push the `Mac` directory and the `.github` workflows to your GitHub repository.
+2. GitHub Actions will automatically compile the Swift helper and package the Python script with a graphical UI using PyInstaller.
+3. Download the `Mac-Sender` executable from the **Actions** tab.
+
+*Note: The Mac sender includes a GUI and will automatically discover Windows receivers on your local network via UDP. Mac users may need to grant execution permissions (`chmod +x`) upon first run.*
+
 ## Project Layout
 
 ```text
 Android/    Android sender: discovers receivers, reads media sessions, and handles remote commands
+Mac/        macOS sender (Experimental): globally captures media state
 Windows/    WinUI 3 receiver: displays media state and sends playback commands
 ```
 

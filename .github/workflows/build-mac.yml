@@ -1,0 +1,43 @@
+name: Build macOS App
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # 允许手动触发打包
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install PyInstaller
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+
+    - name: Compile Swift Helper
+      working-directory: ./Mac
+      run: |
+        # 编译 Swift 脚本为可执行的二进制文件
+        swiftc nowplaying.swift -o mac_nowplaying
+        chmod +x mac_nowplaying
+
+    - name: Build with PyInstaller
+      working-directory: ./Mac
+      run: |
+        # 将编译好的 mac_nowplaying 作为资源打包进 Python 独立程序中
+        pyinstaller --onefile --add-binary "mac_nowplaying:." sender.py 
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Mac-Sender
+        path: Mac/dist/sender

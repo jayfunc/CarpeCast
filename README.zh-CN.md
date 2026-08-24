@@ -78,10 +78,24 @@ dotnet build Windows\CarpeCast.csproj
 dotnet run --project Windows\CarpeCast.csproj
 ```
 
+### Mac (实验性)
+
+**要求：** GitHub 账号（用于云端自动打包），或拥有安装了 `swiftc` 和 Python 3 的本地 macOS 环境。
+
+Mac 发送端通过底层的 `MediaRemote` 框架全局抓取任意播放器（如 Apple Music、Spotify、Chrome 网页播放等）的曲目信息，并通过局域网发送给 Windows 接收端。
+
+如何云端自动打包（无 Mac 环境）：
+1. 将 `Mac` 目录与 `.github` 工作流文件 Push 到你的 GitHub 仓库中。
+2. GitHub Actions 会自动触发编译，利用原生的 `swiftc` 编译 Swift 辅助程序，并通过 `pyinstaller` 打包带有图形界面的 Python 脚本。
+3. 编译完成后，在 GitHub 仓库的 **Actions** 标签页即可下载打包好的 `Mac-Sender` 可执行文件。
+
+*测试注意事项：Mac 发送端包含图形界面，能通过 UDP 自动发现局域网内的 Windows 接收端，无需手动配置 IP。Mac 用户首次运行可能需要执行 `chmod +x` 赋予执行权限，或在系统安全设置中允许运行。*
+
 ## 项目结构
 
 ```text
 Android/    Android 发送端，负责发现设备、读取媒体会话并执行远程命令
+Mac/        macOS 发送端 (实验性)，利用 MediaRemote 全局抓取媒体状态
 Windows/    WinUI 3 接收端，负责显示媒体状态并发送播放控制命令
 ```
 
