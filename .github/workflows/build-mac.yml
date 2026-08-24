@@ -18,10 +18,10 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install PyInstaller
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pyinstaller
+        pip install pyinstaller pillow
 
     - name: Compile Swift Helper
       working-directory: ./Mac
@@ -33,8 +33,8 @@ jobs:
     - name: Build with PyInstaller
       working-directory: ./Mac
       run: |
-        # 将项目中已有的 Logo 转换为 macOS 专用的 .icns 格式
-        sips -s format icns ../Windows/Assets/CarpeCast-logo.png --out icon.icns
+        # 使用 Pillow 无损将 PNG 转换为 macOS 专用的 .icns 格式 (绕过 sips 的色彩配置文件报错)
+        python -c "from PIL import Image; Image.open('../Windows/Assets/CarpeCast-logo.png').resize((512,512)).save('icon.icns')"
         
         # 使用 --windowed 打包，指定名字和图标
         pyinstaller --windowed --name "CarpeCast" --icon=icon.icns --add-binary "mac_nowplaying:." sender.py 
