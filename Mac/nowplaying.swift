@@ -16,17 +16,23 @@ group.enter()
 
 var trackTitle = ""
 var trackArtist = ""
+var trackAlbum = ""
+var trackIsPlaying = "false"
+var trackDuration = 0.0
+var trackPosition = 0.0
 
 // 请求系统当前的播放信息
 MRMediaRemoteGetNowPlayingInfo(DispatchQueue.global()) { info in
-    // 提取歌名和歌手
+    // 提取信息并赋值给外部变量
     trackTitle = (info["kMRMediaRemoteNowPlayingInfoTitle"] as? String) ?? ""
     trackArtist = (info["kMRMediaRemoteNowPlayingInfoArtist"] as? String) ?? ""
-    let album = (info["kMRMediaRemoteNowPlayingInfoAlbum"] as? String) ?? ""
+    trackAlbum = (info["kMRMediaRemoteNowPlayingInfoAlbum"] as? String) ?? ""
+    
     let rate = (info["kMRMediaRemoteNowPlayingInfoPlaybackRate"] as? Double) ?? 0.0
-    let isPlaying = rate > 0.0 ? "true" : "false"
-    let duration = (info["kMRMediaRemoteNowPlayingInfoDuration"] as? Double) ?? 0.0
-    let position = (info["kMRMediaRemoteNowPlayingInfoElapsedTime"] as? Double) ?? 0.0
+    trackIsPlaying = rate > 0.0 ? "true" : "false"
+    
+    trackDuration = (info["kMRMediaRemoteNowPlayingInfoDuration"] as? Double) ?? 0.0
+    trackPosition = (info["kMRMediaRemoteNowPlayingInfoElapsedTime"] as? Double) ?? 0.0
     
     group.leave()
 }
@@ -36,5 +42,5 @@ group.wait()
 
 // 输出给 Python 解析，格式为：歌名|||歌手|||专辑|||是否播放|||进度|||总时长
 if !trackTitle.isEmpty {
-    print("\(trackTitle)|||\(trackArtist)|||\(album)|||\(isPlaying)|||\(position)|||\(duration)")
+    print("\(trackTitle)|||\(trackArtist)|||\(trackAlbum)|||\(trackIsPlaying)|||\(trackPosition)|||\(trackDuration)")
 }
