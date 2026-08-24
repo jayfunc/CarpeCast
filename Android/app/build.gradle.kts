@@ -42,6 +42,17 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.2"
     }
+
+    applicationVariants.all {
+        val variant = this
+        outputs.all {
+            // 在 Kotlin DSL 中，需要将其强转为内部实现类才能修改 outputFileName
+            val outputImpl = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+
+            // 举例：CarpeCast-v1.0.3-release.apk
+            outputImpl.outputFileName = "CarpeCast-v${variant.versionName}-${variant.name}.apk"
+        }
+    }
 }
 
 dependencies {

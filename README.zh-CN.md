@@ -10,6 +10,11 @@
 
 CarpeCast 是一个在局域网内将 Android 设备的媒体播放状态同步到 Windows 的双端应用。Windows 端显示正在播放的歌曲和进度，并可远程控制 Android 上的播放、暂停、上一首和下一首。
 
+## 下载
+
+- **Windows**: [Microsoft Store](https://apps.microsoft.com/detail/9PNM741WNTGZ)
+- **Android**: [Google Play](https://play.google.com/store/apps/details?id=com.jayfunc.carpecast)
+
 ## 功能
 
 - 自动发现同一局域网中的 Windows 接收端
@@ -43,15 +48,15 @@ CarpeCast 是一个在局域网内将 Android 设备的媒体播放状态同步�
 | --- | ---: | --- |
 | 设备发现 | UDP 5001 | Windows 广播、Android 监听 |
 | 媒体状态 | UDP 5000 | Android 向 Windows 发送播放状态 |
-| 播放控制 | UDP 5002 | Windows 向 Android 发送控制命令 |
+| 播放控制 | 动态分配 | Windows 向 Android 发送控制命令（端口动态分配） |
 
-Windows 端的“发现端口”和“媒体数据端口”可在设置中修改；Android 端的发现端口和命令端口也可在设置中修改。为确保正常通信，请让对应端口保持一致。
+Windows 端的“发现端口”和“媒体数据端口”可在设置中修改；Android 端的发现端口也可在设置中修改。为确保设备正常发现，请让两端的发现端口保持一致。
 
 ## 开发与构建
 
 ### Android
 
-**要求：** Android Studio（或 Gradle 8.7）、JDK 17，以及 Android SDK 34。应用最低支持 Android 8.0（API 26）。
+**要求：** Android Studio（或 Gradle 8.7）、JDK 17，以及 Android SDK 35。应用最低支持 Android 8.0（API 26）。
 
 在 Android Studio 中打开 `Android` 目录后即可运行或构建。命令行构建：
 

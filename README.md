@@ -10,6 +10,11 @@
 
 CarpeCast is a two-part local-network application that syncs media playback from an Android device to Windows. The Windows app displays the currently playing track and its progress, and can remotely play, pause, skip to the previous track, or skip to the next track on Android.
 
+## Download
+
+- **Windows**: [Microsoft Store](https://apps.microsoft.com/detail/9PNM741WNTGZ)
+- **Android**: [Google Play](https://play.google.com/store/apps/details?id=com.jayfunc.carpecast)
+
 ## Features
 
 - Automatically discovers Windows receivers on the same local network
@@ -43,15 +48,15 @@ If the devices are not discovered, make sure their discovery ports match and tha
 | --- | ---: | --- |
 | Device discovery | UDP 5001 | Broadcast by Windows and received by Android |
 | Media state | UDP 5000 | Sent from Android to Windows |
-| Playback commands | UDP 5002 | Sent from Windows to Android |
+| Playback commands | Dynamic | Sent from Windows to Android (port is assigned dynamically) |
 
-The Windows app can change its discovery and media-data ports. The Android app can change its discovery and command ports. Keep the matching ports aligned on both devices.
+The Windows app can change its discovery and media-data ports. The Android app can change its discovery port. Keep the discovery ports aligned on both devices.
 
 ## Development and Build
 
 ### Android
 
-**Requirements:** Android Studio (or Gradle 8.7), JDK 17, and Android SDK 34. The app supports Android 8.0 (API 26) and later.
+**Requirements:** Android Studio (or Gradle 8.7), JDK 17, and Android SDK 35. The app supports Android 8.0 (API 26) and later.
 
 Open the `Android` directory in Android Studio to run or build the app. To build from the command line:
 
