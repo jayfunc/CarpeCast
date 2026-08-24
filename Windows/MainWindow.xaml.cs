@@ -22,6 +22,8 @@ public sealed partial class MainWindow : Window
 
         this.InitializeComponent();
 
+        this.AppWindow.Closing += AppWindow_Closing;
+
         this.ExtendsContentIntoTitleBar = true;
         this.SetTitleBar(AppTitleBar);
 
@@ -77,8 +79,15 @@ public sealed partial class MainWindow : Window
         }
     }
 
+    private void AppWindow_Closing(Microsoft.UI.Windowing.AppWindow sender, Microsoft.UI.Windowing.AppWindowClosingEventArgs args)
+    {
+        args.Cancel = true;
+        sender.Hide();
+    }
+
     private void ShowLogs_Click(object sender, RoutedEventArgs e)
     {
+        this.AppWindow.Show();
         this.Activate();
         ShowWindow(GetWindowHandle(), 9); // SW_RESTORE
         SetForegroundWindow(GetWindowHandle());
