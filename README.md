@@ -14,6 +14,7 @@ CarpeCast is a local-network application suite that syncs media playback from an
 
 - **Windows**: [Microsoft Store](https://apps.microsoft.com/detail/9PNM741WNTGZ)
 - **Android**: [Google Play](https://play.google.com/store/apps/details?id=com.jayfunc.carpecast)
+- **Mac (Experimental)**: [GitHub Releases](https://github.com/jayfunc/CarpeCast/releases)
 
 ## Features
 
@@ -86,10 +87,12 @@ The Mac sender includes a complete graphical user interface (GUI) with persisten
 1. **Low-Level Engine (`MediaRemote` API)**: A Swift helper binary globally captures track information from any active player (e.g., Chrome, standard media apps).
 2. **Direct Engine (`AppleScript` Automation)**: If the OS focus is occupied by a VM, the Python main process automatically falls back to AppleScript to communicate directly with `Apple Music` or `Spotify`, force-extracting the current track and precise millisecond timeline.
 
-**To build the application via Cloud CI:**
+You can download the pre-built `CarpeCast-Mac.zip` from the [Releases](https://github.com/jayfunc/CarpeCast/releases) page and extract it to get `CarpeCast.app`.
+
+**To build the application yourself via Cloud CI:**
 1. Push the `Mac` directory and the `.github` workflows to your GitHub repository.
 2. GitHub Actions will automatically compile the Swift helper using `swiftc` and use `pyinstaller` to package the Python GUI and official Logo into a native macOS `.app` bundle.
-3. Download the `CarpeCast-Mac.zip` artifact from the **Actions** tab and extract it to get `CarpeCast.app`.
+3. Download the `CarpeCast-Mac.zip` artifact from the **Actions** tab.
 
 *Note:*
 * The Mac sender will automatically discover Windows receivers on your local network via UDP port 5001.

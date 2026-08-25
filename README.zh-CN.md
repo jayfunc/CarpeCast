@@ -14,6 +14,7 @@ CarpeCast 是一个在局域网内将 Android 或 macOS 设备的媒体播放状
 
 - **Windows**: [Microsoft Store](https://apps.microsoft.com/detail/9PNM741WNTGZ)
 - **Android**: [Google Play](https://play.google.com/store/apps/details?id=com.jayfunc.carpecast)
+- **Mac (实验性)**: [GitHub Releases](https://github.com/jayfunc/CarpeCast/releases)
 
 ## 功能
 
@@ -86,10 +87,12 @@ Mac 发送端拥有完整的图形界面（GUI），支持配置持久化，并�
 1. **底层引擎 (`MediaRemote` API)**：通过 Swift 编译的后台辅助程序，全局抓取任意播放器（如 Chrome 网页播放、网易云等）的曲目信息。
 2. **直连引擎 (`AppleScript` 自动化)**：当虚拟机或系统原因导致底层焦点被抢占时，Python 主程序会自动降级采用 AppleScript 直接与 `Apple Music` / `Spotify` 进程通信，强行提取当前播放曲目与精准的毫秒级进度。
 
-**如何云端自动打包（无 Mac 环境）：**
+你可以直接从 [Releases](https://github.com/jayfunc/CarpeCast/releases) 页面下载已打包好的 `CarpeCast-Mac.zip`，解压即可得到 `CarpeCast.app`。
+
+**如果你希望自行通过云端编译打包：**
 1. 将 `Mac` 目录及 `.github` 工作流文件 Push 到你的 GitHub 仓库中。
 2. GitHub Actions 会自动触发编译，利用原生的 `swiftc` 编译 Swift 辅助程序，随后通过 `pyinstaller` 将 Python UI 脚本与官方 Logo 打包成 macOS 原生的 `.app` 包结构。
-3. 编译完成后，在 GitHub 仓库的 **Actions** 标签页下载 `CarpeCast-Mac.zip`，解压即可得到 `CarpeCast.app`。
+3. 编译完成后，在 GitHub 仓库的 **Actions** 标签页下载生成的 `CarpeCast-Mac.zip`。
 
 *测试注意事项：*
 * Mac 端启动后会自动通过 UDP 5001 端口发现局域网内的 Windows 接收端，无需手动配置 IP。
