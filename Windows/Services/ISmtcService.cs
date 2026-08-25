@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace CarpeCast.Services;
 
@@ -10,7 +10,7 @@ public interface ISmtcService
     event EventHandler PreviousPressed;
 
     void Initialize();
-    void UpdateMediaState(string title, string artist, string album, bool isPlaying, double position, double duration);
+    void UpdateMediaState(string title, string artist, string album, bool isPlaying, double position, double duration, string albumArtBase64 = "");
     void UpdateTimeline(double position, double duration);
     void ClearMediaState();
 }

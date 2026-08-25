@@ -16,6 +16,27 @@ def get_resource_path(relative_path):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
 
+def get_version_info():
+    version = "1.0.4"
+    commit_hash = "dev"
+    try:
+        build_info_path = get_resource_path("build_info.json")
+        if os.path.exists(build_info_path):
+            with open(build_info_path, "r", encoding="utf-8") as f:
+                info = json.load(f)
+                return info.get("version", version), info.get("commit", commit_hash)
+    except Exception:
+        pass
+        
+    try:
+        result = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, cwd=os.path.abspath("."))
+        if result.returncode == 0:
+            commit_hash = result.stdout.strip()
+    except Exception:
+        pass
+        
+    return version, commit_hash
+
 class ConfigManager:
     def __init__(self):
         # macOS 规范的配置文件存放路径 (Application Support)
@@ -158,40 +179,80 @@ class MacSenderApp:
         self.log_area.pack(fill=tk.BOTH, expand=True)
 
     def build_settings_tab(self):
-        form_frame = ttk.Frame(self.tab_settings)
-        form_frame.pack(fill=tk.X, pady=10)
+        main_frame = ttk.Frame(self.tab_settings)
+        main_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        left_frame = ttk.Frame(main_frame)
+        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        right_frame = ttk.Frame(main_frame)
+        right_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=10)
+
+        form_frame = ttk.Frame(left_frame)
+        form_frame.pack(fill=tk.X)
         
         # 设备名称
-        ttk.Label(form_frame, text="设备名称:").grid(row=0, column=0, sticky=tk.W, pady=10)
-        self.ent_dev_name = ttk.Entry(form_frame, width=30)
-        self.ent_dev_name.insert(0, self.config_mgr.get("device_name"))
-        self.ent_dev_name.grid(row=0, column=1, padx=10, pady=10)
+        ttk.Label(form_frame, text="设备名称:").grid(row=0, column=0, sticky=tk.W, pady=8)
+        self.ent_dev_name = ttk.Entry(form_frame, width=25)
+        self.ent_dev_name.insert(0, self.config_mgr.get("device_name") or "")
+        self.ent_dev_name.grid(row=0, column=1, padx=10, pady=8)
         
         # 发现端口
-        ttk.Label(form_frame, text="设备发现端口 (UDP):").grid(row=1, column=0, sticky=tk.W, pady=10)
-        self.ent_disc_port = ttk.Entry(form_frame, width=30)
-        self.ent_disc_port.insert(0, str(self.config_mgr.get("discovery_port")))
-        self.ent_disc_port.grid(row=1, column=1, padx=10, pady=10)
+        ttk.Label(form_frame, text="设备发现端口 (UDP):").grid(row=1, column=0, sticky=tk.W, pady=8)
+        self.ent_disc_port = ttk.Entry(form_frame, width=25)
+        self.ent_disc_port.insert(0, str(self.config_mgr.get("discovery_port") or ""))
+        self.ent_disc_port.grid(row=1, column=1, padx=10, pady=8)
 
         # 控制端口
-        ttk.Label(form_frame, text="播放控制端口 (TCP/UDP):").grid(row=2, column=0, sticky=tk.W, pady=10)
-        self.ent_cmd_port = ttk.Entry(form_frame, width=30)
-        self.ent_cmd_port.insert(0, str(self.config_mgr.get("command_port")))
-        self.ent_cmd_port.grid(row=2, column=1, padx=10, pady=10)
+        ttk.Label(form_frame, text="播放控制端口 (TCP/UDP):").grid(row=2, column=0, sticky=tk.W, pady=8)
+        self.ent_cmd_port = ttk.Entry(form_frame, width=25)
+        self.ent_cmd_port.insert(0, str(self.config_mgr.get("command_port") or ""))
+        self.ent_cmd_port.grid(row=2, column=1, padx=10, pady=8)
+
+        # 主题
+        ttk.Label(form_frame, text="主题外观:").grid(row=3, column=0, sticky=tk.W, pady=8)
+        self.theme_var = tk.StringVar()
+        self.cb_theme = ttk.Combobox(form_frame, textvariable=self.theme_var, values=["跟随系统", "浅色 (Light)", "深色 (Dark)"], state="readonly", width=23)
+        self.cb_theme.set(self.config_mgr.get("theme") or "跟随系统")
+        self.cb_theme.grid(row=3, column=1, padx=10, pady=8)
+
+        # 语言
+        ttk.Label(form_frame, text="应用语言:").grid(row=4, column=0, sticky=tk.W, pady=8)
+        self.lang_var = tk.StringVar()
+        self.cb_lang = ttk.Combobox(form_frame, textvariable=self.lang_var, values=["跟随系统", "简体中文", "English"], state="readonly", width=23)
+        self.cb_lang.set(self.config_mgr.get("language") or "跟随系统")
+        self.cb_lang.grid(row=4, column=1, padx=10, pady=8)
         
-        btn_save = ttk.Button(self.tab_settings, text="保存设置", command=self.save_settings)
+        btn_save = ttk.Button(left_frame, text="保存设置", command=self.save_settings)
         btn_save.pack(anchor=tk.W, pady=20)
         
-        ttk.Label(self.tab_settings, text="配置文件存储路径:\n" + self.config_mgr.config_path, 
-                  foreground="gray", wraplength=600).pack(anchor=tk.W, side=tk.BOTTOM)
+        ttk.Label(left_frame, text="配置文件存储路径:\n" + self.config_mgr.config_path, 
+                  foreground="gray", wraplength=350).pack(anchor=tk.W, side=tk.BOTTOM)
+
+        # 右侧关于区域
+        ttk.Label(right_frame, text="🎵", font=("", 48)).pack(pady=(10, 0))
+        ttk.Label(right_frame, text="CarpeCast", font=("", 18, "bold")).pack()
+        
+        version, commit_hash = get_version_info()
+        version_text = f"v{version} - {commit_hash}" if commit_hash else f"v{version}"
+        ttk.Label(right_frame, text=version_text, font=("", 12), foreground="gray").pack(pady=(0, 20))
+
+        import webbrowser
+        btn_github = ttk.Button(right_frame, text="获取接收端 / 访问官网", command=lambda: webbrowser.open("https://github.com/jayfunc/CarpeCast"))
+        btn_github.pack(fill=tk.X, pady=5)
+
+        btn_lyrics = ttk.Button(right_frame, text="了解 BetterLyrics", command=lambda: webbrowser.open("https://github.com/jayfunc/BetterLyrics"))
+        btn_lyrics.pack(fill=tk.X, pady=5)
 
     def save_settings(self):
         try:
             self.config_mgr.set("device_name", self.ent_dev_name.get().strip())
             self.config_mgr.set("discovery_port", int(self.ent_disc_port.get().strip()))
             self.config_mgr.set("command_port", int(self.ent_cmd_port.get().strip()))
+            self.config_mgr.set("theme", self.theme_var.get())
+            self.config_mgr.set("language", self.lang_var.get())
             self.config_mgr.save()
-            messagebox.showinfo("成功", "设置已保存！\n(部分网络端口设置需要重启应用生效)")
+            messagebox.showinfo("成功", "设置已保存！\n(部分网络及界面设置需要重启应用生效)")
         except ValueError:
             messagebox.showerror("错误", "端口号必须是数字！")
 
@@ -365,7 +426,10 @@ class MacSenderApp:
             parts = output.split('|||')
             title = parts[0].strip()
             if title:
-                method = parts[6].strip() if len(parts) > 6 else "Unknown"
+                # The length might be 8 if MediaRemote (with artwork) or 7 if AppleScript (no artwork)
+                method = parts[-1].strip()
+                albumArtBase64 = parts[6].strip() if len(parts) > 7 else ""
+                
                 return {
                     "title": title,
                     "artist": parts[1].strip() if len(parts) > 1 else "",
@@ -374,6 +438,7 @@ class MacSenderApp:
                     # Windows 端（同 Android 端）预期的是毫秒(ms)，所以需要乘以 1000
                     "position": float(parts[4]) * 1000.0 if len(parts) > 4 else 0.0,
                     "duration": float(parts[5]) * 1000.0 if len(parts) > 5 else 0.0,
+                    "albumArt": albumArtBase64,
                     "method": method, 
                     "deviceName": self.config_mgr.get("device_name"),
                     "deviceType": "Desktop",

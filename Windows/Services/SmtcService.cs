@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Windows.Media;
 using Windows.Media.Playback;
 
@@ -48,18 +48,58 @@ public class SmtcService : ISmtcService
         }
     }
 
-    public void UpdateMediaState(string title, string artist, string album, bool isPlaying, double position, double duration)
+    private string _lastTitle = string.Empty;
+    private string _lastArtist = string.Empty;
+    private string _lastAlbum = string.Empty;
+    private string _lastAlbumArtBase64 = string.Empty;
+
+    public void UpdateMediaState(string title, string artist, string album, bool isPlaying, double position, double duration, string albumArtBase64 = "")
     {
         if (_smtc == null) return;
         
         _smtc.IsEnabled = true;
 
-        var updater = _smtc.DisplayUpdater;
-        updater.Type = MediaPlaybackType.Music;
-        updater.MusicProperties.Title = title;
-        updater.MusicProperties.Artist = artist;
-        updater.MusicProperties.AlbumTitle = album;
-        updater.Update();
+        bool metadataChanged = false;
+        if (_lastTitle != title || _lastArtist != artist || _lastAlbum != album || _lastAlbumArtBase64 != albumArtBase64)
+        {
+            metadataChanged = true;
+            _lastTitle = title ?? "";
+            _lastArtist = artist ?? "";
+            _lastAlbum = album ?? "";
+            _lastAlbumArtBase64 = albumArtBase64 ?? "";
+        }
+
+        if (metadataChanged)
+        {
+            var updater = _smtc.DisplayUpdater;
+            updater.Type = MediaPlaybackType.Music;
+            updater.MusicProperties.Title = title;
+            updater.MusicProperties.Artist = artist;
+            updater.MusicProperties.AlbumTitle = album;
+
+            if (!string.IsNullOrEmpty(albumArtBase64))
+            {
+                try
+                {
+                    var bytes = Convert.FromBase64String(albumArtBase64);
+                    var stream = new Windows.Storage.Streams.InMemoryRandomAccessStream();
+                    using (var writer = new Windows.Storage.Streams.DataWriter(stream.GetOutputStreamAt(0)))
+                    {
+                        writer.WriteBytes(bytes);
+                        writer.StoreAsync().AsTask().Wait();
+                    }
+                    stream.Seek(0);
+                    updater.Thumbnail = Windows.Storage.Streams.RandomAccessStreamReference.CreateFromStream(stream);
+                }
+                catch { }
+            }
+            else
+            {
+                updater.Thumbnail = null;
+            }
+
+            updater.Update();
+        }
 
         _smtc.PlaybackStatus = isPlaying ? MediaPlaybackStatus.Playing : MediaPlaybackStatus.Paused;
 

@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 
 // 1. 尝试使用 MediaRemote 获取全局媒体信息
 func getMediaRemoteInfo(completion: @escaping (String?) -> Void) {
@@ -21,8 +22,37 @@ func getMediaRemoteInfo(completion: @escaping (String?) -> Void) {
         let duration = (info["kMRMediaRemoteNowPlayingInfoDuration"] as? Double) ?? 0.0
         let position = (info["kMRMediaRemoteNowPlayingInfoElapsedTime"] as? Double) ?? 0.0
 
+        var albumArtBase64 = ""
+        if let artworkData = info["kMRMediaRemoteNowPlayingInfoArtworkData"] as? Data {
+            if let image = NSImage(data: artworkData) {
+                let maxDim: CGFloat = 500.0
+                var size = image.size
+                if size.width > maxDim || size.height > maxDim {
+                    let ratio = min(maxDim / size.width, maxDim / size.height)
+                    size.width = round(size.width * ratio)
+                    size.height = round(size.height * ratio)
+                    let resized = NSImage(size: size)
+                    resized.lockFocus()
+                    image.draw(in: NSRect(origin: .zero, size: size), from: .zero, operation: .copy, fraction: 1.0)
+                    resized.unlockFocus()
+                    
+                    if let tiff = resized.tiffRepresentation, let bitmap = NSBitmapImageRep(data: tiff) {
+                        if let jpegData = bitmap.representation(using: .jpeg, properties: [.compressionFactor: 0.5]) {
+                            albumArtBase64 = jpegData.base64EncodedString()
+                        }
+                    }
+                } else {
+                    if let tiff = image.tiffRepresentation, let bitmap = NSBitmapImageRep(data: tiff) {
+                        if let jpegData = bitmap.representation(using: .jpeg, properties: [.compressionFactor: 0.5]) {
+                            albumArtBase64 = jpegData.base64EncodedString()
+                        }
+                    }
+                }
+            }
+        }
+
         if !title.isEmpty {
-            completion("\(title)|||\(artist)|||\(album)|||\(isPlaying)|||\(position)|||\(duration)|||MediaRemote")
+            completion("\(title)|||\(artist)|||\(album)|||\(isPlaying)|||\(position)|||\(duration)|||\(albumArtBase64)|||MediaRemote")
         } else {
             completion(nil)
         }

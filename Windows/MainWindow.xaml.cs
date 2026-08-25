@@ -95,7 +95,13 @@ public sealed partial class MainWindow : Window
 
     private void Exit_Click(object sender, RoutedEventArgs e)
     {
+        TrayIcon?.Dispose();
+        var smtcService = App.Current.Services.GetRequiredService<CarpeCast.Services.ISmtcService>();
+        smtcService.ClearMediaState();
+        var networkService = App.Current.Services.GetRequiredService<CarpeCast.Services.INetworkService>();
+        networkService.StopListening();
         Application.Current.Exit();
+        Environment.Exit(0);
     }
 
     private IntPtr GetWindowHandle()

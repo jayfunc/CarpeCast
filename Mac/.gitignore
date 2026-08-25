@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Mac OS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Swift (如果将来编译出独立的二进制文件)
+nowplaying

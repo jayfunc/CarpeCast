@@ -130,6 +130,7 @@ class MediaSyncService : NotificationListenerService() {
         var isPlaying = false
         var position = 0L
         var duration = 0L
+        var albumArtBase64 = ""
 
         if (controller != null) {
             val allowAll = prefs.getBoolean("allow_all_sources", true)
@@ -152,6 +153,27 @@ class MediaSyncService : NotificationListenerService() {
 
             val albumArt = metadata?.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
                 ?: metadata?.getBitmap(MediaMetadata.METADATA_KEY_ART)
+
+            if (albumArt != null) {
+                try {
+                    val maxDim = 500
+                    var width = albumArt.width
+                    var height = albumArt.height
+                    if (width > maxDim || height > maxDim) {
+                        val ratio = Math.min(maxDim.toFloat() / width, maxDim.toFloat() / height)
+                        width = Math.round(ratio * width)
+                        height = Math.round(ratio * height)
+                        val scaled = android.graphics.Bitmap.createScaledBitmap(albumArt, width, height, true)
+                        val stream = java.io.ByteArrayOutputStream()
+                        scaled.compress(android.graphics.Bitmap.CompressFormat.JPEG, 50, stream)
+                        albumArtBase64 = android.util.Base64.encodeToString(stream.toByteArray(), android.util.Base64.NO_WRAP)
+                    } else {
+                        val stream = java.io.ByteArrayOutputStream()
+                        albumArt.compress(android.graphics.Bitmap.CompressFormat.JPEG, 50, stream)
+                        albumArtBase64 = android.util.Base64.encodeToString(stream.toByteArray(), android.util.Base64.NO_WRAP)
+                    }
+                } catch (e: Exception) { }
+            }
 
             MediaStateRepository.updateMediaState(
                 title = title,
@@ -190,6 +212,9 @@ class MediaSyncService : NotificationListenerService() {
             put("deviceName", deviceName)
             put("deviceType", devType)
             put("osVersion", "Android ${android.os.Build.VERSION.RELEASE}")
+            if (albumArtBase64.isNotEmpty()) {
+                put("albumArt", albumArtBase64)
+            }
         }
 
         val targetDataPort = pcDataPorts[ip.hostAddress] ?: 5000

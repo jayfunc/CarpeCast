@@ -45,6 +45,9 @@ public partial class PlayerViewModel : ObservableObject
     [ObservableProperty]
     public partial string PlayPauseIcon { get; set; } = "\uE768"; // Play icon
 
+    [ObservableProperty]
+    public partial Microsoft.UI.Xaml.Media.Imaging.BitmapImage? AlbumArtImage { get; set; }
+
     public DevicesViewModel DevicesVM { get; }
 
     public PlayerViewModel(INetworkService networkService, ISmtcService smtcService, DevicesViewModel devicesVm)
@@ -131,6 +134,8 @@ public partial class PlayerViewModel : ObservableObject
             bool titleChanged = Media.Title != newState.Title;
             bool playStateChanged = Media.IsPlaying != newState.IsPlaying;
 
+            bool albumArtChanged = Media.AlbumArtBase64 != newState.AlbumArtBase64;
+
             Media = newState;
             
             _lastUpdateTime = DateTime.Now;
@@ -141,9 +146,34 @@ public partial class PlayerViewModel : ObservableObject
             FormattedPosition = FormatTime(_basePosition);
             PlayPauseIcon = Media.IsPlaying ? "\uE769" : "\uE768"; // Pause : Play
 
+            if (albumArtChanged)
+            {
+                if (!string.IsNullOrEmpty(newState.AlbumArtBase64))
+                {
+                    try
+                    {
+                        var bytes = Convert.FromBase64String(newState.AlbumArtBase64);
+                        using var stream = new Windows.Storage.Streams.InMemoryRandomAccessStream();
+                        using var writer = new Windows.Storage.Streams.DataWriter(stream.GetOutputStreamAt(0));
+                        writer.WriteBytes(bytes);
+                        writer.StoreAsync().AsTask().Wait();
+                        
+                        var img = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
+                        stream.Seek(0);
+                        img.SetSource(stream);
+                        AlbumArtImage = img;
+                    }
+                    catch { AlbumArtImage = null; }
+                }
+                else
+                {
+                    AlbumArtImage = null;
+                }
+            }
+
             if (hasMedia)
             {
-                _smtcService.UpdateMediaState(Media.Title, Media.Artist, Media.Album, Media.IsPlaying, Media.Position, Media.Duration);
+                _smtcService.UpdateMediaState(Media.Title, Media.Artist, Media.Album, Media.IsPlaying, Media.Position, Media.Duration, Media.AlbumArtBase64);
                 _smtcService.UpdateTimeline(CurrentPosition, CurrentDuration);
             }
             else

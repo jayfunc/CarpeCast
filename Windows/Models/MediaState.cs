@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace CarpeCast.Models;
 
@@ -12,6 +12,9 @@ public partial class MediaState : ObservableObject
 
     [ObservableProperty]
     public partial string Album { get; set; } = "Unknown Album";
+
+    [ObservableProperty]
+    public partial string AlbumArtBase64 { get; set; } = string.Empty;
 
     [ObservableProperty]
     public partial bool IsPlaying { get; set; } = false;

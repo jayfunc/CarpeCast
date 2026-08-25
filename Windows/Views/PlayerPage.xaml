@@ -31,6 +31,21 @@
             VerticalAlignment="Center"
             Orientation="Vertical"
             Spacing="8">
+
+            <Border
+                Width="200"
+                Height="200"
+                Margin="0,0,0,16"
+                HorizontalAlignment="Center"
+                CornerRadius="16">
+                <Border.Background>
+                    <SolidColorBrush Color="{ThemeResource SurfaceStrokeColorDefault}" />
+                </Border.Background>
+                <Image
+                    Source="{x:Bind ViewModel.AlbumArtImage, Mode=OneWay}"
+                    Stretch="UniformToFill" />
+            </Border>
+
             <TextBlock
                 HorizontalAlignment="Center"
                 FontWeight="SemiBold"
