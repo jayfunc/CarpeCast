@@ -68,6 +68,23 @@ class MacSenderApp:
         self.setup_ui()
         self.setup_macos_dock_behavior()
         
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            local_ip = s.getsockname()[0]
+            s.close()
+        except Exception:
+            local_ip = "127.0.0.1"
+            
+        self.log(f"程序已启动，本机局域网 IP: {local_ip}")
+        
+        # 线程启动
+        self.discovery_thread = threading.Thread(target=self.listen_for_discovery, daemon=True)
+        self.discovery_thread.start()
+        
+        self.sync_thread = threading.Thread(target=self.sync_loop, daemon=True)
+        self.sync_thread.start()
+        
         # 强制刷新解决部分 Mac 机器首次白屏的问题
         self.root.update_idletasks()
         
@@ -86,23 +103,6 @@ class MacSenderApp:
     def show_window(self, *args):
         self.root.deiconify()
         self.root.update_idletasks()
-        
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.connect(("8.8.8.8", 80))
-            local_ip = s.getsockname()[0]
-            s.close()
-        except Exception:
-            local_ip = "127.0.0.1"
-            
-        self.log(f"程序已启动，本机局域网 IP: {local_ip}")
-        
-        # 线程启动
-        self.discovery_thread = threading.Thread(target=self.listen_for_discovery, daemon=True)
-        self.discovery_thread.start()
-        
-        self.sync_thread = threading.Thread(target=self.sync_loop, daemon=True)
-        self.sync_thread.start()
 
     def setup_ui(self):
         # 使用官方设计语言推荐的 Notebook (选项卡) 结构
