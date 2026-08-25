@@ -62,6 +62,7 @@ class MacSenderApp:
         self.is_syncing = False
         self.selected_ip = None
         self.selected_port = 5000
+        self.logged_errors = set()
         
         self.setup_ui()
         
@@ -173,6 +174,11 @@ class MacSenderApp:
         except ValueError:
             messagebox.showerror("错误", "端口号必须是数字！")
 
+    def log_once(self, msg):
+        if msg not in self.logged_errors:
+            self.log(msg)
+            self.logged_errors.add(msg)
+
     def log(self, msg):
         timestamp = datetime.datetime.now().strftime("%H:%M:%S")
         full_msg = f"[{timestamp}] {msg}\n"
@@ -253,38 +259,97 @@ class MacSenderApp:
         status_text = "播放中" if is_playing else "已暂停"
         self.lbl_status.config(text=f"状态: {status_text} (来源: {method})")
 
+    def get_applescript_fallback(self):
+        # 使用 osascript 直接调用，并避开 System Events，防止额外的权限弹窗
+        script = """
+        set track_name to ""
+        set track_artist to ""
+        set track_album to ""
+        set is_playing to "false"
+        set track_duration to 0.0
+        set track_position to 0.0
+
+        if application "Spotify" is running then
+            tell application "Spotify"
+                if player state is playing then
+                    set track_name to name of current track
+                    set track_artist to artist of current track
+                    set track_album to album of current track
+                    set is_playing to "true"
+                    set track_duration to (duration of current track) / 1000.0
+                    set track_position to player position
+                end if
+            end tell
+        end if
+
+        if track_name is "" and application "Music" is running then
+            tell application "Music"
+                if player state is playing then
+                    set track_name to name of current track
+                    set track_artist to artist of current track
+                    set track_album to album of current track
+                    set is_playing to "true"
+                    set track_duration to duration of current track
+                    set track_position to player position
+                end if
+            end tell
+        end if
+
+        if track_name is not "" then
+            return track_name & "|||" & track_artist & "|||" & track_album & "|||" & is_playing & "|||" & track_position & "|||" & track_duration & "|||AppleScript"
+        else
+            return ""
+        end if
+        """
+        try:
+            result = subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
+            if result.stderr:
+                err = result.stderr.strip()
+                if "-1743" in err or "Not authorized" in err:
+                    self.log_once("🍎 系统权限拦截: 请在 Mac [系统设置 -> 隐私与安全性 -> 自动化] 中，允许 CarpeCast 控制 Music/Spotify！")
+                else:
+                    self.log_once(f"⚠️ AppleScript 错误: {err}")
+            return result.stdout.strip()
+        except Exception as e:
+            return ""
+
     def get_global_track_info(self):
+        output = ""
         swift_exe = get_resource_path("mac_nowplaying")
-        if not os.path.exists(swift_exe):
+        
+        # 1. 尝试原生 MediaRemote 获取
+        if os.path.exists(swift_exe):
+            try:
+                result = subprocess.run([swift_exe], capture_output=True, text=True)
+                output = result.stdout.strip()
+            except Exception:
+                pass
+                
+        # 2. 如果原生接口返回空（可能是虚拟机抢占了焦点），触发 AppleScript 降级抓取
+        if not output:
+            output = self.get_applescript_fallback()
+            
+        if not output:
             return None
             
-        try:
-            result = subprocess.run([swift_exe], capture_output=True, text=True)
-            output = result.stdout.strip()
-            
-            if not output:
-                return None
-                
-            if "|||" in output:
-                parts = output.split('|||')
-                title = parts[0].strip()
-                if title:
-                    method = parts[6].strip() if len(parts) > 6 else "Unknown"
-                    return {
-                        "title": title,
-                        "artist": parts[1].strip() if len(parts) > 1 else "",
-                        "album": parts[2].strip() if len(parts) > 2 else "",
-                        "isPlaying": (parts[3].strip() == "true") if len(parts) > 3 else True,
-                        "position": float(parts[4]) if len(parts) > 4 else 0.0,
-                        "duration": float(parts[5]) if len(parts) > 5 else 0.0,
-                        "method": method, 
-                        "deviceName": self.config_mgr.get("device_name"),
-                        "deviceType": "Desktop",
-                        "osVersion": "macOS",
-                        "commandPort": self.config_mgr.get("command_port")
-                    }
-        except Exception:
-            pass
+        if "|||" in output:
+            parts = output.split('|||')
+            title = parts[0].strip()
+            if title:
+                method = parts[6].strip() if len(parts) > 6 else "Unknown"
+                return {
+                    "title": title,
+                    "artist": parts[1].strip() if len(parts) > 1 else "",
+                    "album": parts[2].strip() if len(parts) > 2 else "",
+                    "isPlaying": (parts[3].strip() == "true") if len(parts) > 3 else True,
+                    "position": float(parts[4]) if len(parts) > 4 else 0.0,
+                    "duration": float(parts[5]) if len(parts) > 5 else 0.0,
+                    "method": method, 
+                    "deviceName": self.config_mgr.get("device_name"),
+                    "deviceType": "Desktop",
+                    "osVersion": "macOS",
+                    "commandPort": self.config_mgr.get("command_port")
+                }
         return None
 
     def sync_loop(self):
@@ -316,7 +381,7 @@ class MacSenderApp:
                         self.root.after(0, self.update_player_ui, title, artist, album, is_playing, method)
                         
                     except Exception as e:
-                        self.log(f"❌ UDP 发送失败: {e}")
+                        self.log_once(f"❌ UDP 发送失败: {e}")
                 else:
                     self.root.after(0, self.update_player_ui, "当前无媒体播放", "-", "-", False, "-")
                     
