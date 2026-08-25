@@ -58,6 +58,23 @@ class MacSenderApp:
         self.root.geometry("650x500")
         
         self.config_mgr = ConfigManager()
+        
+        self.setup_macos_dock_behavior()
+        
+    def setup_macos_dock_behavior(self):
+        # 拦截点击红叉事件（将其改为隐藏窗口而不是直接退出）
+        self.root.protocol("WM_DELETE_WINDOW", self.hide_window)
+        # 拦截 macOS 程序坞 (Dock) 点击事件，实现再次唤醒
+        try:
+            self.root.createcommand("::tk::mac::ReopenApplication", self.show_window)
+        except Exception:
+            pass
+            
+    def hide_window(self):
+        self.root.withdraw()
+        
+    def show_window(self, *args):
+        self.root.deiconify()
         self.discovered_devices = {} 
         self.is_syncing = False
         self.selected_ip = None
