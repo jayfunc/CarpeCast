@@ -8,7 +8,7 @@
   <a href="README.md">English</a> | <a href="README.zh-CN.md">简体中文</a>
 </p>
 
-CarpeCast 是一个在局域网内将 Android 设备的媒体播放状态同步到 Windows 的双端应用。Windows 端显示正在播放的歌曲和进度，并可远程控制 Android 上的播放、暂停、上一首和下一首。
+CarpeCast 是一个在局域网内将 Android 或 macOS 设备的媒体播放状态同步到 Windows 的应用。Windows 端显示正在播放的歌曲和进度，并可远程控制发送端上的播放、暂停、上一首和下一首。
 
 ## 下载
 

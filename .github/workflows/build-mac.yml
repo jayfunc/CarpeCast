@@ -3,6 +3,10 @@ name: Build macOS App
 on:
   push:
     branches: [ "main", "master" ]
+    paths:
+      - 'Mac/**'
+      - '.github/workflows/build-mac.yml'
+      - 'Windows/Assets/CarpeCast-logo.png'
   workflow_dispatch: # 允许手动触发打包
 
 jobs:
