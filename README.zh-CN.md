@@ -80,22 +80,27 @@ dotnet run --project Windows\CarpeCast.csproj
 
 ### Mac (实验性)
 
-**要求：** GitHub 账号（用于云端自动打包），或拥有安装了 `swiftc` 和 Python 3 的本地 macOS 环境。
+**要求:** GitHub 账号（用于云端自动打包），或拥有安装了 `swiftc` 和 Python 3 的本地 macOS 环境。
 
-Mac 发送端通过底层的 `MediaRemote` 框架全局抓取任意播放器（如 Apple Music、Spotify、Chrome 网页播放等）的曲目信息，并通过局域网发送给 Windows 接收端。
+Mac 发送端拥有完整的图形界面（GUI），支持配置持久化，并采用 **双引擎抓取策略（Dual-Engine）**，即使在运行 Parallels 等虚拟机导致焦点丢失的情况下，依然能强力抓取媒体数据并同步给 Windows：
+1. **底层引擎 (`MediaRemote` API)**：通过 Swift 编译的后台辅助程序，全局抓取任意播放器（如 Chrome 网页播放、网易云等）的曲目信息。
+2. **直连引擎 (`AppleScript` 自动化)**：当虚拟机或系统原因导致底层焦点被抢占时，Python 主程序会自动降级采用 AppleScript 直接与 `Apple Music` / `Spotify` 进程通信，强行提取当前播放曲目与精准的毫秒级进度。
 
-如何云端自动打包（无 Mac 环境）：
-1. 将 `Mac` 目录与 `.github` 工作流文件 Push 到你的 GitHub 仓库中。
-2. GitHub Actions 会自动触发编译，利用原生的 `swiftc` 编译 Swift 辅助程序，并通过 `pyinstaller` 打包带有图形界面的 Python 脚本。
-3. 编译完成后，在 GitHub 仓库的 **Actions** 标签页即可下载打包好的 `CarpeCast-Mac` 可执行文件。
+**如何云端自动打包（无 Mac 环境）：**
+1. 将 `Mac` 目录及 `.github` 工作流文件 Push 到你的 GitHub 仓库中。
+2. GitHub Actions 会自动触发编译，利用原生的 `swiftc` 编译 Swift 辅助程序，随后通过 `pyinstaller` 将 Python UI 脚本与官方 Logo 打包成 macOS 原生的 `.app` 包结构。
+3. 编译完成后，在 GitHub 仓库的 **Actions** 标签页下载 `CarpeCast-Mac.zip`，解压即可得到 `CarpeCast.app`。
 
-*测试注意事项：Mac 发送端包含图形界面，能通过 UDP 自动发现局域网内的 Windows 接收端，无需手动配置 IP。Mac 用户首次运行可能需要执行 `chmod +x` 赋予执行权限，或在系统安全设置中允许运行。*
+*测试注意事项：*
+* Mac 端启动后会自动通过 UDP 5001 端口发现局域网内的 Windows 接收端，无需手动配置 IP。
+* 如果触发了 AppleScript 降级引擎，macOS 会弹出自动化控制请求，请务必在“系统设置 -> 隐私与安全性 -> 自动化”中允许 `CarpeCast` 控制 Music/Spotify。
+* 初次运行可能需要在“隐私与安全性”中点击“仍要打开”以允许未签名的应用运行。
 
 ## 项目结构
 
 ```text
 Android/    Android 发送端，负责发现设备、读取媒体会话并执行远程命令
-Mac/        macOS 发送端 (实验性)，利用 MediaRemote 全局抓取媒体状态
+Mac/        macOS 发送端 (实验性)，基于 Python (Tkinter) + Swift，双引擎全局抓取媒体状态
 Windows/    WinUI 3 接收端，负责显示媒体状态并发送播放控制命令
 ```
 

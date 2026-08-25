@@ -82,20 +82,25 @@ dotnet run --project Windows\CarpeCast.csproj
 
 **Requirements:** GitHub account (for cloud building) or a local macOS environment with `swiftc` and Python 3.
 
-The Mac sender uses the private `MediaRemote` framework to globally capture track information from any player (Apple Music, Spotify, Chrome, etc.) and sends it to the Windows receiver over the local network. 
+The Mac sender includes a complete graphical user interface (GUI) with persistent settings and uses a **Dual-Engine capture strategy**. This ensures media data is reliably captured and synced to Windows, even when focus is stolen by virtual machines like Parallels Desktop:
+1. **Low-Level Engine (`MediaRemote` API)**: A Swift helper binary globally captures track information from any active player (e.g., Chrome, standard media apps).
+2. **Direct Engine (`AppleScript` Automation)**: If the OS focus is occupied by a VM, the Python main process automatically falls back to AppleScript to communicate directly with `Apple Music` or `Spotify`, force-extracting the current track and precise millisecond timeline.
 
-To build the executable without a Mac:
+**To build the application via Cloud CI:**
 1. Push the `Mac` directory and the `.github` workflows to your GitHub repository.
-2. GitHub Actions will automatically compile the Swift helper and package the Python script with a graphical UI using PyInstaller.
-3. Download the `CarpeCast-Mac` executable from the **Actions** tab.
+2. GitHub Actions will automatically compile the Swift helper using `swiftc` and use `pyinstaller` to package the Python GUI and official Logo into a native macOS `.app` bundle.
+3. Download the `CarpeCast-Mac.zip` artifact from the **Actions** tab and extract it to get `CarpeCast.app`.
 
-*Note: The Mac sender includes a GUI and will automatically discover Windows receivers on your local network via UDP. Mac users may need to grant execution permissions (`chmod +x`) upon first run.*
+*Note:*
+* The Mac sender will automatically discover Windows receivers on your local network via UDP port 5001.
+* If the AppleScript fallback engine is triggered, macOS will prompt for automation permissions. Ensure you allow `CarpeCast` to control Music/Spotify in "System Settings -> Privacy & Security -> Automation".
+* On the first launch, you may need to allow the unsigned app to run via "Privacy & Security".
 
 ## Project Layout
 
 ```text
 Android/    Android sender: discovers receivers, reads media sessions, and handles remote commands
-Mac/        macOS sender (Experimental): globally captures media state
+Mac/        macOS sender (Experimental): Python (Tkinter) + Swift dual-engine global media capture
 Windows/    WinUI 3 receiver: displays media state and sends playback commands
 ```
 
