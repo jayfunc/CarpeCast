@@ -59,7 +59,17 @@ class MacSenderApp:
         
         self.config_mgr = ConfigManager()
         
+        self.discovered_devices = {} 
+        self.is_syncing = False
+        self.selected_ip = None
+        self.selected_port = 5000
+        self.logged_errors = set()
+        
+        self.setup_ui()
         self.setup_macos_dock_behavior()
+        
+        # 强制刷新解决部分 Mac 机器首次白屏的问题
+        self.root.update_idletasks()
         
     def setup_macos_dock_behavior(self):
         # 拦截点击红叉事件（将其改为隐藏窗口而不是直接退出）
@@ -75,13 +85,7 @@ class MacSenderApp:
         
     def show_window(self, *args):
         self.root.deiconify()
-        self.discovered_devices = {} 
-        self.is_syncing = False
-        self.selected_ip = None
-        self.selected_port = 5000
-        self.logged_errors = set()
-        
-        self.setup_ui()
+        self.root.update_idletasks()
         
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
