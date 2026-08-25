@@ -30,7 +30,7 @@ public partial class App : Application
     {
         Services = ConfigureServices();
         var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
-        if (localSettings.Values.TryGetValue("AppLanguage", out object langObj) && langObj is string lang)
+        if (localSettings.Values.TryGetValue("AppLanguage", out object? langObj) && langObj is string lang)
         {
             Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = lang;
         }

@@ -33,7 +33,7 @@ public class SettingsService : ISettingsService
     public string AppLanguage { get; set; } = "zh-CN";
     public bool ShowOnStartup { get; set; } = true;
 
-    public event System.Action<string> ThemeChanged;
+    public event System.Action<string>? ThemeChanged;
 
     public void Initialize()
     {

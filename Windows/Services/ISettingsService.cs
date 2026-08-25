@@ -9,7 +9,7 @@ public interface ISettingsService
     string AppLanguage { get; set; }
     bool ShowOnStartup { get; set; }
     
-    event System.Action<string> ThemeChanged;
+    event System.Action<string>? ThemeChanged;
 
     void Initialize();
     void Save();

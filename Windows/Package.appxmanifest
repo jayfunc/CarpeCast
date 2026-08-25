@@ -28,7 +28,7 @@
   </Dependencies>
 
   <Resources>
-	<Resource Language="en"/>
+	<Resource Language="en-US"/>
 	<Resource Language="zh-CN"/>
   </Resources>
 
@@ -46,7 +46,7 @@
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
       <Extensions>
-        <desktop:Extension Category="windows.startupTask" Executable="$targetnametoken$.exe" EntryPoint="Windows.FullTrustApplication">
+        <desktop:Extension Category="windows.startupTask" Executable="CarpeCast.exe" EntryPoint="Windows.FullTrustApplication">
           <desktop:StartupTask TaskId="CarpeCastStartup" Enabled="false" DisplayName="CarpeCast" />
         </desktop:Extension>
       </Extensions>
