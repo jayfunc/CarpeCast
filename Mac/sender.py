@@ -269,31 +269,39 @@ class MacSenderApp:
         set track_duration to 0.0
         set track_position to 0.0
 
-        if application "Spotify" is running then
-            tell application "Spotify"
-                if player state is playing then
-                    set track_name to name of current track
-                    set track_artist to artist of current track
-                    set track_album to album of current track
-                    set is_playing to "true"
-                    set track_duration to (duration of current track) / 1000.0
-                    set track_position to player position
-                end if
-            end tell
-        end if
+        try
+            if application "Spotify" is running then
+                tell application "Spotify"
+                    if player state is playing or player state is paused then
+                        set track_name to name of current track
+                        set track_artist to artist of current track
+                        set track_album to album of current track
+                        if player state is playing then
+                            set is_playing to "true"
+                        end if
+                        set track_duration to (duration of current track) / 1000.0
+                        set track_position to player position
+                    end if
+                end tell
+            end if
 
-        if track_name is "" and application "Music" is running then
-            tell application "Music"
-                if player state is playing then
-                    set track_name to name of current track
-                    set track_artist to artist of current track
-                    set track_album to album of current track
-                    set is_playing to "true"
-                    set track_duration to duration of current track
-                    set track_position to player position
-                end if
-            end tell
-        end if
+            if track_name is "" and application "Music" is running then
+                tell application "Music"
+                    if player state is playing or player state is paused then
+                        set track_name to name of current track
+                        set track_artist to artist of current track
+                        set track_album to album of current track
+                        if player state is playing then
+                            set is_playing to "true"
+                        end if
+                        set track_duration to duration of current track
+                        set track_position to player position
+                    end if
+                end tell
+            end if
+        on error
+            -- 忽略获取不到时的错误
+        end try
 
         if track_name is not "" then
             return track_name & "|||" & track_artist & "|||" & track_album & "|||" & is_playing & "|||" & track_position & "|||" & track_duration & "|||AppleScript"
@@ -342,8 +350,9 @@ class MacSenderApp:
                     "artist": parts[1].strip() if len(parts) > 1 else "",
                     "album": parts[2].strip() if len(parts) > 2 else "",
                     "isPlaying": (parts[3].strip() == "true") if len(parts) > 3 else True,
-                    "position": float(parts[4]) if len(parts) > 4 else 0.0,
-                    "duration": float(parts[5]) if len(parts) > 5 else 0.0,
+                    # Windows 端（同 Android 端）预期的是毫秒(ms)，所以需要乘以 1000
+                    "position": float(parts[4]) * 1000.0 if len(parts) > 4 else 0.0,
+                    "duration": float(parts[5]) * 1000.0 if len(parts) > 5 else 0.0,
                     "method": method, 
                     "deviceName": self.config_mgr.get("device_name"),
                     "deviceType": "Desktop",
