@@ -47,7 +47,10 @@ public partial class App : Application
         _window = new MainWindow();
         
         var settingsService = Services.GetRequiredService<ISettingsService>();
-        if (settingsService.ShowOnStartup)
+        var activatedEventArgs = Microsoft.Windows.AppLifecycle.AppInstance.GetCurrent().GetActivatedEventArgs();
+        bool isStartupTask = activatedEventArgs.Kind == Microsoft.Windows.AppLifecycle.ExtendedActivationKind.StartupTask;
+
+        if (!isStartupTask || settingsService.ShowOnStartup)
         {
             _window.Activate();
         }
