@@ -48,6 +48,13 @@ public partial class PlayerViewModel : ObservableObject
     [ObservableProperty]
     public partial Microsoft.UI.Xaml.Media.Imaging.BitmapImage? AlbumArtImage { get; set; }
 
+    partial void OnAlbumArtImageChanged(Microsoft.UI.Xaml.Media.Imaging.BitmapImage? value)
+    {
+        OnPropertyChanged(nameof(NoAlbumArtVisibility));
+    }
+
+    public Microsoft.UI.Xaml.Visibility NoAlbumArtVisibility => AlbumArtImage == null ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+
     public DevicesViewModel DevicesVM { get; }
 
     public PlayerViewModel(INetworkService networkService, ISmtcService smtcService, DevicesViewModel devicesVm)
