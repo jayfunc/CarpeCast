@@ -135,7 +135,11 @@ public partial class DevicesViewModel : ObservableObject
                 existingDevice.LastMediaState = e.State;
                 existingDevice.CommandPort = e.CommandPort;
                 
-                if (ActiveDevice == null) 
+                if (ActiveDevice == existingDevice)
+                {
+                    _networkService.ActiveEndpoint = e.SenderEndpoint;
+                }
+                else if (ActiveDevice == null) 
                 {
                     ActiveDevice = existingDevice;
                 }

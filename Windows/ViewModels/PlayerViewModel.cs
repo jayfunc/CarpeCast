@@ -78,6 +78,8 @@ public partial class PlayerViewModel : ObservableObject
     {
         _dispatcherQueue.TryEnqueue(() =>
         {
+            _smtcService.ClearMediaState();
+
             if (DevicesVM.ActiveDevice?.LastMediaState != null)
             {
                 var fakeArgs = new MediaStateReceivedEventArgs
