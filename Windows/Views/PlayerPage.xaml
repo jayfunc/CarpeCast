@@ -5,28 +5,31 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:CarpeCast.Models"
+    xmlns:labs="using:CommunityToolkit.WinUI.Controls"
     Background="Transparent"
     mc:Ignorable="d">
 
     <Grid>
-        <!--  Background Immersive Image  -->
-        <Image
+        <!--  Background Immersive Image with OpacityMaskView  -->
+        <labs:OpacityMaskView
             HorizontalAlignment="Stretch"
             VerticalAlignment="Top"
-            Source="{x:Bind ViewModel.AlbumArtImage, Mode=OneWay}"
-            Stretch="UniformToFill" />
-
-        <!--  Fade out gradient overlay  -->
-        <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Offset="0.0" Color="#00000000" />
-                    <GradientStop Offset="0.3" Color="#00000000" />
-                    <GradientStop Offset="0.8" Color="{ThemeResource LayerFillColorDefault}" />
-                    <GradientStop Offset="1.0" Color="{ThemeResource LayerFillColorDefault}" />
-                </LinearGradientBrush>
-            </Border.Background>
-        </Border>
+            Opacity="0.8">
+            <labs:OpacityMaskView.OpacityMask>
+                <Border>
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Offset="0.0" Color="#FFFFFFFF" />
+                            <GradientStop Offset="0.5" Color="#FFFFFFFF" />
+                            <GradientStop Offset="1.0" Color="#00FFFFFF" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+            </labs:OpacityMaskView.OpacityMask>
+            <Image
+                Source="{x:Bind ViewModel.AlbumArtImage, Mode=OneWay}"
+                Stretch="UniformToFill" />
+        </labs:OpacityMaskView>
 
         <!--  Placeholder Icon  -->
         <FontIcon
