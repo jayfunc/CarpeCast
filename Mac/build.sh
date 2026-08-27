@@ -17,12 +17,12 @@ mkdir -p "$RESOURCES_DIR"
 # Compile SwiftUI App
 swiftc -O \
     -target x86_64-apple-macosx11.0 \
-    "$SRC_DIR"/ContentView.swift "$SRC_DIR"/MediaManager.swift "$SRC_DIR"/NetworkManager.swift "$SRC_DIR"/PlayerView.swift \
+    "$SRC_DIR"/ContentView.swift "$SRC_DIR"/MediaManager.swift "$SRC_DIR"/NetworkManager.swift "$SRC_DIR"/UDPSocket.swift "$SRC_DIR"/PlayerView.swift \
     -o "$MACOS_DIR/${APP_NAME}_x86_64"
 
 swiftc -O \
     -target arm64-apple-macosx11.0 \
-    "$SRC_DIR"/ContentView.swift "$SRC_DIR"/MediaManager.swift "$SRC_DIR"/NetworkManager.swift "$SRC_DIR"/PlayerView.swift \
+    "$SRC_DIR"/ContentView.swift "$SRC_DIR"/MediaManager.swift "$SRC_DIR"/NetworkManager.swift "$SRC_DIR"/UDPSocket.swift "$SRC_DIR"/PlayerView.swift \
     -o "$MACOS_DIR/${APP_NAME}_arm64"
 
 lipo -create -output "$MACOS_DIR/$APP_NAME" "$MACOS_DIR/${APP_NAME}_x86_64" "$MACOS_DIR/${APP_NAME}_arm64"

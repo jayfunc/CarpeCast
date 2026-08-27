@@ -1,5 +1,4 @@
 import Foundation
-import Network
 import AppKit
 
 struct DiscoveredDevice: Identifiable, Hashable {
@@ -17,29 +16,19 @@ class NetworkManager: ObservableObject {
     @Published var discoveredDevices: [DiscoveredDevice] = []
     @Published var connectedDevice: DiscoveredDevice? = nil
     
-    private var discoveryListener: NWListener?
-    private var commandListener: NWListener?
+    let deviceName = Host.current().localizedName ?? "Mac"
     
-    private var broadcastConnection: NWConnection?
-    private var syncConnection: NWConnection?
+    private var discoverySocket: UDPSocket?
+    private var commandSocket: UDPSocket?
+    private var broadcastSocket: UDPSocket?
+    private var syncSocket: UDPSocket?
+    
+    private let discoveryPort: UInt16 = 5001
+    private let commandPort: UInt16 = 5002
     
     private var broadcastTimer: Timer?
     private var syncTimer: Timer?
-    
-    var discoveryPort: NWEndpoint.Port {
-        let p = UserDefaults.standard.integer(forKey: "discoveryPort")
-        return NWEndpoint.Port(integerLiteral: p == 0 ? 5001 : UInt16(p))
-    }
-    
-    var commandPort: NWEndpoint.Port {
-        let p = UserDefaults.standard.integer(forKey: "commandPort")
-        return NWEndpoint.Port(integerLiteral: p == 0 ? 5002 : UInt16(p))
-    }
-    
-    var deviceName: String {
-        let name = UserDefaults.standard.string(forKey: "deviceName") ?? ""
-        return name.isEmpty ? Host.current().localizedName ?? "Mac" : name
-    }
+    private var cleanupTimer: Timer?
     
     init() {
         startDiscoveryListener()
@@ -50,9 +39,11 @@ class NetworkManager: ObservableObject {
     }
     
     func restartNetworking() {
-        discoveryListener?.cancel()
-        commandListener?.cancel()
-        broadcastConnection?.cancel()
+        discoverySocket?.close()
+        commandSocket?.close()
+        broadcastSocket?.close()
+        syncSocket?.close()
+        
         broadcastTimer?.invalidate()
         syncTimer?.invalidate()
         cleanupTimer?.invalidate()
@@ -66,61 +57,41 @@ class NetworkManager: ObservableObject {
     
     func connectToDevice(_ device: DiscoveredDevice) {
         connectedDevice = device
-        
-        let endpoint = NWEndpoint.hostPort(host: NWEndpoint.Host(device.ip), port: NWEndpoint.Port(integerLiteral: UInt16(device.port)))
-        syncConnection = NWConnection(to: endpoint, using: .udp)
-        syncConnection?.start(queue: .global())
+        if syncSocket == nil {
+            syncSocket = UDPSocket()
+        }
     }
     
     func disconnect() {
         connectedDevice = nil
-        syncConnection?.cancel()
-        syncConnection = nil
+        syncSocket?.close()
+        syncSocket = nil
     }
     
     private func startDiscoveryListener() {
-        do {
-            let params = NWParameters.udp
-            params.allowLocalEndpointReuse = true
-            discoveryListener = try NWListener(using: params, on: discoveryPort)
-            discoveryListener?.newConnectionHandler = { [weak self] connection in
-                connection.start(queue: .global())
-                self?.receiveDiscovery(connection: connection)
-            }
-            discoveryListener?.start(queue: .global())
-        } catch {
-            print("Failed to start discovery listener")
-        }
-    }
-    
-    private var cleanupTimer: Timer?
-    
-    private func receiveDiscovery(connection: NWConnection) {
-        connection.receiveMessage { [weak self] (data, context, isComplete, error) in
-            if let data = data, let msg = String(data: data, encoding: .utf8) {
+        discoverySocket = UDPSocket()
+        if discoverySocket?.bind(port: discoveryPort) == true {
+            discoverySocket?.startReceiving { [weak self] (msg, ip) in
                 if msg.hasPrefix("CARPECAST_RECEIVER:") {
                     let parts = msg.components(separatedBy: ":")
                     let name = parts.count > 1 ? parts[1] : "PC"
                     let port = parts.count > 2 ? (Int(parts[2]) ?? 5000) : 5000
                     let type = parts.count > 3 ? parts[3] : "Desktop"
                     
-                    let ipStr = "\(connection.endpoint)".components(separatedBy: ":").first ?? ""
-                    
                     DispatchQueue.main.async {
-                        if let idx = self?.discoveredDevices.firstIndex(where: { $0.ip == ipStr }) {
+                        if let idx = self?.discoveredDevices.firstIndex(where: { $0.ip == ip }) {
                             self?.discoveredDevices[idx].name = name
                             self?.discoveredDevices[idx].port = port
                             self?.discoveredDevices[idx].type = type
                             self?.discoveredDevices[idx].lastSeen = Date()
                         } else {
-                            self?.discoveredDevices.append(DiscoveredDevice(ip: ipStr, name: name, port: port, type: type))
+                            self?.discoveredDevices.append(DiscoveredDevice(ip: ip, name: name, port: port, type: type))
                         }
                     }
                 }
             }
-            if error == nil {
-                self?.receiveDiscovery(connection: connection)
-            }
+        } else {
+            print("Failed to bind discovery socket")
         }
     }
     
@@ -129,7 +100,7 @@ class NetworkManager: ObservableObject {
             guard let self = self else { return }
             let now = Date()
             self.discoveredDevices.removeAll { device in
-                let isLost = now.timeIntervalSince(device.lastSeen) > 10.0 // Relaxed to 10 seconds
+                let isLost = now.timeIntervalSince(device.lastSeen) > 10.0
                 if isLost && self.connectedDevice?.ip == device.ip {
                     self.disconnect()
                 }
@@ -139,30 +110,14 @@ class NetworkManager: ObservableObject {
     }
     
     private func startCommandListener() {
-        do {
-            let params = NWParameters.udp
-            params.allowLocalEndpointReuse = true
-            commandListener = try NWListener(using: params, on: commandPort)
-            commandListener?.newConnectionHandler = { [weak self] connection in
-                connection.start(queue: .global())
-                self?.receiveCommand(connection: connection)
-            }
-            commandListener?.start(queue: .global())
-        } catch {
-            print("Failed to start command listener")
-        }
-    }
-    
-    private func receiveCommand(connection: NWConnection) {
-        connection.receiveMessage { [weak self] (data, context, isComplete, error) in
-            guard let self = self else { return }
-            if let data = data, let cmd = String(data: data, encoding: .utf8) {
+        commandSocket = UDPSocket()
+        if commandSocket?.bind(port: commandPort) == true {
+            commandSocket?.startReceiving { [weak self] (cmd, ip) in
+                guard let self = self else { return }
                 if cmd == "CONNECT_REQUEST" {
-                    let ipStr = "\(connection.endpoint)".components(separatedBy: ":").first ?? ""
                     DispatchQueue.main.async {
-                        // Find the device or create a dummy one to connect back
-                        let dev = self.discoveredDevices.first(where: { $0.ip == ipStr }) ??
-                            DiscoveredDevice(ip: ipStr, name: "Remote PC", port: 5000, type: "Desktop")
+                        let dev = self.discoveredDevices.first(where: { $0.ip == ip }) ??
+                            DiscoveredDevice(ip: ip, name: "Remote PC", port: 5000, type: "Desktop")
                         self.connectToDevice(dev)
                     }
                 } else if cmd == "DISCONNECT_REQUEST" {
@@ -173,29 +128,25 @@ class NetworkManager: ObservableObject {
                     MediaManager.shared.sendCommand(cmd)
                 }
             }
-            if error == nil {
-                self.receiveCommand(connection: connection)
-            }
+        } else {
+            print("Failed to bind command socket")
         }
     }
     
     private func startBroadcasting() {
-        let endpoint = NWEndpoint.hostPort(host: "255.255.255.255", port: 5003)
-        let params = NWParameters.udp
-        params.allowLocalEndpointReuse = true
-        broadcastConnection = NWConnection(to: endpoint, using: params)
-        broadcastConnection?.start(queue: .global())
+        broadcastSocket = UDPSocket()
+        broadcastSocket?.enableBroadcast()
         
         broadcastTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
             guard let self = self else { return }
-            let msg = "CARPECAST_SENDER:\(self.deviceName):\(self.commandPort.rawValue):Desktop:macOS"
-            self.broadcastConnection?.send(content: msg.data(using: .utf8), completion: .contentProcessed({ _ in }))
+            let msg = "CARPECAST_SENDER:\(self.deviceName):\(self.commandPort):Desktop:macOS"
+            self.broadcastSocket?.send(string: msg, to: "255.255.255.255", port: 5003)
         }
     }
     
     private func startSyncing() {
         syncTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            guard let self = self, let conn = self.syncConnection else { return }
+            guard let self = self, let device = self.connectedDevice, let sock = self.syncSocket else { return }
             
             let m = MediaManager.shared
             var dict: [String: Any] = [
@@ -205,13 +156,12 @@ class NetworkManager: ObservableObject {
                 "isPlaying": m.isPlaying,
                 "position": m.position,
                 "duration": m.duration,
-                "commandPort": self.commandPort.rawValue,
+                "commandPort": Int(self.commandPort),
                 "deviceName": self.deviceName,
                 "deviceType": "Desktop",
                 "osVersion": "macOS"
             ]
             if !m.albumArtBase64.isEmpty {
-                // Resize image to avoid >64KB UDP packet drops
                 if let data = Data(base64Encoded: m.albumArtBase64, options: .ignoreUnknownCharacters),
                    let image = NSImage(data: data) {
                     let targetSize = NSSize(width: 150, height: 150)
@@ -231,7 +181,7 @@ class NetworkManager: ObservableObject {
             }
             
             if let data = try? JSONSerialization.data(withJSONObject: dict, options: []) {
-                conn.send(content: data, completion: .contentProcessed({ _ in }))
+                sock.send(data: data, to: device.ip, port: UInt16(device.port))
             }
         }
     }
