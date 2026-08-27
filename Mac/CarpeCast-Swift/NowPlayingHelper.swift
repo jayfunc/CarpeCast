@@ -19,16 +19,11 @@ public func run_helper() {
 
     try? "Perl injected and MRMediaRemoteGetNowPlayingInfo loaded".write(toFile: "/tmp/perl_debug.log", atomically: true, encoding: .utf8)
 
-    let group = DispatchGroup()
-    group.enter()
-
     MRMediaRemoteGetNowPlayingInfo(DispatchQueue.main) { infoOpt in
-        defer { group.leave() }
-        
         guard let info = infoOpt else {
             try? "infoOpt is nil".write(toFile: "/tmp/perl_debug.log", atomically: true, encoding: .utf8)
             print("nil")
-            return
+            exit(0)
         }
         
         try? "infoOpt received: \(info.keys)".write(toFile: "/tmp/perl_debug.log", atomically: true, encoding: .utf8)
@@ -80,8 +75,9 @@ public func run_helper() {
         } else {
             print("\(title)|||\(artist)|||\(album)|||\(isPlaying)|||\(position)|||\(duration)|||\(albumArtBase64)")
         }
+        exit(0)
     }
 
-    // Timeout after 1.5 seconds if MediaRemote doesn't respond
-    _ = group.wait(timeout: .now() + 1.5)
+    // Run the main runloop for up to 1.5 seconds to allow the callback to execute
+    RunLoop.main.run(until: Date(timeIntervalSinceNow: 1.5))
 }
