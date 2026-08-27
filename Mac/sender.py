@@ -770,6 +770,29 @@ class MacSenderApp:
                         self.log_once(self._("send_fail").format(e))
                 else:
                     self.root.after(0, self.update_player_ui, "当前无媒体播放", "-", "-", False, "-")
+                    try:
+                        empty_info = {
+                            "title": "",
+                            "artist": "",
+                            "album": "",
+                            "isPlaying": False,
+                            "position": 0.0,
+                            "duration": 0.0,
+                            "albumArt": "",
+                            "deviceName": self.config_mgr.get("device_name"),
+                            "deviceType": "Desktop",
+                            "osVersion": "macOS",
+                            "commandPort": self.config_mgr.get("command_port")
+                        }
+                        data = json.dumps(empty_info).encode('utf-8')
+                        sock.sendto(data, (self.selected_ip, self.selected_port))
+                        
+                        current_state = "empty"
+                        if current_state != last_log_state:
+                            self.log("🎵 发送空状态 (保持连接)")
+                            last_log_state = current_state
+                    except Exception as e:
+                        self.log_once(self._("send_fail").format(e))
                     
             time.sleep(2)
 
