@@ -41,31 +41,31 @@
         <!-- Foreground Content -->
         <Grid Padding="24">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <!-- Device Selector -->
-            <ComboBox
-                Grid.Row="0"
-                x:Uid="SelectDevice"
-                HorizontalAlignment="Center"
-                ItemsSource="{x:Bind ViewModel.DevicesVM.Devices, Mode=OneWay}"
-                SelectedItem="{x:Bind ViewModel.DevicesVM.ActiveDevice, Mode=TwoWay}"
-                PlaceholderText="Select Device"
-                BorderThickness="0"
-                Background="Transparent"
-                MinWidth="200">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate x:DataType="models:DeviceModel">
-                        <TextBlock Text="{x:Bind DeviceName}" />
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
-
             <!-- Info & Controls -->
-            <StackPanel Grid.Row="2" Spacing="16" MaxWidth="560" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+            <StackPanel Grid.Row="1" Spacing="16" MaxWidth="560" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+                
+                <!-- Device Selector -->
+                <ComboBox
+                    x:Uid="SelectDevice"
+                    HorizontalAlignment="Left"
+                    ItemsSource="{x:Bind ViewModel.DevicesVM.Devices, Mode=OneWay}"
+                    SelectedItem="{x:Bind ViewModel.DevicesVM.ActiveDevice, Mode=TwoWay}"
+                    PlaceholderText="Select Device"
+                    BorderThickness="0"
+                    Background="Transparent"
+                    Padding="0,4,4,4"
+                    MinWidth="160">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="models:DeviceModel">
+                            <TextBlock Text="{x:Bind DeviceName}" FontWeight="SemiBold" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
                 <!-- Text -->
                 <StackPanel Spacing="4">
                     <TextBlock Text="{x:Bind ViewModel.DisplayTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" TextTrimming="CharacterEllipsis" MaxLines="1" HorizontalAlignment="Left" />
