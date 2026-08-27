@@ -96,10 +96,10 @@ public class NetworkService : INetworkService
     {
         Task.Run(async () =>
         {
-            try
+            _dataClient = new UdpClient(_settings.DataPort);
+            while (!token.IsCancellationRequested)
             {
-                _dataClient = new UdpClient(_settings.DataPort);
-                while (!token.IsCancellationRequested)
+                try
                 {
                     var result = await _dataClient.ReceiveAsync();
                     var incomingEndpoint = result.RemoteEndPoint;
@@ -147,10 +147,10 @@ public class NetworkService : INetworkService
                         SenderEndpoint = incomingEndpoint
                     });
                 }
-            }
-            catch
-            {
-                // Task cancelled or port in use
+                catch
+                {
+                    // Ignore bad packets or task cancellation
+                }
             }
         }, token);
     }

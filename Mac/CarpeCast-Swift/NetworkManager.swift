@@ -4,9 +4,10 @@ import Network
 struct DiscoveredDevice: Identifiable, Hashable {
     let id = UUID()
     let ip: String
-    let name: String
-    let port: Int
-    let type: String
+    var name: String
+    var port: Int
+    var type: String
+    var lastSeen: Date = Date()
 }
 
 class NetworkManager: ObservableObject {
@@ -44,6 +45,7 @@ class NetworkManager: ObservableObject {
         startCommandListener()
         startBroadcasting()
         startSyncing()
+        startCleanupTimer()
     }
     
     func restartNetworking() {
@@ -52,11 +54,13 @@ class NetworkManager: ObservableObject {
         broadcastConnection?.cancel()
         broadcastTimer?.invalidate()
         syncTimer?.invalidate()
+        cleanupTimer?.invalidate()
         
         startDiscoveryListener()
         startCommandListener()
         startBroadcasting()
         startSyncing()
+        startCleanupTimer()
     }
     
     func connectToDevice(_ device: DiscoveredDevice) {
@@ -88,6 +92,8 @@ class NetworkManager: ObservableObject {
         }
     }
     
+    private var cleanupTimer: Timer?
+    
     private func receiveDiscovery(connection: NWConnection) {
         connection.receiveMessage { [weak self] (data, context, isComplete, error) in
             if let data = data, let msg = String(data: data, encoding: .utf8) {
@@ -100,7 +106,12 @@ class NetworkManager: ObservableObject {
                     let ipStr = "\(connection.endpoint)".components(separatedBy: ":").first ?? ""
                     
                     DispatchQueue.main.async {
-                        if !(self?.discoveredDevices.contains(where: { $0.ip == ipStr }) ?? true) {
+                        if let idx = self?.discoveredDevices.firstIndex(where: { $0.ip == ipStr }) {
+                            self?.discoveredDevices[idx].name = name
+                            self?.discoveredDevices[idx].port = port
+                            self?.discoveredDevices[idx].type = type
+                            self?.discoveredDevices[idx].lastSeen = Date()
+                        } else {
                             self?.discoveredDevices.append(DiscoveredDevice(ip: ipStr, name: name, port: port, type: type))
                         }
                     }
@@ -108,6 +119,20 @@ class NetworkManager: ObservableObject {
             }
             if error == nil {
                 self?.receiveDiscovery(connection: connection)
+            }
+        }
+    }
+    
+    private func startCleanupTimer() {
+        cleanupTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            let now = Date()
+            self.discoveredDevices.removeAll { device in
+                let isLost = now.timeIntervalSince(device.lastSeen) > 5.0
+                if isLost && self.connectedDevice?.ip == device.ip {
+                    self.disconnect()
+                }
+                return isLost
             }
         }
     }
@@ -185,7 +210,23 @@ class NetworkManager: ObservableObject {
                 "osVersion": "macOS"
             ]
             if !m.albumArtBase64.isEmpty {
-                dict["albumArt"] = m.albumArtBase64
+                // Resize image to avoid >64KB UDP packet drops
+                if let data = Data(base64Encoded: m.albumArtBase64, options: .ignoreUnknownCharacters),
+                   let image = NSImage(data: data) {
+                    let targetSize = NSSize(width: 150, height: 150)
+                    let newImage = NSImage(size: targetSize)
+                    newImage.lockFocus()
+                    image.draw(in: NSRect(origin: .zero, size: targetSize),
+                               from: NSRect(origin: .zero, size: image.size),
+                               operation: .copy,
+                               fraction: 1.0)
+                    newImage.unlockFocus()
+                    if let tiff = newImage.tiffRepresentation,
+                       let bitmap = NSBitmapImageRep(data: tiff),
+                       let jpeg = bitmap.representation(using: .jpeg, properties: [.compressionFactor: 0.5]) {
+                        dict["albumArt"] = jpeg.base64EncodedString()
+                    }
+                }
             }
             
             if let data = try? JSONSerialization.data(withJSONObject: dict, options: []) {
