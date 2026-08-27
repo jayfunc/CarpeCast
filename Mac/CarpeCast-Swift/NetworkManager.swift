@@ -1,5 +1,6 @@
 import Foundation
 import Network
+import AppKit
 
 struct DiscoveredDevice: Identifiable, Hashable {
     let id = UUID()
