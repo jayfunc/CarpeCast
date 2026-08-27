@@ -35,4 +35,7 @@ public partial class DeviceModel : ObservableObject
     public partial string OsVersion { get; set; } = string.Empty;
 
     public MediaState? LastMediaState { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsConnected { get; set; } = false;
 }

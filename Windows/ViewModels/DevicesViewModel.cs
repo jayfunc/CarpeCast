@@ -16,10 +16,8 @@ public partial class DevicesViewModel : ObservableObject
     private readonly DispatcherQueue _dispatcherQueue;
 
     public ObservableCollection<DeviceModel> Devices { get; } = new();
-    public ObservableCollection<DeviceModel> AvailableSenders { get; } = new();
 
     public Microsoft.UI.Xaml.Visibility NoDeviceVisibility => Devices.Count == 0 ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
-    public Microsoft.UI.Xaml.Visibility NoAvailableSendersVisibility => AvailableSenders.Count == 0 ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
 
     public event EventHandler? ActiveDeviceChanged;
 
@@ -46,11 +44,19 @@ public partial class DevicesViewModel : ObservableObject
     {
         _dispatcherQueue.TryEnqueue(() =>
         {
-            var existing = AvailableSenders.FirstOrDefault(d => d.IPAddress == e.Sender.IPAddress);
+            var existing = Devices.FirstOrDefault(d => d.IPAddress == e.Sender.IPAddress);
             if (existing == null)
             {
-                AvailableSenders.Add(e.Sender);
-                OnPropertyChanged(nameof(NoAvailableSendersVisibility));
+                e.Sender.IsConnected = false;
+                Devices.Add(e.Sender);
+                OnPropertyChanged(nameof(NoDeviceVisibility));
+            }
+            else
+            {
+                existing.DeviceName = e.Sender.DeviceName;
+                existing.DeviceType = e.Sender.DeviceType;
+                existing.OsVersion = e.Sender.OsVersion;
+                existing.CommandPort = e.Sender.CommandPort;
             }
         });
     }
@@ -59,11 +65,12 @@ public partial class DevicesViewModel : ObservableObject
     {
         _dispatcherQueue.TryEnqueue(() =>
         {
-            var existing = AvailableSenders.FirstOrDefault(d => d.IPAddress == e.Sender.IPAddress);
+            var existing = Devices.FirstOrDefault(d => d.IPAddress == e.Sender.IPAddress);
             if (existing != null)
             {
-                AvailableSenders.Remove(existing);
-                OnPropertyChanged(nameof(NoAvailableSendersVisibility));
+                if (ActiveDevice == existing) ActiveDevice = null;
+                Devices.Remove(existing);
+                OnPropertyChanged(nameof(NoDeviceVisibility));
             }
         });
     }
@@ -84,15 +91,15 @@ public partial class DevicesViewModel : ObservableObject
         {
             if (e.SenderEndpoint == null) return;
 
-            var existingDevice = Devices.FirstOrDefault(d => d.Endpoint != null && d.Endpoint.Equals(e.SenderEndpoint));
+            var existingDevice = Devices.FirstOrDefault(d => d.IPAddress == e.SenderIp);
 
             if (e.IsDisconnect)
             {
                 if (existingDevice != null)
                 {
+                    existingDevice.IsConnected = false;
+                    existingDevice.LastMediaState = null;
                     if (ActiveDevice == existingDevice) ActiveDevice = null;
-                    Devices.Remove(existingDevice);
-                    OnPropertyChanged(nameof(NoDeviceVisibility));
                 }
                 return;
             }
@@ -107,7 +114,8 @@ public partial class DevicesViewModel : ObservableObject
                     DeviceName = e.State.RemoteDeviceName,
                     DeviceType = e.State.RemoteDeviceType,
                     OsVersion = e.State.RemoteOsVersion,
-                    LastMediaState = e.State
+                    LastMediaState = e.State,
+                    IsConnected = true
                 };
                 Devices.Add(newDevice);
                 OnPropertyChanged(nameof(NoDeviceVisibility));
@@ -119,11 +127,18 @@ public partial class DevicesViewModel : ObservableObject
             }
             else
             {
+                existingDevice.IsConnected = true;
+                existingDevice.Endpoint = e.SenderEndpoint;
                 existingDevice.DeviceName = e.State.RemoteDeviceName;
                 existingDevice.DeviceType = e.State.RemoteDeviceType;
                 existingDevice.OsVersion = e.State.RemoteOsVersion;
                 existingDevice.LastMediaState = e.State;
                 existingDevice.CommandPort = e.CommandPort;
+                
+                if (ActiveDevice == null) 
+                {
+                    ActiveDevice = existingDevice;
+                }
             }
         });
     }
@@ -136,9 +151,8 @@ public partial class DevicesViewModel : ObservableObject
             var endpoint = new System.Net.IPEndPoint(System.Net.IPAddress.Parse(device.IPAddress), device.CommandPort);
             await _networkService.SendCommandToEndpointAsync("DISCONNECT_REQUEST", endpoint);
             
+            device.IsConnected = false;
             if (ActiveDevice == device) ActiveDevice = null;
-            Devices.Remove(device);
-            OnPropertyChanged(nameof(NoDeviceVisibility));
         }
     }
 }
