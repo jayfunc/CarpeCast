@@ -142,6 +142,9 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         startService(Intent(this, MediaSyncService::class.java))
+        sendBroadcast(Intent("com.jayfunc.carpecast.RELOAD_SETTINGS").apply {
+            setPackage(packageName)
+        })
     }
 }
 
