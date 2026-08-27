@@ -9,114 +9,61 @@
     mc:Ignorable="d">
 
     <Grid>
-        <ComboBox
-            x:Uid="SelectDevice"
-            Margin="36"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Top"
-            ItemsSource="{x:Bind ViewModel.DevicesVM.Devices, Mode=OneWay}"
-            SelectedItem="{x:Bind ViewModel.DevicesVM.ActiveDevice, Mode=TwoWay}"
-            PlaceholderText="Select Device"
-            Width="200">
-            <ComboBox.ItemTemplate>
-                <DataTemplate x:DataType="models:DeviceModel">
-                    <TextBlock Text="{x:Bind DeviceName}" />
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
-
-        <StackPanel
-            Margin="36"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Center"
-            Orientation="Vertical"
-            Spacing="8">
-
-            <Border
-                Width="200"
-                Height="200"
-                Margin="0,0,0,16"
+        <StackPanel MaxWidth="440" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="24" Margin="24">
+            
+            <ComboBox
+                x:Uid="SelectDevice"
                 HorizontalAlignment="Center"
-                CornerRadius="16">
-                <Border.Background>
-                    <SolidColorBrush Color="{ThemeResource SurfaceStrokeColorDefault}" />
-                </Border.Background>
-                <Image
-                    Source="{x:Bind ViewModel.AlbumArtImage, Mode=OneWay}"
-                    Stretch="UniformToFill" />
+                ItemsSource="{x:Bind ViewModel.DevicesVM.Devices, Mode=OneWay}"
+                SelectedItem="{x:Bind ViewModel.DevicesVM.ActiveDevice, Mode=TwoWay}"
+                PlaceholderText="Select Device"
+                BorderThickness="0"
+                Background="Transparent"
+                MinWidth="200">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:DeviceModel">
+                        <TextBlock Text="{x:Bind DeviceName}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+
+            <!-- Album Art Container -->
+            <Border Width="320" Height="320" CornerRadius="16" BorderBrush="{ThemeResource SurfaceStrokeColorDefault}" BorderThickness="1" Background="{ThemeResource LayerFillColorDefaultBrush}" HorizontalAlignment="Center">
+                <Grid>
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8D6;" FontSize="64" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                    <Image Source="{x:Bind ViewModel.AlbumArtImage, Mode=OneWay}" Stretch="UniformToFill" />
+                </Grid>
             </Border>
 
-            <TextBlock
-                HorizontalAlignment="Center"
-                FontWeight="SemiBold"
-                Style="{ThemeResource TitleTextBlockStyle}"
-                Text="{x:Bind ViewModel.DisplayTitle, Mode=OneWay}"
-                TextTrimming="CharacterEllipsis"
-                TextWrapping="NoWrap" />
-            <TextBlock
-                HorizontalAlignment="Center"
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                Style="{ThemeResource BodyTextBlockStyle}"
-                Text="{x:Bind ViewModel.DisplayArtist, Mode=OneWay}"
-                TextTrimming="CharacterEllipsis"
-                TextWrapping="NoWrap" />
-            <TextBlock
-                HorizontalAlignment="Center"
-                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                Style="{ThemeResource CaptionTextBlockStyle}"
-                Text="{x:Bind ViewModel.DisplayAlbum, Mode=OneWay}"
-                TextTrimming="CharacterEllipsis"
-                TextWrapping="NoWrap" />
+            <StackPanel Spacing="16" Margin="16,0,16,0">
+                <!-- Text -->
+                <StackPanel Spacing="4">
+                    <TextBlock Text="{x:Bind ViewModel.DisplayTitle, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="Bold" TextTrimming="CharacterEllipsis" MaxLines="1" HorizontalAlignment="Left" />
+                    <TextBlock Text="{x:Bind ViewModel.DisplayArtist, Mode=OneWay}" Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextTrimming="CharacterEllipsis" MaxLines="1" HorizontalAlignment="Left" />
+                    <TextBlock Text="{x:Bind ViewModel.DisplayAlbum, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorTertiaryBrush}" TextTrimming="CharacterEllipsis" MaxLines="1" HorizontalAlignment="Left" />
+                </StackPanel>
 
-            <ProgressBar
-                Margin="0,16,0,0"
-                HorizontalAlignment="Stretch"
-                Maximum="{x:Bind ViewModel.CurrentDuration, Mode=OneWay}"
-                Value="{x:Bind ViewModel.CurrentPosition, Mode=OneWay}" />
+                <!-- Progress -->
+                <StackPanel Spacing="8">
+                    <ProgressBar Maximum="{x:Bind ViewModel.CurrentDuration, Mode=OneWay}" Value="{x:Bind ViewModel.CurrentPosition, Mode=OneWay}" HorizontalAlignment="Stretch" />
+                    <Grid>
+                        <TextBlock HorizontalAlignment="Left" Text="{x:Bind ViewModel.FormattedPosition, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock HorizontalAlignment="Right" Text="{x:Bind ViewModel.FormattedDuration, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </Grid>
+                </StackPanel>
 
-            <Grid Margin="0,4,0,0">
-                <TextBlock
-                    HorizontalAlignment="Left"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Style="{ThemeResource CaptionTextBlockStyle}"
-                    Text="{x:Bind ViewModel.FormattedPosition, Mode=OneWay}" />
-                <TextBlock
-                    HorizontalAlignment="Right"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Style="{ThemeResource CaptionTextBlockStyle}"
-                    Text="{x:Bind ViewModel.FormattedDuration, Mode=OneWay}" />
-            </Grid>
-
-            <StackPanel
-                Margin="0,16,0,0"
-                HorizontalAlignment="Center"
-                Orientation="Horizontal"
-                Spacing="16">
-                <Button
-                    Width="48"
-                    Height="48"
-                    Command="{x:Bind ViewModel.PreviousCommand}"
-                    CornerRadius="24">
-                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE892;" />
-                </Button>
-                <Button
-                    Width="64"
-                    Height="64"
-                    Command="{x:Bind ViewModel.PlayPauseCommand}"
-                    CornerRadius="32"
-                    Style="{ThemeResource AccentButtonStyle}">
-                    <FontIcon
-                        FontFamily="Segoe Fluent Icons"
-                        FontSize="24"
-                        Glyph="{x:Bind ViewModel.PlayPauseIcon, Mode=OneWay}" />
-                </Button>
-                <Button
-                    Width="48"
-                    Height="48"
-                    Command="{x:Bind ViewModel.NextCommand}"
-                    CornerRadius="24">
-                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE893;" />
-                </Button>
+                <!-- Controls -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="24">
+                    <Button Width="48" Height="48" CornerRadius="24" Command="{x:Bind ViewModel.PreviousCommand}" Background="Transparent" BorderThickness="0">
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE892;" FontSize="18" />
+                    </Button>
+                    <Button Width="64" Height="64" CornerRadius="32" Command="{x:Bind ViewModel.PlayPauseCommand}" Style="{ThemeResource AccentButtonStyle}">
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="{x:Bind ViewModel.PlayPauseIcon, Mode=OneWay}" FontSize="24" />
+                    </Button>
+                    <Button Width="48" Height="48" CornerRadius="24" Command="{x:Bind ViewModel.NextCommand}" Background="Transparent" BorderThickness="0">
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE893;" FontSize="18" />
+                    </Button>
+                </StackPanel>
             </StackPanel>
         </StackPanel>
     </Grid>
