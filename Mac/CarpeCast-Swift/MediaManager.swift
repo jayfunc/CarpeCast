@@ -47,15 +47,44 @@ class MediaManager: ObservableObject {
     }
     
     private func parseAndApplyInfo(_ raw: String, method: String) {
-        let parts = raw.components(separatedBy: "|||")
-        if parts.count >= 6 {
-            self.title = parts[0]
-            self.artist = parts[1]
-            self.album = parts[2]
-            self.isPlaying = (parts[3] == "true")
-            self.position = (Double(parts[4]) ?? 0.0) * 1000.0
-            self.duration = (Double(parts[5]) ?? 0.0) * 1000.0
-            self.albumArtBase64 = parts.count >= 7 ? parts[6] : ""
+        if method == "AppleScript" {
+            let parts = raw.components(separatedBy: "|||")
+            if parts.count >= 6 {
+                self.title = parts[0]
+                self.artist = parts[1]
+                self.album = parts[2]
+                self.isPlaying = (parts[3] == "true")
+                self.position = (Double(parts[4]) ?? 0.0) * 1000.0
+                self.duration = (Double(parts[5]) ?? 0.0) * 1000.0
+                self.albumArtBase64 = parts.count >= 7 ? parts[6] : ""
+                self.lastFetchMethod = method
+            }
+        } else {
+            // MediaRemote Adapter JSON
+            guard let data = raw.data(using: .utf8),
+                  let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {
+                return
+            }
+            
+            self.title = json["title"] as? String ?? ""
+            self.artist = json["artist"] as? String ?? ""
+            self.album = json["album"] as? String ?? ""
+            
+            if let playingNum = json["playing"] as? NSNumber {
+                self.isPlaying = playingNum.boolValue
+            } else {
+                self.isPlaying = false
+            }
+            
+            self.position = (json["elapsedTimeNow"] as? Double ?? json["elapsedTime"] as? Double ?? 0.0) * 1000.0
+            self.duration = (json["duration"] as? Double ?? 0.0) * 1000.0
+            
+            if let artwork = json["artworkData"] as? String {
+                self.albumArtBase64 = artwork
+            } else {
+                self.albumArtBase64 = ""
+            }
+            
             self.lastFetchMethod = method
         }
     }
@@ -74,12 +103,13 @@ class MediaManager: ObservableObject {
     // MARK: - MediaRemote Fetch
     private func getMediaRemoteInfo(completion: @escaping (String?) -> Void) {
         DispatchQueue.global().async {
-            let perlScriptURL = Bundle.main.bundleURL.appendingPathComponent("Contents/MacOS/nowplaying_wrapper.pl")
-            let dylibURL = Bundle.main.bundleURL.appendingPathComponent("Contents/MacOS/libmac_nowplaying.dylib")
+            let perlScriptURL = Bundle.main.bundleURL.appendingPathComponent("Contents/MacOS/mediaremote-adapter.pl")
+            let frameworkURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Frameworks/MediaRemoteAdapter.framework")
             
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/usr/bin/perl")
-            process.arguments = [perlScriptURL.path, dylibURL.path]
+            // Use 'get' with '--now'
+            process.arguments = [perlScriptURL.path, frameworkURL.path, "get", "--now"]
             
             let pipe = Pipe()
             process.standardOutput = pipe
@@ -91,20 +121,17 @@ class MediaManager: ObservableObject {
                 
                 let data = pipe.fileHandleForReading.readDataToEndOfFile()
                 if let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) {
-                    try? "Perl output: \(output)".write(toFile: "/tmp/perl_output.log", atomically: true, encoding: .utf8)
-                    if output == "nil" || output.isEmpty {
+                    if output == "null" || output.isEmpty {
                         completion(nil)
-                    } else if output.components(separatedBy: "|||").count >= 6 {
+                    } else if output.starts(with: "{") {
                         completion(output)
                     } else {
-                        // Probably a perl error
                         completion(nil)
                     }
                 } else {
                     completion(nil)
                 }
             } catch {
-                try? "Process error: \(error)".write(toFile: "/tmp/perl_output.log", atomically: true, encoding: .utf8)
                 completion(nil)
             }
         }
