@@ -54,4 +54,10 @@
     <string name="settings_betterlyrics_desc">推荐搭配 BetterLyrics 获得最佳的桌面歌词体验。</string>
     <string name="settings_download_windows_title">下载 PC 版 CarpeCast</string>
     <string name="settings_download_windows_desc">在电脑上安装 CarpeCast 以实现音乐同步。</string>
+    
+    <string name="settings_system_permissions">系统权限</string>
+    <string name="settings_battery_optimization">电池策略 (后台运行)</string>
+    <string name="settings_battery_optimization_desc">防止后台同步服务被系统查杀（建议设为无限制）</string>
+    <string name="settings_auto_start">自启动</string>
+    <string name="settings_auto_start_desc">允许应用在后台运行并随系统启动</string>
 </resources>

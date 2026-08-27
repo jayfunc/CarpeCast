@@ -884,6 +884,53 @@ fun SettingsScreen(onNavigateToSources: () -> Unit) {
             ) { onNavigateToSources() }
         }
 
+        SettingsGroup(title = stringResource(R.string.settings_system_permissions)) {
+            SettingItem(
+                title = stringResource(R.string.settings_battery_optimization),
+                desc = stringResource(R.string.settings_battery_optimization_desc),
+                icon = R.drawable.ic_settings,
+                position = SettingItemPosition.Top
+            ) {
+                try {
+                    val intent = Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    intent.data = android.net.Uri.parse("package:${context.packageName}")
+                    context.startActivity(intent)
+                }
+            }
+
+            SettingItem(
+                title = stringResource(R.string.settings_auto_start),
+                desc = stringResource(R.string.settings_auto_start_desc),
+                icon = R.drawable.ic_settings,
+                position = SettingItemPosition.Bottom
+            ) {
+                try {
+                    val manufacturer = android.os.Build.MANUFACTURER.lowercase()
+                    val intent = Intent()
+                    when {
+                        manufacturer.contains("xiaomi") -> intent.component = android.content.ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity")
+                        manufacturer.contains("oppo") -> intent.component = android.content.ComponentName("com.coloros.safecenter", "com.coloros.safecenter.permission.startup.StartupAppListActivity")
+                        manufacturer.contains("vivo") -> intent.component = android.content.ComponentName("com.vivo.permissionmanager", "com.vivo.permissionmanager.activity.BgStartUpManagerActivity")
+                        manufacturer.contains("letv") -> intent.component = android.content.ComponentName("com.letv.android.letvsafe", "com.letv.android.letvsafe.AutobootManageActivity")
+                        manufacturer.contains("honor") -> intent.component = android.content.ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity")
+                        manufacturer.contains("huawei") -> intent.component = android.content.ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity")
+                        else -> {
+                            intent.action = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                            intent.data = android.net.Uri.parse("package:${context.packageName}")
+                        }
+                    }
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    intent.data = android.net.Uri.parse("package:${context.packageName}")
+                    context.startActivity(intent)
+                }
+            }
+        }
+
         SettingsGroup(title = stringResource(R.string.settings_network)) {
             val uiModeManager =
                 context.getSystemService(Context.UI_MODE_SERVICE) as android.app.UiModeManager

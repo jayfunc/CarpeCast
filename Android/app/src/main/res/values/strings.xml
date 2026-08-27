@@ -54,4 +54,10 @@
     <string name="settings_betterlyrics_desc">For the best desktop lyric experience, try BetterLyrics.</string>
     <string name="settings_download_windows_title">CarpeCast for PC</string>
     <string name="settings_download_windows_desc">Get the Windows app to sync playback with your PC.</string>
+    
+    <string name="settings_system_permissions">System Permissions</string>
+    <string name="settings_battery_optimization">Battery Optimization</string>
+    <string name="settings_battery_optimization_desc">Prevent background sync from being killed</string>
+    <string name="settings_auto_start">Auto-start</string>
+    <string name="settings_auto_start_desc">Allow app to start in the background</string>
 </resources>

@@ -54,4 +54,10 @@
     <string name="settings_betterlyrics_desc">最高のデスクトップ歌詞体験を得るには、BetterLyricsをおすすめします。</string>
     <string name="settings_download_windows_title">PC版CarpeCastをダウンロード</string>
     <string name="settings_download_windows_desc">音楽を同期するには、PCにCarpeCastをインストールしてください。</string>
+
+    <string name="settings_system_permissions">システム権限</string>
+    <string name="settings_battery_optimization">バッテリー最適化</string>
+    <string name="settings_battery_optimization_desc">バックグラウンド同期の終了を防ぐ（制限なしを推奨）</string>
+    <string name="settings_auto_start">自動起動</string>
+    <string name="settings_auto_start_desc">アプリのバックグラウンド実行と自動起動を許可</string>
 </resources>
