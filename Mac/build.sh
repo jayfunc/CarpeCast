@@ -34,8 +34,4 @@ cp "$SRC_DIR/Info.plist" "$APP_BUNDLE/Contents/Info.plist"
 # Create PkgInfo
 echo -n "APPL????" > "$APP_BUNDLE/Contents/PkgInfo"
 
-# Code sign the app with ad-hoc signature (Required for Apple Silicon, otherwise it shows as damaged)
-echo "Codesigning app..."
-codesign --force --deep --sign - "$APP_BUNDLE"
-
 echo "Build complete! App bundle created at $APP_BUNDLE"
