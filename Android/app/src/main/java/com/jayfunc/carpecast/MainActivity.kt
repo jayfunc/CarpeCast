@@ -313,16 +313,68 @@ fun PlayerScreen(state: MediaState) {
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.fillMaxSize()
     ) {
+        // 1. Immersive Background
+        if (state.albumArt != null) {
+            Image(
+                bitmap = state.albumArt!!.asImageBitmap(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.65f)
+                    .align(Alignment.TopCenter)
+            )
+            // Gradient Overlay
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.65f)
+                    .align(Alignment.TopCenter)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.background.copy(alpha = 0.2f),
+                                MaterialTheme.colorScheme.background.copy(alpha = 0.6f),
+                                MaterialTheme.colorScheme.background
+                            )
+                        )
+                    )
+            )
+        } else {
+            // Placeholder
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.65f)
+                    .align(Alignment.TopCenter)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                MaterialTheme.colorScheme.background
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_album_placeholder),
+                    contentDescription = null,
+                    modifier = Modifier.size(120.dp).offset(y = (-40).dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+                )
+            }
+        }
 
+        // 2. Foreground Content
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Bottom
         ) {
             if (!hasPermission) {
                 Card(
@@ -354,157 +406,87 @@ fun PlayerScreen(state: MediaState) {
                 }
             }
 
-
-
             Crossfade(
                 targetState = trackId, animationSpec = tween(500), label = "TrackCrossfade",
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.fillMaxWidth()
             ) { _ ->
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.Start
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(0.8f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Box(modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f)) {
-                            if (state.albumArt != null) {
-                                Image(
-                                    bitmap = state.albumArt!!.asImageBitmap(),
-                                    contentDescription = "Album Art",
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .shadow(
-                                            elevation = 24.dp,
-                                            shape = RoundedCornerShape(24.dp),
-                                            ambientColor = MaterialTheme.colorScheme.primary,
-                                            spotColor = MaterialTheme.colorScheme.primary
-                                        )
-                                        .clip(RoundedCornerShape(24.dp))
-                                )
-                            } else {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .shadow(elevation = 8.dp, shape = RoundedCornerShape(24.dp))
-                                        .clip(RoundedCornerShape(24.dp))
-                                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                                    contentAlignment = Alignment.Center
+                    // App Source Chip
+                    if (state.packageName != null) {
+                        val pm = context.packageManager
+                        val appDetails = remember(state.packageName) {
+                            try {
+                                val appInfo = pm.getApplicationInfo(state.packageName, 0)
+                                val appLabel = pm.getApplicationLabel(appInfo).toString()
+                                val icon = pm.getApplicationIcon(appInfo).toBitmap().asImageBitmap()
+                                Pair(appLabel, icon)
+                            } catch (e: PackageManager.NameNotFoundException) { null }
+                        }
+
+                        if (appDetails != null) {
+                            val (appLabel, icon) = appDetails
+                            Surface(
+                                shape = RoundedCornerShape(50),
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier
+                                    .padding(bottom = 16.dp)
+                                    .clip(RoundedCornerShape(50))
+                                    .clickable {
+                                        val intent = pm.getLaunchIntentForPackage(state.packageName)
+                                        if (intent != null) context.startActivity(intent)
+                                    },
+                                shadowElevation = 0.dp
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
                                 ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_album_placeholder),
-                                        contentDescription = "Placeholder",
-                                        modifier = Modifier.size(96.dp),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                                    Image(bitmap = icon, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = appLabel,
+                                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                                     )
-                                }
-                            }
-
-                            if (state.packageName != null) {
-                                val pm = context.packageManager
-                                val appDetails = remember(state.packageName) {
-                                    try {
-                                        val appInfo = pm.getApplicationInfo(state.packageName, 0)
-                                        val appLabel = pm.getApplicationLabel(appInfo).toString()
-                                        val icon = pm.getApplicationIcon(appInfo).toBitmap()
-                                            .asImageBitmap()
-                                        Pair(appLabel, icon)
-                                    } catch (e: PackageManager.NameNotFoundException) {
-                                        null
-                                    }
-                                }
-
-                                if (appDetails != null) {
-                                    val (appLabel, icon) = appDetails
-                                    Surface(
-                                        shape = RoundedCornerShape(50),
-                                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
-                                        contentColor = MaterialTheme.colorScheme.onSurface,
-                                        modifier = Modifier
-                                            .align(Alignment.BottomStart)
-                                            .padding(12.dp)
-                                            .clip(RoundedCornerShape(50))
-                                            .clickable {
-                                                val intent =
-                                                    pm.getLaunchIntentForPackage(state.packageName)
-                                                if (intent != null) {
-                                                    context.startActivity(intent)
-                                                }
-                                            },
-                                        shadowElevation = 0.dp
-                                    ) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier.padding(
-                                                horizontal = 10.dp,
-                                                vertical = 6.dp
-                                            )
-                                        ) {
-                                            Image(
-                                                bitmap = icon,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(16.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(6.dp))
-                                            Text(
-                                                text = appLabel,
-                                                style = MaterialTheme.typography.labelMedium.copy(
-                                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                                                )
-                                            )
-                                        }
-                                    }
                                 }
                             }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth(0.8f)
-                            .height(96.dp),
-                        horizontalAlignment = Alignment.Start,
-                        verticalArrangement = Arrangement.Center
-                    ) {
+                    // Text Info
+                    FadingMarqueeText(
+                        text = state.title.ifEmpty { stringResource(R.string.no_media_playing) },
+                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    FadingMarqueeText(
+                        text = state.artist.ifEmpty { stringResource(R.string.unknown_artist) },
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (state.album.isNotEmpty()) {
                         FadingMarqueeText(
-                            text = state.title.ifEmpty { stringResource(R.string.no_media_playing) },
-                            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                            text = state.album,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        FadingMarqueeText(
-                            text = state.artist.ifEmpty { stringResource(R.string.unknown_artist) },
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        if (state.album.isNotEmpty()) {
-                            FadingMarqueeText(
-                                text = state.album,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                            )
-                        }
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Column(modifier = Modifier.fillMaxWidth(0.8f)) {
-                val progress =
-                    if (state.duration > 0) state.position.toFloat() / state.duration else 0f
+            // Progress
+            Column(modifier = Modifier.fillMaxWidth()) {
+                val progress = if (state.duration > 0) state.position.toFloat() / state.duration else 0f
                 LinearProgressIndicator(
                     progress = progress.coerceIn(0f, 1f),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(8.dp)
+                        .height(6.dp)
                         .clip(RoundedCornerShape(50)),
                     color = MaterialTheme.colorScheme.primary,
                     trackColor = MaterialTheme.colorScheme.primaryContainer
@@ -513,7 +495,7 @@ fun PlayerScreen(state: MediaState) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 12.dp),
+                        .padding(top = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
@@ -531,21 +513,14 @@ fun PlayerScreen(state: MediaState) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Controls
             Row(
-                modifier = Modifier.fillMaxWidth(0.8f),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(
-                    onClick = { sendCommand(context, "ACTION_PREV") },
-                    modifier = Modifier.size(56.dp)
-                ) {
-                    Icon(
-                        painterResource(R.drawable.ic_skip_previous),
-                        contentDescription = "Prev",
-                        modifier = Modifier.size(36.dp),
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
+                IconButton(onClick = { sendCommand(context, "ACTION_PREV") }, modifier = Modifier.size(56.dp)) {
+                    Icon(painterResource(R.drawable.ic_skip_previous), contentDescription = "Prev", modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.onSurface)
                 }
 
                 Surface(
@@ -553,7 +528,7 @@ fun PlayerScreen(state: MediaState) {
                     color = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier
-                        .size(80.dp)
+                        .size(72.dp)
                         .clip(androidx.compose.foundation.shape.CircleShape)
                         .clickable { sendCommand(context, "ACTION_PLAY_PAUSE") },
                     shadowElevation = 8.dp
@@ -562,23 +537,17 @@ fun PlayerScreen(state: MediaState) {
                         Icon(
                             painterResource(if (state.isPlaying) R.drawable.ic_pause else R.drawable.ic_play),
                             contentDescription = "Play/Pause",
-                            modifier = Modifier.size(40.dp)
+                            modifier = Modifier.size(36.dp)
                         )
                     }
                 }
 
-                IconButton(
-                    onClick = { sendCommand(context, "ACTION_NEXT") },
-                    modifier = Modifier.size(56.dp)
-                ) {
-                    Icon(
-                        painterResource(R.drawable.ic_skip_next),
-                        contentDescription = "Next",
-                        modifier = Modifier.size(36.dp),
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
+                IconButton(onClick = { sendCommand(context, "ACTION_NEXT") }, modifier = Modifier.size(56.dp)) {
+                    Icon(painterResource(R.drawable.ic_skip_next), contentDescription = "Next", modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.onSurface)
                 }
             }
+
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
