@@ -31,7 +31,10 @@ rm "$MACOS_DIR/${APP_NAME}_x86_64" "$MACOS_DIR/${APP_NAME}_arm64"
 # Copy Info.plist
 cp "$SRC_DIR/Info.plist" "$APP_BUNDLE/Contents/Info.plist"
 
-# Code sign the app with ad-hoc signature (no restricted entitlements)
+# Create PkgInfo
+echo -n "APPL????" > "$APP_BUNDLE/Contents/PkgInfo"
+
+# Code sign the app with ad-hoc signature (Required for Apple Silicon, otherwise it shows as damaged)
 echo "Codesigning app..."
 codesign --force --deep --sign - "$APP_BUNDLE"
 
