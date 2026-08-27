@@ -95,7 +95,15 @@ class MediaManager: ObservableObject {
         typealias MRMediaRemoteGetNowPlayingInfoFunction = @convention(c) (DispatchQueue, @escaping ([String: Any]?) -> Void) -> Void
         let MRMediaRemoteGetNowPlayingInfo = unsafeBitCast(pointer, to: MRMediaRemoteGetNowPlayingInfoFunction.self)
 
-        MRMediaRemoteGetNowPlayingInfo(DispatchQueue.global()) { infoOpt in
+        MRMediaRemoteGetNowPlayingInfo(DispatchQueue.main) { infoOpt in
+            if let info = infoOpt {
+                let log = "MediaRemote info: \(info.keys)\n"
+                try? log.write(toFile: "/tmp/carpecast_media.log", atomically: true, encoding: .utf8)
+            } else {
+                let log = "MediaRemote info: nil\n"
+                try? log.write(toFile: "/tmp/carpecast_media.log", atomically: true, encoding: .utf8)
+            }
+            
             guard let info = infoOpt else {
                 completion(nil)
                 return
