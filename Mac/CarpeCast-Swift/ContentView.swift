@@ -20,7 +20,7 @@ struct DevicesView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                List(networkManager.discoveredDevices, id: \.self) { device in
+                List(networkManager.discoveredDevices, id: \.ip) { device in
                     HStack {
                         VStack(alignment: .leading) {
                             Text(device.name).fontWeight(.bold)
@@ -29,7 +29,7 @@ struct DevicesView: View {
                                 .foregroundColor(.secondary)
                         }
                         Spacer()
-                        if networkManager.connectedDevice == device {
+                        if networkManager.connectedDevice?.ip == device.ip {
                             Text(localized("Connected")).foregroundColor(.green)
                             Button(localized("Disconnect")) {
                                 networkManager.disconnect()
