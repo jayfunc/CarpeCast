@@ -24,10 +24,35 @@ class NetworkManager: ObservableObject {
     private var broadcastTimer: Timer?
     private var syncTimer: Timer?
     
-    private let discoveryPort: NWEndpoint.Port = 5001
-    private let commandPort: NWEndpoint.Port = 5002
+    var discoveryPort: NWEndpoint.Port {
+        let p = UserDefaults.standard.integer(forKey: "discoveryPort")
+        return NWEndpoint.Port(integerLiteral: p == 0 ? 5001 : UInt16(p))
+    }
+    
+    var commandPort: NWEndpoint.Port {
+        let p = UserDefaults.standard.integer(forKey: "commandPort")
+        return NWEndpoint.Port(integerLiteral: p == 0 ? 5002 : UInt16(p))
+    }
+    
+    var deviceName: String {
+        let name = UserDefaults.standard.string(forKey: "deviceName") ?? ""
+        return name.isEmpty ? Host.current().localizedName ?? "Mac" : name
+    }
     
     init() {
+        startDiscoveryListener()
+        startCommandListener()
+        startBroadcasting()
+        startSyncing()
+    }
+    
+    func restartNetworking() {
+        discoveryListener?.cancel()
+        commandListener?.cancel()
+        broadcastConnection?.cancel()
+        broadcastTimer?.invalidate()
+        syncTimer?.invalidate()
+        
         startDiscoveryListener()
         startCommandListener()
         startBroadcasting()
@@ -136,8 +161,9 @@ class NetworkManager: ObservableObject {
         broadcastConnection?.start(queue: .global())
         
         broadcastTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
-            let msg = "CARPECAST_SENDER:Mac:5002:Desktop:macOS"
-            self?.broadcastConnection?.send(content: msg.data(using: .utf8), completion: .contentProcessed({ _ in }))
+            guard let self = self else { return }
+            let msg = "CARPECAST_SENDER:\(self.deviceName):\(self.commandPort.rawValue):Desktop:macOS"
+            self.broadcastConnection?.send(content: msg.data(using: .utf8), completion: .contentProcessed({ _ in }))
         }
     }
     
@@ -153,8 +179,8 @@ class NetworkManager: ObservableObject {
                 "isPlaying": m.isPlaying,
                 "position": m.position,
                 "duration": m.duration,
-                "commandPort": 5002,
-                "deviceName": "Mac",
+                "commandPort": self.commandPort.rawValue,
+                "deviceName": self.deviceName,
                 "deviceType": "Desktop",
                 "osVersion": "macOS"
             ]
