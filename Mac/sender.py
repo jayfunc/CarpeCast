@@ -442,20 +442,52 @@ class MacSenderApp:
         }
 
     def build_settings_tab(self):
-        # 使用垂直布局
-        main_frame = ttk.Frame(self.tab_settings)
-        main_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+        # 创建一个支持滚动的 Canvas 容器
+        canvas = tk.Canvas(self.tab_settings, highlightthickness=0)
+        scrollbar = ttk.Scrollbar(self.tab_settings, orient="vertical", command=canvas.yview)
+        
+        main_frame = ttk.Frame(canvas)
+        canvas_window = canvas.create_window((0, 0), window=main_frame, anchor="nw")
+        
+        def on_canvas_configure(event):
+            canvas.itemconfig(canvas_window, width=event.width)
+            
+        canvas.bind("<Configure>", on_canvas_configure)
+        
+        main_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+        
+        # 绑定 macOS 鼠标滚轮
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1 * event.delta), "units")
+            
+        def _bind_mouse(event):
+            canvas.bind_all("<MouseWheel>", _on_mousewheel)
+            
+        def _unbind_mouse(event):
+            canvas.unbind_all("<MouseWheel>")
+            
+        canvas.bind('<Enter>', _bind_mouse)
+        canvas.bind('<Leave>', _unbind_mouse)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        canvas.configure(yscrollcommand=scrollbar.set)
 
         # 1. 顶部：Logo 与版本号
         top_frame = ttk.Frame(main_frame)
-        top_frame.pack(fill=tk.X, pady=(0, 20))
+        top_frame.pack(fill=tk.X, pady=(15, 20))
         
         logo_path = get_resource_path("CarpeCast-logo.png")
         if os.path.exists(logo_path):
             try:
                 self.logo_img = tk.PhotoImage(file=logo_path)
-                # 缩放Logo适应界面，假设原图较大，缩小到1/4或合适尺寸（此处根据实际调整，由于是PhotoImage, zoom/subsample可用）
-                self.logo_img = self.logo_img.subsample(8, 8) 
+                # 原图 2048x2048，缩小到 1/32 以适应界面 (64x64)
+                self.logo_img = self.logo_img.subsample(32, 32) 
                 ttk.Label(top_frame, image=self.logo_img).pack()
             except Exception:
                 ttk.Label(top_frame, text="🎵", font=("", 48)).pack()
