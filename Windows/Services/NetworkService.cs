@@ -14,10 +14,14 @@ public class NetworkService : INetworkService
     private readonly ISettingsService _settings;
     private CancellationTokenSource? _cts;
     private UdpClient? _dataClient;
+    private UdpClient? _discoveryClient;
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<string, DeviceModel> _senderCache = new();
 
     public IPEndPoint? ActiveEndpoint { get; set; }
 
     public event EventHandler<MediaStateReceivedEventArgs>? MediaStateReceived;
+    public event EventHandler<SenderDiscoveredEventArgs>? SenderDiscovered;
+    public event EventHandler<SenderDiscoveredEventArgs>? SenderLost;
 
     public NetworkService(ISettingsService settings)
     {
@@ -31,6 +35,7 @@ public class NetworkService : INetworkService
 
         StartBroadcastTask(_cts.Token);
         StartDataListenerTask(_cts.Token);
+        StartDiscoveryListenerTask(_cts.Token);
     }
 
     public void StopListening()
@@ -42,6 +47,10 @@ public class NetworkService : INetworkService
         _dataClient?.Close();
         _dataClient?.Dispose();
         _dataClient = null;
+
+        _discoveryClient?.Close();
+        _discoveryClient?.Dispose();
+        _discoveryClient = null;
     }
 
     private void StartBroadcastTask(CancellationToken token)
@@ -142,6 +151,71 @@ public class NetworkService : INetworkService
             catch
             {
                 // Task cancelled or port in use
+            }
+        }, token);
+    }
+
+    private void StartDiscoveryListenerTask(CancellationToken token)
+    {
+        Task.Run(async () =>
+        {
+            try
+            {
+                _discoveryClient = new UdpClient(5003);
+                while (!token.IsCancellationRequested)
+                {
+                    var result = await _discoveryClient.ReceiveAsync();
+                    string message = Encoding.UTF8.GetString(result.Buffer);
+                    var parts = message.Split(':');
+                    if (parts.Length >= 5 && parts[0] == "CARPECAST_SENDER")
+                    {
+                        string ip = result.RemoteEndPoint.Address.ToString();
+                        string name = parts[1];
+                        if (int.TryParse(parts[2], out int commandPort))
+                        {
+                            string type = parts[3];
+                            string os = parts[4];
+                            
+                            var device = new DeviceModel
+                            {
+                                IPAddress = ip,
+                                DeviceName = name,
+                                CommandPort = commandPort,
+                                DeviceType = type,
+                                OsVersion = os,
+                                LastSeen = DateTime.Now
+                            };
+
+                            bool isNew = !_senderCache.ContainsKey(ip);
+                            _senderCache[ip] = device;
+
+                            if (isNew)
+                            {
+                                SenderDiscovered?.Invoke(this, new SenderDiscoveredEventArgs { Sender = device });
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+        }, token);
+
+        Task.Run(async () =>
+        {
+            while (!token.IsCancellationRequested)
+            {
+                var now = DateTime.Now;
+                foreach (var kvp in _senderCache)
+                {
+                    if ((now - kvp.Value.LastSeen).TotalSeconds > 5)
+                    {
+                        if (_senderCache.TryRemove(kvp.Key, out var removedDevice))
+                        {
+                            SenderLost?.Invoke(this, new SenderDiscoveredEventArgs { Sender = removedDevice });
+                        }
+                    }
+                }
+                await Task.Delay(1000, token);
             }
         }, token);
     }

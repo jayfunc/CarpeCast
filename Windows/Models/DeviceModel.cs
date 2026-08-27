@@ -10,6 +10,9 @@ public partial class DeviceModel : ObservableObject
     [ObservableProperty]
     public partial string IPAddress { get; set; } = string.Empty;
 
+    public int CommandPort { get; set; }
+    public DateTime LastSeen { get; set; } = DateTime.Now;
+
     [ObservableProperty]
     public partial string DeviceName { get; set; } = string.Empty;
 

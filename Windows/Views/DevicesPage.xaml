@@ -114,6 +114,104 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+
+            <TextBlock
+                x:Uid="AvailableDevicesTitle"
+                Margin="0,24,0,0"
+                FontWeight="SemiBold"
+                Style="{ThemeResource TitleTextBlockStyle}"
+                Text="Available Devices" />
+            <TextBlock
+                x:Uid="AvailableDevicesDescription"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="Select an available device to connect to" />
+
+            <StackPanel
+                Margin="0,32,0,0"
+                HorizontalAlignment="Center"
+                Orientation="Vertical"
+                Spacing="16"
+                Visibility="{x:Bind ViewModel.NoAvailableSendersVisibility, Mode=OneWay}">
+                <ProgressRing IsActive="True" Margin="0,0,0,16" />
+                <TextBlock
+                    x:Uid="DevicesSearching"
+                    Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                    Style="{ThemeResource BodyTextBlockStyle}"
+                    Text="Searching for devices..." />
+            </StackPanel>
+
+            <ItemsControl Margin="0,8,0,0" ItemsSource="{x:Bind ViewModel.AvailableSenders, Mode=OneWay}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:DeviceModel">
+                        <Grid
+                            Padding="16"
+                            Margin="0,0,0,8"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            ColumnSpacing="16"
+                            CornerRadius="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <FontIcon
+                                VerticalAlignment="Center"
+                                FontSize="24"
+                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                Glyph="{x:Bind IconGlyph, Mode=OneWay}" />
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock
+                                    FontWeight="SemiBold"
+                                    Style="{ThemeResource BodyStrongTextBlockStyle}"
+                                    Text="{x:Bind DeviceName, Mode=OneWay}" />
+                                <StackPanel
+                                    Margin="0,4,0,0"
+                                    Orientation="Horizontal"
+                                    Spacing="8">
+                                    <TextBlock
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Style="{ThemeResource CaptionTextBlockStyle}"
+                                        Text="{x:Bind DeviceType, Mode=OneWay}" />
+                                    <TextBlock
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Style="{ThemeResource CaptionTextBlockStyle}"
+                                        Text="•" />
+                                    <TextBlock
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Style="{ThemeResource CaptionTextBlockStyle}"
+                                        Text="{x:Bind OsVersion, Mode=OneWay}" />
+                                    <TextBlock
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Style="{ThemeResource CaptionTextBlockStyle}"
+                                        Text="•" />
+                                    <TextBlock
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Style="{ThemeResource CaptionTextBlockStyle}"
+                                        Text="{x:Bind IPAddress, Mode=OneWay}" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <Button
+                                Grid.Column="2"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Command="{Binding ElementName=RootPage, Path=ViewModel.ConnectToSenderCommand}"
+                                CommandParameter="{x:Bind}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock
+                                        x:Uid="DevicesConnect"
+                                        FontSize="12"
+                                        Text="Connect" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </StackPanel>
     </ScrollViewer>
 </Page>

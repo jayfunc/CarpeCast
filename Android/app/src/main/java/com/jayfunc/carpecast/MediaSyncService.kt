@@ -351,7 +351,49 @@ class MediaSyncService : NotificationListenerService() {
                     val packet = DatagramPacket(buffer, buffer.size)
                     commandSocket?.receive(packet)
                     val cmd = String(packet.data, 0, packet.length)
-                    handleCommand(cmd)
+                    if (cmd == "CONNECT_REQUEST") {
+                        selectedPcIp = packet.address
+                        MediaStateRepository.updateSelectedPcIp(packet.address.hostAddress)
+                        Handler(Looper.getMainLooper()).post {
+                            sendMediaState(activeControllers.firstOrNull())
+                        }
+                    } else if (cmd == "DISCONNECT_REQUEST") {
+                        if (selectedPcIp == packet.address) {
+                            selectedPcIp = null
+                            MediaStateRepository.updateSelectedPcIp(null)
+                        }
+                    } else {
+                        handleCommand(cmd)
+                    }
+                }
+            } catch (e: Exception) {
+            }
+        }.start()
+
+        // 4. Sender Presence Broadcast Thread
+        Thread {
+            try {
+                val broadcastSocket = DatagramSocket()
+                broadcastSocket.broadcast = true
+                val broadcastAddress = InetAddress.getByName("255.255.255.255")
+                val prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
+                
+                while (isRunning) {
+                    try {
+                        val deviceName = prefs.getString("device_name", android.os.Build.MODEL) ?: android.os.Build.MODEL
+                        val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as android.app.UiModeManager
+                        val isTv = uiModeManager.currentModeType == android.content.res.Configuration.UI_MODE_TYPE_TELEVISION
+                        val isTablet = (resources.configuration.screenLayout and android.content.res.Configuration.SCREENLAYOUT_SIZE_MASK) >= android.content.res.Configuration.SCREENLAYOUT_SIZE_LARGE
+                        val devType = if (isTv) "TV" else if (isTablet) "Tablet" else "Phone"
+                        val osVersion = android.os.Build.VERSION.RELEASE
+                        
+                        val msg = "CARPECAST_SENDER:$deviceName:$commandPort:$devType:Android $osVersion"
+                        val data = msg.toByteArray()
+                        val packet = DatagramPacket(data, data.size, broadcastAddress, 5003)
+                        broadcastSocket.send(packet)
+                    } catch (e: Exception) {
+                    }
+                    Thread.sleep(2000)
                 }
             } catch (e: Exception) {
             }

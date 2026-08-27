@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using CarpeCast.Models;
 
@@ -13,9 +13,16 @@ public class MediaStateReceivedEventArgs : EventArgs
     public bool IsDisconnect { get; set; } = false;
 }
 
+public class SenderDiscoveredEventArgs : EventArgs
+{
+    public DeviceModel Sender { get; set; } = new();
+}
+
 public interface INetworkService
 {
     event EventHandler<MediaStateReceivedEventArgs> MediaStateReceived;
+    event EventHandler<SenderDiscoveredEventArgs> SenderDiscovered;
+    event EventHandler<SenderDiscoveredEventArgs> SenderLost;
     
     System.Net.IPEndPoint? ActiveEndpoint { get; set; }
 

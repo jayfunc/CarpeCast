@@ -349,6 +349,12 @@ class MacSenderApp:
         self.sync_thread = threading.Thread(target=self.sync_loop, daemon=True)
         self.sync_thread.start()
         
+        self.broadcast_thread = threading.Thread(target=self.broadcast_presence, daemon=True)
+        self.broadcast_thread.start()
+        
+        self.command_thread = threading.Thread(target=self.listen_for_commands, daemon=True)
+        self.command_thread.start()
+        
         # 强制刷新解决部分 Mac 机器首次白屏的问题
         self.root.update_idletasks()
 
@@ -603,6 +609,54 @@ class MacSenderApp:
         for ip, info in self.discovered_devices.items():
             name, port, dtype, os_name = info
             self.device_listbox.insert(tk.END, f"💻 {name} ({ip}) - {os_name}")
+
+    def broadcast_presence(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        
+        while True:
+            try:
+                name = self.config_mgr.get("device_name")
+                cmd_port = self.config_mgr.get("command_port")
+                msg = f"CARPECAST_SENDER:{name}:{cmd_port}:Desktop:macOS"
+                # Send to 255.255.255.255 port 5003
+                sock.sendto(msg.encode('utf-8'), ('<broadcast>', 5003))
+            except Exception:
+                pass
+            time.sleep(2)
+            
+    def listen_for_commands(self):
+        port = self.config_mgr.get("command_port")
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if hasattr(socket, 'SO_REUSEPORT'):
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+            
+        try:
+            sock.bind(('', port))
+            self.log(f"✅ 启动命令监听，端口: {port}")
+        except Exception as e:
+            self.log(f"❌ 绑定命令端口 {port} 失败: {e}")
+            return
+            
+        while True:
+            try:
+                data, addr = sock.recvfrom(1024)
+                cmd = data.decode('utf-8').strip()
+                if cmd == "CONNECT_REQUEST":
+                    self.selected_ip = addr[0]
+                    self.selected_port = 5000
+                    self.is_syncing = True
+                    self.root.after(0, lambda: self.btn_connect.config(text=self._("disconnect")))
+                    self.log(f"🔗 收到 Windows ({addr[0]}) 的连接请求，开始同步！")
+                elif cmd == "DISCONNECT_REQUEST":
+                    if self.selected_ip == addr[0]:
+                        self.is_syncing = False
+                        self.root.after(0, lambda: self.btn_connect.config(text=self._("connect_sync")))
+                        self.log(f"🛑 收到 Windows ({addr[0]}) 的断开请求，已停止同步。")
+                        self.root.after(0, self.update_player_ui, self._("disconnected"), "-", "-", False, "-")
+            except Exception:
+                pass
 
     def listen_for_discovery(self):
         port = self.config_mgr.get("discovery_port")
