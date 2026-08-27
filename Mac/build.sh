@@ -28,12 +28,15 @@ swiftc -O \
 lipo -create -output "$MACOS_DIR/$APP_NAME" "$MACOS_DIR/${APP_NAME}_x86_64" "$MACOS_DIR/${APP_NAME}_arm64"
 rm "$MACOS_DIR/${APP_NAME}_x86_64" "$MACOS_DIR/${APP_NAME}_arm64"
 
-# Compile CLI Helper
-swiftc -O -target x86_64-apple-macosx11.0 "$SRC_DIR"/NowPlayingHelper.swift -o "$MACOS_DIR/mac_nowplaying_x86_64"
-swiftc -O -target arm64-apple-macosx11.0 "$SRC_DIR"/NowPlayingHelper.swift -o "$MACOS_DIR/mac_nowplaying_arm64"
-lipo -create -output "$MACOS_DIR/mac_nowplaying" "$MACOS_DIR/mac_nowplaying_x86_64" "$MACOS_DIR/mac_nowplaying_arm64"
-rm "$MACOS_DIR/mac_nowplaying_x86_64" "$MACOS_DIR/mac_nowplaying_arm64"
-chmod +x "$MACOS_DIR/mac_nowplaying"
+# Compile CLI Helper as dynamic library (.dylib)
+swiftc -O -emit-library -target x86_64-apple-macosx11.0 "$SRC_DIR"/NowPlayingHelper.swift -o "$MACOS_DIR/mac_nowplaying_x86_64.dylib"
+swiftc -O -emit-library -target arm64-apple-macosx11.0 "$SRC_DIR"/NowPlayingHelper.swift -o "$MACOS_DIR/mac_nowplaying_arm64.dylib"
+lipo -create -output "$MACOS_DIR/libmac_nowplaying.dylib" "$MACOS_DIR/mac_nowplaying_x86_64.dylib" "$MACOS_DIR/mac_nowplaying_arm64.dylib"
+rm "$MACOS_DIR/mac_nowplaying_x86_64.dylib" "$MACOS_DIR/mac_nowplaying_arm64.dylib"
+
+# Copy Perl wrapper
+cp "$SRC_DIR/nowplaying_wrapper.pl" "$MACOS_DIR/nowplaying_wrapper.pl"
+chmod +x "$MACOS_DIR/nowplaying_wrapper.pl"
 
 # Copy Info.plist
 cp "$SRC_DIR/Info.plist" "$APP_BUNDLE/Contents/Info.plist"

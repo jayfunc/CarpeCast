@@ -74,10 +74,12 @@ class MediaManager: ObservableObject {
     // MARK: - MediaRemote Fetch
     private func getMediaRemoteInfo(completion: @escaping (String?) -> Void) {
         DispatchQueue.global().async {
-            let executableURL = Bundle.main.bundleURL.appendingPathComponent("Contents/MacOS/mac_nowplaying")
+            let perlScriptURL = Bundle.main.bundleURL.appendingPathComponent("Contents/MacOS/nowplaying_wrapper.pl")
+            let dylibURL = Bundle.main.bundleURL.appendingPathComponent("Contents/MacOS/libmac_nowplaying.dylib")
             
             let process = Process()
-            process.executableURL = executableURL
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/perl")
+            process.arguments = [perlScriptURL.path, dylibURL.path]
             
             let pipe = Pipe()
             process.standardOutput = pipe
