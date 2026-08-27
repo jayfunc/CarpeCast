@@ -329,9 +329,6 @@ class MacSenderApp:
         else:
             self.lang_code = get_system_language()
             
-    def _(self, key):
-        return I18N.get(self.lang_code, I18N["en"]).get(key, I18N["en"].get(key, key))
-
         self.setup_ui()
         self.setup_macos_dock_behavior()
         
@@ -354,6 +351,10 @@ class MacSenderApp:
         
         # 强制刷新解决部分 Mac 机器首次白屏的问题
         self.root.update_idletasks()
+
+    def _(self, key):
+        return I18N.get(self.lang_code, I18N["en"]).get(key, I18N["en"].get(key, key))
+
         
     def setup_macos_dock_behavior(self):
         # 拦截点击红叉事件（将其改为隐藏窗口而不是直接退出）
