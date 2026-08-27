@@ -141,6 +141,25 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        
+        // Android 14 / HyperOS NotificationListenerService rebind hack
+        try {
+            val componentName = android.content.ComponentName(this, MediaSyncService::class.java)
+            val pm = packageManager
+            pm.setComponentEnabledSetting(
+                componentName,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP
+            )
+            pm.setComponentEnabledSetting(
+                componentName,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         startService(Intent(this, MediaSyncService::class.java))
         sendBroadcast(Intent("com.jayfunc.carpecast.RELOAD_SETTINGS").apply {
             setPackage(packageName)
