@@ -64,77 +64,81 @@ struct SettingsView: View {
     }
     
     var body: some View {
-        VStack {
-            VStack(spacing: 10) {
-                Image(nsImage: NSImage(named: "AppIcon") ?? NSImage())
-                    .resizable()
-                    .frame(width: 80, height: 80)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                
-                Text("CarpeCast")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                Text("v\(appVersion)")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            .padding(.top, 20)
-            
-            Form {
-                Section(header: Text(localized("General")).font(.headline)) {
-                    TextField(localized("Device Name"), text: $deviceName)
-                        .onChange(of: deviceName) { _ in restartNetworking() }
+        ScrollView {
+            VStack {
+                VStack(spacing: 10) {
+                    Image(nsImage: NSImage(named: "AppIcon") ?? NSImage())
+                        .resizable()
+                        .frame(width: 80, height: 80)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
                     
-                    Picker(localized("Language"), selection: $language) {
-                        Text(localized("System")).tag("System")
-                        Text("English").tag("en")
-                        Text("简体中文").tag("zh-Hans")
-                        Text("繁體中文").tag("zh-Hant")
-                        Text("日本語").tag("ja")
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                    
-                    Picker(localized("Theme"), selection: $theme) {
-                        Text(localized("System")).tag("System")
-                        Text(localized("Light")).tag("Light")
-                        Text(localized("Dark")).tag("Dark")
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                }
-                .padding(.bottom, 15)
-                
-                Section(header: Text(localized("Network Ports")).font(.headline)) {
-                    TextField(localized("Discovery Port"), value: $discoveryPort, formatter: NumberFormatter())
-                        .onChange(of: discoveryPort) { _ in restartNetworking() }
-                    
-                    Text(localized("Note: Port changes require network service restart."))
+                    Text("CarpeCast")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    Text("v\(appVersion)")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                }
-                
-                Section(header: Text(localized("System Permissions")).font(.headline).padding(.top, 15)) {
-                    Text(localized("Please grant Automation permissions in System Settings -> Privacy & Security to allow CarpeCast to control playback."))
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                
-                Section(header: Text(localized("Recommended")).font(.headline).padding(.top, 15)) {
-                    Link(localized("Download CarpeCast for Windows"), destination: URL(string: "https://github.com/jayfunc/CarpeCast")!)
-                    Link(localized("Download BetterLyrics"), destination: URL(string: "https://github.com/jayfunc/BetterLyrics")!)
-                }
-                
-                HStack {
-                    Spacer()
-                    Button(localized("Restart Network Service")) {
-                        restartNetworking()
-                    }
                 }
                 .padding(.top, 20)
+                
+                Form {
+                    Section(header: Text(localized("General")).font(.headline)) {
+                        TextField(localized("Device Name"), text: $deviceName)
+                            .onChange(of: deviceName) { _ in restartNetworking() }
+                        
+                        Picker(localized("Language"), selection: $language) {
+                            Text(localized("System")).tag("System")
+                            Text("English").tag("en")
+                            Text("简体中文").tag("zh-Hans")
+                            Text("繁體中文").tag("zh-Hant")
+                            Text("日本語").tag("ja")
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                        
+                        Picker(localized("Theme"), selection: $theme) {
+                            Text(localized("System")).tag("System")
+                            Text(localized("Light")).tag("Light")
+                            Text(localized("Dark")).tag("Dark")
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+                    }
+                    .padding(.bottom, 15)
+                    
+                    Section(header: Text(localized("Network Ports")).font(.headline)) {
+                        TextField(localized("Discovery Port"), value: $discoveryPort, formatter: NumberFormatter())
+                            .onChange(of: discoveryPort) { _ in restartNetworking() }
+                        
+                        Text(localized("Note: Port changes require network service restart."))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Section(header: Text(localized("System Permissions")).font(.headline).padding(.top, 15)) {
+                        Text(localized("Please grant Automation permissions in System Settings -> Privacy & Security to allow CarpeCast to control playback."))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    
+                    Section(header: Text(localized("Recommended")).font(.headline).padding(.top, 15)) {
+                        Link(localized("Download CarpeCast for Windows"), destination: URL(string: "https://github.com/jayfunc/CarpeCast")!)
+                        Link(localized("Download BetterLyrics"), destination: URL(string: "https://github.com/jayfunc/BetterLyrics")!)
+                    }
+                    
+                    HStack {
+                        Spacer()
+                        Button(localized("Restart Network Service")) {
+                            restartNetworking()
+                        }
+                    }
+                    .padding(.top, 20)
+                }
+                .padding(30)
             }
-            .padding(30)
+            .frame(maxWidth: 500, alignment: .top)
+            .padding(.bottom, 20)
         }
-        .frame(maxWidth: 500, maxHeight: .infinity, alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     private func restartNetworking() {
