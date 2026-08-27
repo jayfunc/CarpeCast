@@ -307,7 +307,7 @@ class MacSenderApp:
     def __init__(self, root):
         self.root = root
         self.root.title("CarpeCast")
-        self.root.geometry("650x500")
+        self.root.geometry("650x650")
         
         self.config_mgr = ConfigManager()
         
@@ -422,7 +422,7 @@ class MacSenderApp:
         self.btn_connect.pack(fill=tk.X)
         
         ttk.Label(self.tab_devices, text=self._("debug_log"), font=("", 11)).pack(anchor=tk.W, pady=(15, 5))
-        self.log_area = st.ScrolledText(self.tab_devices, height=10, font=("Menlo", 10), bg="#fcfcfc")
+        self.log_area = st.ScrolledText(self.tab_devices, height=10, font=("Menlo", 10))
         self.log_area.pack(fill=tk.BOTH, expand=True)
 
     def get_lang_map(self):
@@ -515,6 +515,10 @@ class MacSenderApp:
         btn_save = ttk.Button(form_frame, text=self._("save_settings"), command=self.save_settings)
         btn_save.grid(row=5, column=0, columnspan=2, pady=(15, 5), sticky=tk.EW)
 
+        # 保存状态提示标签
+        self.lbl_save_status = ttk.Label(form_frame, text="", foreground="green")
+        self.lbl_save_status.grid(row=6, column=0, columnspan=2, pady=(0, 5))
+
         # 4. 底部外部链接按钮
         bottom_frame = ttk.Frame(main_frame)
         bottom_frame.pack(fill=tk.X, padx=20, pady=(10, 0))
@@ -543,9 +547,11 @@ class MacSenderApp:
             self.config_mgr.set("language", lang_map.get(self.lang_var.get(), "sys"))
             
             self.config_mgr.save()
-            messagebox.showinfo(self._("success"), self._("success_msg"))
+            self.lbl_save_status.config(text=self._("success_msg").replace('\n', ' '), foreground="green")
+            self.root.after(3000, lambda: self.lbl_save_status.config(text=""))
         except ValueError:
-            messagebox.showerror(self._("error"), self._("error_port"))
+            self.lbl_save_status.config(text=self._("error_port"), foreground="red")
+            self.root.after(3000, lambda: self.lbl_save_status.config(text=""))
 
     def log_once(self, msg):
         if msg not in self.logged_errors:
