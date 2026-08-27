@@ -74,7 +74,7 @@
   <data name="RestartPromptInfoBar.Title" xml:space="preserve"><value>需要重啟</value></data>
   <data name="RestartPromptInfoBar.Message" xml:space="preserve"><value>部分設定需要在重啟應用程式後才會生效。</value></data>
   <data name="RestartNowBtn.Content" xml:space="preserve"><value>立即重啟</value></data>
-  <data name="ShowOnStartupLabel.Text" xml:space="preserve"><value>啟動時顯示主視窗</value></data>
+  <data name="ShowOnStartupLabel.Text" xml:space="preserve"><value>自動啟動時顯示主視窗</value></data>
   <data name="SystemStartupLabel.Text" xml:space="preserve"><value>打開 Windows 自啟設定</value></data>
   <data name="SystemStartupDesc.Text" xml:space="preserve"><value>配置 CarpeCast 是否在登入 Windows 時自動啟動。</value></data>
   <data name="AboutBetterLyricsTitle.Text" xml:space="preserve"><value>BetterLyrics</value></data>

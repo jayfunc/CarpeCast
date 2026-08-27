@@ -74,7 +74,7 @@
   <data name="RestartPromptInfoBar.Title" xml:space="preserve"><value>再起動が必要です</value></data>
   <data name="RestartPromptInfoBar.Message" xml:space="preserve"><value>一部の設定は、アプリを再起動した後に適用されます。</value></data>
   <data name="RestartNowBtn.Content" xml:space="preserve"><value>今すぐ再起動</value></data>
-  <data name="ShowOnStartupLabel.Text" xml:space="preserve"><value>起動時にメインウィンドウを表示する</value></data>
+  <data name="ShowOnStartupLabel.Text" xml:space="preserve"><value>自動起動時にメインウィンドウを表示する</value></data>
   <data name="SystemStartupLabel.Text" xml:space="preserve"><value>Windowsのスタートアップ設定を開く</value></data>
   <data name="SystemStartupDesc.Text" xml:space="preserve"><value>WindowsにログインしたときにCarpeCastを自動的に起動するかどうかを設定します。</value></data>
   <data name="AboutBetterLyricsTitle.Text" xml:space="preserve"><value>BetterLyrics</value></data>

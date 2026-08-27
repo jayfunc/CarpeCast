@@ -74,7 +74,7 @@
   <data name="RestartPromptInfoBar.Title" xml:space="preserve"><value>Restart Required</value></data>
   <data name="RestartPromptInfoBar.Message" xml:space="preserve"><value>Some changes require restarting the app to take effect.</value></data>
   <data name="RestartNowBtn.Content" xml:space="preserve"><value>Restart Now</value></data>
-  <data name="ShowOnStartupLabel.Text" xml:space="preserve"><value>Show main window on startup</value></data>
+  <data name="ShowOnStartupLabel.Text" xml:space="preserve"><value>Show main window on auto-startup</value></data>
   <data name="SystemStartupLabel.Text" xml:space="preserve"><value>Open Windows Startup Settings</value></data>
   <data name="SystemStartupDesc.Text" xml:space="preserve"><value>Configure whether CarpeCast launches automatically when you log in to Windows.</value></data>
   <data name="AboutBetterLyricsTitle.Text" xml:space="preserve"><value>BetterLyrics</value></data>
