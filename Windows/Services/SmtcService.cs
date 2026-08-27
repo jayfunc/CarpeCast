@@ -138,5 +138,10 @@ public class SmtcService : ISmtcService
         updater.ClearAll();
         updater.Update();
         _smtc.IsEnabled = false;
+
+        _lastTitle = string.Empty;
+        _lastArtist = string.Empty;
+        _lastAlbum = string.Empty;
+        _lastAlbumArtBase64 = string.Empty;
     }
 }
