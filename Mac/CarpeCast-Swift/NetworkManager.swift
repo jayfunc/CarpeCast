@@ -24,7 +24,7 @@ class NetworkManager: ObservableObject {
     private var broadcastTimer: Timer?
     private var syncTimer: Timer?
     
-    private let discoveryPort: NWEndpoint.Port = 5000
+    private let discoveryPort: NWEndpoint.Port = 5001
     private let commandPort: NWEndpoint.Port = 5002
     
     init() {
@@ -50,7 +50,9 @@ class NetworkManager: ObservableObject {
     
     private func startDiscoveryListener() {
         do {
-            discoveryListener = try NWListener(using: .udp, on: discoveryPort)
+            let params = NWParameters.udp
+            params.allowLocalEndpointReuse = true
+            discoveryListener = try NWListener(using: params, on: discoveryPort)
             discoveryListener?.newConnectionHandler = { [weak self] connection in
                 connection.start(queue: .global())
                 self?.receiveDiscovery(connection: connection)
@@ -87,7 +89,9 @@ class NetworkManager: ObservableObject {
     
     private func startCommandListener() {
         do {
-            commandListener = try NWListener(using: .udp, on: commandPort)
+            let params = NWParameters.udp
+            params.allowLocalEndpointReuse = true
+            commandListener = try NWListener(using: params, on: commandPort)
             commandListener?.newConnectionHandler = { [weak self] connection in
                 connection.start(queue: .global())
                 self?.receiveCommand(connection: connection)
@@ -99,9 +103,24 @@ class NetworkManager: ObservableObject {
     }
     
     private func receiveCommand(connection: NWConnection) {
-        connection.receiveMessage { (data, context, isComplete, error) in
+        connection.receiveMessage { [weak self] (data, context, isComplete, error) in
+            guard let self = self else { return }
             if let data = data, let cmd = String(data: data, encoding: .utf8) {
-                MediaManager.shared.sendCommand(cmd)
+                if cmd == "CONNECT_REQUEST" {
+                    let ipStr = "\(connection.endpoint)".components(separatedBy: ":").first ?? ""
+                    DispatchQueue.main.async {
+                        // Find the device or create a dummy one to connect back
+                        let dev = self.discoveredDevices.first(where: { $0.ip == ipStr }) ??
+                            DiscoveredDevice(ip: ipStr, name: "Remote PC", port: 5000, type: "Desktop")
+                        self.connectToDevice(dev)
+                    }
+                } else if cmd == "DISCONNECT_REQUEST" {
+                    DispatchQueue.main.async {
+                        self.disconnect()
+                    }
+                } else {
+                    MediaManager.shared.sendCommand(cmd)
+                }
             }
             if error == nil {
                 self.receiveCommand(connection: connection)
