@@ -16,7 +16,7 @@ mkdir -p "$RESOURCES_DIR"
 
 # Compile Swift files for x86_64 and arm64, then combine with lipo
 swiftc -O \
-    -target x86_64-apple-macosx10.15 \
+    -target x86_64-apple-macosx11.0 \
     "$SRC_DIR"/*.swift \
     -o "$MACOS_DIR/${APP_NAME}_x86_64"
 
