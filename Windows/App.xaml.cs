@@ -53,6 +53,8 @@ public partial class App : Application
         }
     }
 
+    public Window? GetMainWindow() => _window;
+
     private static IServiceProvider ConfigureServices()
     {
         var services = new ServiceCollection();
