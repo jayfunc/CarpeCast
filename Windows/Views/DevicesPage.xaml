@@ -62,7 +62,7 @@
                                 VerticalAlignment="Center"
                                 FontSize="24"
                                 Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                                Glyph="&#xE8EA;" />
+                                Glyph="{x:Bind IconGlyph, Mode=OneWay}" />
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                 <TextBlock
