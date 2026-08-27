@@ -92,10 +92,15 @@ class MediaManager: ObservableObject {
             return
         }
 
-        typealias MRMediaRemoteGetNowPlayingInfoFunction = @convention(c) (DispatchQueue, @escaping ([String: Any]) -> Void) -> Void
+        typealias MRMediaRemoteGetNowPlayingInfoFunction = @convention(c) (DispatchQueue, @escaping ([String: Any]?) -> Void) -> Void
         let MRMediaRemoteGetNowPlayingInfo = unsafeBitCast(pointer, to: MRMediaRemoteGetNowPlayingInfoFunction.self)
 
-        MRMediaRemoteGetNowPlayingInfo(DispatchQueue.global()) { info in
+        MRMediaRemoteGetNowPlayingInfo(DispatchQueue.global()) { infoOpt in
+            guard let info = infoOpt else {
+                completion(nil)
+                return
+            }
+            
             let title = (info["kMRMediaRemoteNowPlayingInfoTitle"] as? String) ?? ""
             let artist = (info["kMRMediaRemoteNowPlayingInfoArtist"] as? String) ?? ""
             let album = (info["kMRMediaRemoteNowPlayingInfoAlbum"] as? String) ?? ""

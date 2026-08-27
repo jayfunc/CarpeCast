@@ -28,7 +28,11 @@ swiftc -O \
 lipo -create -output "$MACOS_DIR/$APP_NAME" "$MACOS_DIR/${APP_NAME}_x86_64" "$MACOS_DIR/${APP_NAME}_arm64"
 rm "$MACOS_DIR/${APP_NAME}_x86_64" "$MACOS_DIR/${APP_NAME}_arm64"
 
-# Copy Info.plist
+# Copy Info.plist and Entitlements
 cp "$SRC_DIR/Info.plist" "$APP_BUNDLE/Contents/Info.plist"
 
-echo "Build complete: $APP_BUNDLE"
+# Code sign the app with entitlements to allow MediaRemote XPC access
+echo "Codesigning app with entitlements..."
+codesign --force --deep --sign - --entitlements "$SRC_DIR/CarpeCast.entitlements" "$APP_BUNDLE"
+
+echo "Build complete! App bundle created at $APP_BUNDLE"
