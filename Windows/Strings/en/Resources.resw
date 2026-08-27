@@ -64,10 +64,10 @@
   <data name="NetworkPortsLabel.Text" xml:space="preserve"><value>Network Ports</value></data>
   <data name="NetworkPortsExpander.Description" xml:space="preserve"><value>UDP ports used for connection</value></data>
   <data name="LanguageCard.Description" xml:space="preserve"><value>Requires restart</value></data>
-  <data name="NavPlayer.Content" xml:space="preserve"><value>Player</value></data>
+  <data name="NavPlayer.Content" xml:space="preserve"><value>Now Playing</value></data>
   <data name="NavDevices.Content" xml:space="preserve"><value>Devices</value></data>
-  <data name="DevicesTitle.Text" xml:space="preserve"><value>Connected Device</value></data>
-  <data name="DevicesDescription.Text" xml:space="preserve"><value>Manage the currently connected device here</value></data>
+  <data name="DevicesTitle.Text" xml:space="preserve"><value>Devices</value></data>
+  <data name="DevicesDescription.Text" xml:space="preserve"><value></value></data>
   <data name="DevicesWaiting.Text" xml:space="preserve"><value>Waiting for connection...</value></data>
   <data name="DevicesDisconnect.Text" xml:space="preserve"><value>Disconnect</value></data>
   <data name="RestoreDefaultBtn.Content" xml:space="preserve"><value>Restore Default</value></data>

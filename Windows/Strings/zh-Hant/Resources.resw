@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -64,10 +64,10 @@
   <data name="NetworkPortsLabel.Text" xml:space="preserve"><value>網路連接埠</value></data>
   <data name="NetworkPortsExpander.Description" xml:space="preserve"><value>用於區域網路通訊的 UDP 連接埠</value></data>
   <data name="LanguageCard.Description" xml:space="preserve"><value>需要重啟應用程式後生效</value></data>
-  <data name="NavPlayer.Content" xml:space="preserve"><value>播放器</value></data>
-  <data name="NavDevices.Content" xml:space="preserve"><value>裝置</value></data>
-  <data name="DevicesTitle.Text" xml:space="preserve"><value>已連線裝置</value></data>
-  <data name="DevicesDescription.Text" xml:space="preserve"><value>在此管理目前連線的裝置</value></data>
+  <data name="NavPlayer.Content" xml:space="preserve"><value>播放控制</value></data>
+  <data name="NavDevices.Content" xml:space="preserve"><value>設備狀態</value></data>
+  <data name="DevicesTitle.Text" xml:space="preserve"><value>設備狀態</value></data>
+  <data name="DevicesDescription.Text" xml:space="preserve"><value></value></data>
   <data name="DevicesWaiting.Text" xml:space="preserve"><value>等待連線中...</value></data>
   <data name="DevicesDisconnect.Text" xml:space="preserve"><value>斷開連線</value></data>
   <data name="RestoreDefaultBtn.Content" xml:space="preserve"><value>恢復預設</value></data>

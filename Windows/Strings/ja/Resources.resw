@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -66,8 +66,8 @@
   <data name="LanguageCard.Description" xml:space="preserve"><value>アプリの再起動が必要です</value></data>
   <data name="NavPlayer.Content" xml:space="preserve"><value>プレーヤー</value></data>
   <data name="NavDevices.Content" xml:space="preserve"><value>デバイス</value></data>
-  <data name="DevicesTitle.Text" xml:space="preserve"><value>接続済みのデバイス</value></data>
-  <data name="DevicesDescription.Text" xml:space="preserve"><value>現在接続されているデバイスを管理します</value></data>
+  <data name="DevicesTitle.Text" xml:space="preserve"><value>デバイス</value></data>
+  <data name="DevicesDescription.Text" xml:space="preserve"><value></value></data>
   <data name="DevicesWaiting.Text" xml:space="preserve"><value>接続を待機しています...</value></data>
   <data name="DevicesDisconnect.Text" xml:space="preserve"><value>切断</value></data>
   <data name="RestoreDefaultBtn.Content" xml:space="preserve"><value>デフォルトに戻す</value></data>

@@ -199,7 +199,7 @@ I18N = {
         "send_fail": "❌ UDP送信失敗: {}"
     },
     "en": {
-        "tab_player": "  Player  ",
+        "tab_player": "  Now Playing  ",
         "tab_devices": "  Devices  ",
         "tab_settings": "  Settings  ",
         "current_media": "Current Media",

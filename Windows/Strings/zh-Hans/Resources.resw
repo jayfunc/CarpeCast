@@ -64,10 +64,10 @@
   <data name="NetworkPortsLabel.Text" xml:space="preserve"><value>网络端口</value></data>
   <data name="NetworkPortsExpander.Description" xml:space="preserve"><value>用于局域网通讯的 UDP 端口</value></data>
   <data name="LanguageCard.Description" xml:space="preserve"><value>需要重启应用后生效</value></data>
-  <data name="NavPlayer.Content" xml:space="preserve"><value>播放器</value></data>
-  <data name="NavDevices.Content" xml:space="preserve"><value>设备</value></data>
-  <data name="DevicesTitle.Text" xml:space="preserve"><value>已连接设备</value></data>
-  <data name="DevicesDescription.Text" xml:space="preserve"><value>在此管理当前连接的设备</value></data>
+  <data name="NavPlayer.Content" xml:space="preserve"><value>播放控制</value></data>
+  <data name="NavDevices.Content" xml:space="preserve"><value>设备状态</value></data>
+  <data name="DevicesTitle.Text" xml:space="preserve"><value>设备状态</value></data>
+  <data name="DevicesDescription.Text" xml:space="preserve"><value></value></data>
   <data name="DevicesWaiting.Text" xml:space="preserve"><value>等待连接中...</value></data>
   <data name="DevicesDisconnect.Text" xml:space="preserve"><value>断开连接</value></data>
   <data name="RestoreDefaultBtn.Content" xml:space="preserve"><value>恢复默认</value></data>
