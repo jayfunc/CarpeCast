@@ -14,19 +14,26 @@ echo "Building $APP_NAME..."
 mkdir -p "$MACOS_DIR"
 mkdir -p "$RESOURCES_DIR"
 
-# Compile Swift files for x86_64 and arm64, then combine with lipo
+# Compile SwiftUI App
 swiftc -O \
     -target x86_64-apple-macosx11.0 \
-    "$SRC_DIR"/*.swift \
+    "$SRC_DIR"/ContentView.swift "$SRC_DIR"/MediaManager.swift "$SRC_DIR"/NetworkManager.swift "$SRC_DIR"/PlayerView.swift \
     -o "$MACOS_DIR/${APP_NAME}_x86_64"
 
 swiftc -O \
     -target arm64-apple-macosx11.0 \
-    "$SRC_DIR"/*.swift \
+    "$SRC_DIR"/ContentView.swift "$SRC_DIR"/MediaManager.swift "$SRC_DIR"/NetworkManager.swift "$SRC_DIR"/PlayerView.swift \
     -o "$MACOS_DIR/${APP_NAME}_arm64"
 
 lipo -create -output "$MACOS_DIR/$APP_NAME" "$MACOS_DIR/${APP_NAME}_x86_64" "$MACOS_DIR/${APP_NAME}_arm64"
 rm "$MACOS_DIR/${APP_NAME}_x86_64" "$MACOS_DIR/${APP_NAME}_arm64"
+
+# Compile CLI Helper
+swiftc -O -target x86_64-apple-macosx11.0 "$SRC_DIR"/NowPlayingHelper.swift -o "$MACOS_DIR/mac_nowplaying_x86_64"
+swiftc -O -target arm64-apple-macosx11.0 "$SRC_DIR"/NowPlayingHelper.swift -o "$MACOS_DIR/mac_nowplaying_arm64"
+lipo -create -output "$MACOS_DIR/mac_nowplaying" "$MACOS_DIR/mac_nowplaying_x86_64" "$MACOS_DIR/mac_nowplaying_arm64"
+rm "$MACOS_DIR/mac_nowplaying_x86_64" "$MACOS_DIR/mac_nowplaying_arm64"
+chmod +x "$MACOS_DIR/mac_nowplaying"
 
 # Copy Info.plist
 cp "$SRC_DIR/Info.plist" "$APP_BUNDLE/Contents/Info.plist"

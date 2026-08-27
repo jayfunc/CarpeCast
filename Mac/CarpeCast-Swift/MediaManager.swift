@@ -16,19 +16,7 @@ class MediaManager: ObservableObject {
     private var updateTimer: Timer?
     
     init() {
-        registerForNotifications()
         startPolling()
-    }
-    
-    private func registerForNotifications() {
-        let bundleURL = NSURL(fileURLWithPath: "/System/Library/PrivateFrameworks/MediaRemote.framework")
-        guard let bundle = CFBundleCreate(kCFAllocatorDefault, bundleURL),
-              let pointer = CFBundleGetFunctionPointerForName(bundle, "MRMediaRemoteRegisterForNowPlayingNotifications" as CFString) else {
-            return
-        }
-        typealias RegisterFunc = @convention(c) (DispatchQueue) -> Void
-        let register = unsafeBitCast(pointer, to: RegisterFunc.self)
-        register(DispatchQueue.main)
     }
     
     func startPolling() {
@@ -85,70 +73,32 @@ class MediaManager: ObservableObject {
     
     // MARK: - MediaRemote Fetch
     private func getMediaRemoteInfo(completion: @escaping (String?) -> Void) {
-        let bundleURL = NSURL(fileURLWithPath: "/System/Library/PrivateFrameworks/MediaRemote.framework")
-        guard let bundle = CFBundleCreate(kCFAllocatorDefault, bundleURL),
-              let pointer = CFBundleGetFunctionPointerForName(bundle, "MRMediaRemoteGetNowPlayingInfo" as CFString) else {
-            completion(nil)
-            return
-        }
-
-        typealias MRMediaRemoteGetNowPlayingInfoFunction = @convention(c) (DispatchQueue, @escaping ([String: Any]?) -> Void) -> Void
-        let MRMediaRemoteGetNowPlayingInfo = unsafeBitCast(pointer, to: MRMediaRemoteGetNowPlayingInfoFunction.self)
-
-        MRMediaRemoteGetNowPlayingInfo(DispatchQueue.main) { infoOpt in
-            if let info = infoOpt {
-                let log = "MediaRemote info: \(info.keys)\n"
-                try? log.write(toFile: "/tmp/carpecast_media.log", atomically: true, encoding: .utf8)
-            } else {
-                let log = "MediaRemote info: nil\n"
-                try? log.write(toFile: "/tmp/carpecast_media.log", atomically: true, encoding: .utf8)
-            }
+        DispatchQueue.global().async {
+            let executableURL = Bundle.main.bundleURL.appendingPathComponent("Contents/MacOS/mac_nowplaying")
             
-            guard let info = infoOpt else {
-                completion(nil)
-                return
-            }
+            let process = Process()
+            process.executableURL = executableURL
             
-            let title = (info["kMRMediaRemoteNowPlayingInfoTitle"] as? String) ?? ""
-            let artist = (info["kMRMediaRemoteNowPlayingInfoArtist"] as? String) ?? ""
-            let album = (info["kMRMediaRemoteNowPlayingInfoAlbum"] as? String) ?? ""
-            let rate = (info["kMRMediaRemoteNowPlayingInfoPlaybackRate"] as? Double) ?? 0.0
-            let isPlaying = rate > 0.0 ? "true" : "false"
-            let duration = (info["kMRMediaRemoteNowPlayingInfoDuration"] as? Double) ?? 0.0
-            let position = (info["kMRMediaRemoteNowPlayingInfoElapsedTime"] as? Double) ?? 0.0
-
-            var albumArtBase64 = ""
-            if let artworkData = info["kMRMediaRemoteNowPlayingInfoArtworkData"] as? Data {
-                if let image = NSImage(data: artworkData) {
-                    let maxDim: CGFloat = 500.0
-                    var size = image.size
-                    if size.width > maxDim || size.height > maxDim {
-                        let ratio = min(maxDim / size.width, maxDim / size.height)
-                        size.width = round(size.width * ratio)
-                        size.height = round(size.height * ratio)
-                        let resized = NSImage(size: size)
-                        resized.lockFocus()
-                        image.draw(in: NSRect(origin: .zero, size: size), from: .zero, operation: .copy, fraction: 1.0)
-                        resized.unlockFocus()
-                        
-                        if let tiff = resized.tiffRepresentation, let bitmap = NSBitmapImageRep(data: tiff) {
-                            if let jpegData = bitmap.representation(using: .jpeg, properties: [.compressionFactor: 0.5]) {
-                                albumArtBase64 = jpegData.base64EncodedString()
-                            }
-                        }
+            let pipe = Pipe()
+            process.standardOutput = pipe
+            process.standardError = pipe
+            
+            do {
+                try process.run()
+                process.waitUntilExit()
+                
+                let data = pipe.fileHandleForReading.readDataToEndOfFile()
+                if let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) {
+                    if output == "nil" || output.isEmpty {
+                        completion(nil)
                     } else {
-                        if let tiff = image.tiffRepresentation, let bitmap = NSBitmapImageRep(data: tiff) {
-                            if let jpegData = bitmap.representation(using: .jpeg, properties: [.compressionFactor: 0.5]) {
-                                albumArtBase64 = jpegData.base64EncodedString()
-                            }
-                        }
+                        completion(output)
                     }
+                } else {
+                    completion(nil)
                 }
-            }
-
-            if !title.isEmpty {
-                completion("\(title)|||\(artist)|||\(album)|||\(isPlaying)|||\(position)|||\(duration)|||\(albumArtBase64)")
-            } else {
+            } catch {
+                print("Failed to run mac_nowplaying: \(error)")
                 completion(nil)
             }
         }
