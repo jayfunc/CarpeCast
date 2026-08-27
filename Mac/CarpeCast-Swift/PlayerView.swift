@@ -8,30 +8,35 @@ struct PlayerView: View {
     var body: some View {
         ZStack {
             // Background Image
-            if let base64 = mediaManager.albumArtBase64.components(separatedBy: ",").last,
-               let data = Data(base64Encoded: base64, options: .ignoreUnknownCharacters),
-               let nsImage = NSImage(data: data) {
-                Image(nsImage: nsImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .mask(
-                        LinearGradient(
-                            gradient: Gradient(colors: [Color.white, Color.white, Color.clear]),
-                            startPoint: .top,
-                            endPoint: .bottom
+            GeometryReader { geo in
+                if let base64 = mediaManager.albumArtBase64.components(separatedBy: ",").last,
+                   let data = Data(base64Encoded: base64, options: .ignoreUnknownCharacters),
+                   let nsImage = NSImage(data: data) {
+                    Image(nsImage: nsImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .clipped()
+                        .mask(
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color.white, Color.white, Color.clear]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
                         )
-                    )
-                    .opacity(0.8)
-                    .edgesIgnoringSafeArea(.all)
-            } else {
-                Image(systemName: "music.note")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 100, height: 100)
-                    .foregroundColor(.gray.opacity(0.3))
-                    .padding(.top, 100)
+                        .opacity(0.8)
+                } else {
+                    VStack {
+                        Image(systemName: "music.note")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 100, height: 100)
+                            .foregroundColor(.gray.opacity(0.3))
+                    }
+                    .frame(width: geo.size.width, height: geo.size.height)
+                }
             }
+            .edgesIgnoringSafeArea(.all)
             
             VStack {
                 Spacer()
