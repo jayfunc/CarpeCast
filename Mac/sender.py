@@ -37,6 +37,237 @@ def get_version_info():
         
     return version, commit_hash
 
+
+I18N = {
+    "zh": {
+        "tab_player": "  播放控制  ",
+        "tab_devices": "  设备状态  ",
+        "tab_settings": "  设置  ",
+        "current_media": "当前媒体信息",
+        "waiting_sync": "等待同步...",
+        "artist": "歌手: ",
+        "album": "专辑: ",
+        "status": "状态: ",
+        "playing": "播放中",
+        "paused": "已暂停",
+        "no_media": "当前无媒体播放",
+        "source": "来源: ",
+        "mac_note": "* 注: Mac 端当前以提取和同步数据为主，若需播放控制请在 Windows 端操作。",
+        "discovered_devices": "已发现的 Windows 接收端：",
+        "connect_sync": "连接并同步",
+        "disconnect": "断开连接",
+        "debug_log": "🔧 开发者调试日志 (Debug Log)：",
+        "dev_name": "设备名称:",
+        "disc_port": "设备发现端口 (UDP):",
+        "cmd_port": "播放控制端口 (TCP/UDP):",
+        "theme": "主题外观:",
+        "theme_sys": "跟随系统",
+        "theme_light": "浅色 (Light)",
+        "theme_dark": "深色 (Dark)",
+        "lang": "应用语言:",
+        "lang_sys": "跟随系统",
+        "lang_zh": "简体中文",
+        "lang_hant": "繁體中文",
+        "lang_en": "English",
+        "lang_ja": "日本語",
+        "save_settings": "保存设置",
+        "config_path": "配置文件存储路径:\n",
+        "get_receiver": "获取接收端 / 访问官网",
+        "about_lyrics": "了解 BetterLyrics",
+        "success": "成功",
+        "success_msg": "设置已保存！\n(部分网络及界面设置需要重启应用生效)",
+        "error": "错误",
+        "error_port": "端口号必须是数字！",
+        "tip": "提示",
+        "tip_select": "请先从列表中选择一台接收端设备。",
+        "prog_started": "程序已启动，本机局域网 IP: {}",
+        "start_listen": "启动 UDP 监听，端口: {}...",
+        "bind_success": "✅ 成功绑定发现端口 {}，等待 Windows 广播包...",
+        "bind_fail": "❌ 绑定端口 {} 失败: {}",
+        "new_device": "🔍 新发现设备! IP: {}, 名字: {}, 数据端口: {}",
+        "stop_sync": "🛑 用户停止了同步。",
+        "disconnected": "已断开同步",
+        "start_sync": "▶️ 开始同步至 {} ({}:{})",
+        "perm_error": "🍎 系统权限拦截: 请在 Mac [系统设置 -> 隐私与安全性 -> 自动化] 中，允许 CarpeCast 控制 Music/Spotify！",
+        "as_error": "⚠️ AppleScript 错误: {}",
+        "send_fail": "❌ UDP 发送失败: {}"
+    },
+    "zh-Hant": {
+        "tab_player": "  播放控制  ",
+        "tab_devices": "  設備狀態  ",
+        "tab_settings": "  設定  ",
+        "current_media": "目前媒體資訊",
+        "waiting_sync": "等待同步...",
+        "artist": "歌手: ",
+        "album": "專輯: ",
+        "status": "狀態: ",
+        "playing": "播放中",
+        "paused": "已暫停",
+        "no_media": "目前無媒體播放",
+        "source": "來源: ",
+        "mac_note": "* 註: Mac 端目前以擷取和同步資料為主，若需播放控制請在 Windows 端操作。",
+        "discovered_devices": "已發現的 Windows 接收端：",
+        "connect_sync": "連線並同步",
+        "disconnect": "斷開連線",
+        "debug_log": "🔧 開發者除錯日誌 (Debug Log)：",
+        "dev_name": "裝置名稱:",
+        "disc_port": "發現連接埠 (UDP):",
+        "cmd_port": "播放控制連接埠 (TCP/UDP):",
+        "theme": "外觀主題:",
+        "theme_sys": "跟隨系統",
+        "theme_light": "淺色 (Light)",
+        "theme_dark": "深色 (Dark)",
+        "lang": "應用語言:",
+        "lang_sys": "跟隨系統",
+        "lang_zh": "简体中文",
+        "lang_hant": "繁體中文",
+        "lang_en": "English",
+        "lang_ja": "日本語",
+        "save_settings": "儲存設定",
+        "config_path": "設定檔儲存路徑:\n",
+        "get_receiver": "取得接收端 / 瀏覽官網",
+        "about_lyrics": "了解 BetterLyrics",
+        "success": "成功",
+        "success_msg": "設定已儲存！\n(部分網路及介面設定需要重啟應用程式生效)",
+        "error": "錯誤",
+        "error_port": "連接埠必須是數字！",
+        "tip": "提示",
+        "tip_select": "請先從列表中選擇一台接收端設備。",
+        "prog_started": "程式已啟動，本機區域網路 IP: {}",
+        "start_listen": "啟動 UDP 監聽，連接埠: {}...",
+        "bind_success": "✅ 成功綁定發現連接埠 {}，等待 Windows 廣播封包...",
+        "bind_fail": "❌ 綁定連接埠 {} 失敗: {}",
+        "new_device": "🔍 新發現設備! IP: {}, 名字: {}, 資料連接埠: {}",
+        "stop_sync": "🛑 使用者停止了同步。",
+        "disconnected": "已斷開同步",
+        "start_sync": "▶️ 開始同步至 {} ({}:{})",
+        "perm_error": "🍎 系統權限攔截: 請在 Mac [系統設定 -> 隱私權與安全性 -> 自動化] 中，允許 CarpeCast 控制 Music/Spotify！",
+        "as_error": "⚠️ AppleScript 錯誤: {}",
+        "send_fail": "❌ UDP 發送失敗: {}"
+    },
+    "ja": {
+        "tab_player": "  プレーヤー  ",
+        "tab_devices": "  デバイス  ",
+        "tab_settings": "  設定  ",
+        "current_media": "現在のメディア情報",
+        "waiting_sync": "同期を待機中...",
+        "artist": "アーティスト: ",
+        "album": "アルバム: ",
+        "status": "ステータス: ",
+        "playing": "再生中",
+        "paused": "一時停止",
+        "no_media": "メディアが再生されていません",
+        "source": "ソース: ",
+        "mac_note": "* 注: Mac版は現在データの抽出と同期を主としています。再生制御はWindowsで行ってください。",
+        "discovered_devices": "発見されたWindowsデバイス:",
+        "connect_sync": "接続して同期",
+        "disconnect": "切断",
+        "debug_log": "🔧 デバッグログ (Debug Log):",
+        "dev_name": "デバイス名:",
+        "disc_port": "探索ポート (UDP):",
+        "cmd_port": "コマンドポート (TCP/UDP):",
+        "theme": "テーマ:",
+        "theme_sys": "システムに従う",
+        "theme_light": "ライト",
+        "theme_dark": "ダーク",
+        "lang": "言語:",
+        "lang_sys": "システムに従う",
+        "lang_zh": "简体中文",
+        "lang_hant": "繁體中文",
+        "lang_en": "English",
+        "lang_ja": "日本語",
+        "save_settings": "設定を保存",
+        "config_path": "設定ファイルのパス:\n",
+        "get_receiver": "受信アプリを取得 / 公式サイトへ",
+        "about_lyrics": "BetterLyricsについて",
+        "success": "成功",
+        "success_msg": "設定を保存しました！\n(一部の設定はアプリの再起動後に適用されます)",
+        "error": "エラー",
+        "error_port": "ポート番号は数字である必要があります！",
+        "tip": "ヒント",
+        "tip_select": "リストから受信デバイスを選択してください。",
+        "prog_started": "起動しました。ローカルIP: {}",
+        "start_listen": "UDPリッスンを開始。ポート: {}...",
+        "bind_success": "✅ 探索ポート {} のバインドに成功。Windowsからのブロードキャストを待機中...",
+        "bind_fail": "❌ ポート {} のバインドに失敗: {}",
+        "new_device": "🔍 新しいデバイスを発見! IP: {}, 名前: {}, データポート: {}",
+        "stop_sync": "🛑 同期を停止しました。",
+        "disconnected": "同期が切断されました",
+        "start_sync": "▶️ 同期を開始: {} ({}:{})",
+        "perm_error": "🍎 権限エラー: Macの [システム設定 -> プライバシーとセキュリティ -> オートメーション] で、Music/Spotifyの制御を許可してください！",
+        "as_error": "⚠️ AppleScriptエラー: {}",
+        "send_fail": "❌ UDP送信失敗: {}"
+    },
+    "en": {
+        "tab_player": "  Player  ",
+        "tab_devices": "  Devices  ",
+        "tab_settings": "  Settings  ",
+        "current_media": "Current Media",
+        "waiting_sync": "Waiting for sync...",
+        "artist": "Artist: ",
+        "album": "Album: ",
+        "status": "Status: ",
+        "playing": "Playing",
+        "paused": "Paused",
+        "no_media": "No Media Playing",
+        "source": "Source: ",
+        "mac_note": "* Note: The Mac version currently focuses on data extraction and sync. Use Windows for playback control.",
+        "discovered_devices": "Discovered Windows Receivers:",
+        "connect_sync": "Connect & Sync",
+        "disconnect": "Disconnect",
+        "debug_log": "🔧 Debug Log:",
+        "dev_name": "Device Name:",
+        "disc_port": "Discovery Port (UDP):",
+        "cmd_port": "Command Port (TCP/UDP):",
+        "theme": "Theme:",
+        "theme_sys": "System Default",
+        "theme_light": "Light",
+        "theme_dark": "Dark",
+        "lang": "Language:",
+        "lang_sys": "System Default",
+        "lang_zh": "简体中文",
+        "lang_hant": "繁體中文",
+        "lang_en": "English",
+        "lang_ja": "日本語",
+        "save_settings": "Save Settings",
+        "config_path": "Config Path:\n",
+        "get_receiver": "Get Receiver App / Visit Website",
+        "about_lyrics": "About BetterLyrics",
+        "success": "Success",
+        "success_msg": "Settings saved!\n(Some network & UI settings require app restart)",
+        "error": "Error",
+        "error_port": "Port must be a number!",
+        "tip": "Tip",
+        "tip_select": "Please select a receiver from the list first.",
+        "prog_started": "App started, Local IP: {}",
+        "start_listen": "Starting UDP listener on port {}...",
+        "bind_success": "✅ Bound discovery port {}. Waiting for Windows broadcast...",
+        "bind_fail": "❌ Failed to bind port {}: {}",
+        "new_device": "🔍 Discovered new device! IP: {}, Name: {}, Data Port: {}",
+        "stop_sync": "🛑 User stopped sync.",
+        "disconnected": "Disconnected",
+        "start_sync": "▶️ Starting sync to {} ({}:{})",
+        "perm_error": "🍎 Permission Error: Please allow CarpeCast to control Music/Spotify in Mac [System Settings -> Privacy & Security -> Automation]!",
+        "as_error": "⚠️ AppleScript Error: {}",
+        "send_fail": "❌ UDP Send Failed: {}"
+    }
+}
+
+def get_system_language():
+    try:
+        import locale
+        lang, _ = locale.getdefaultlocale()
+        if lang:
+            if lang.startswith('zh_TW') or lang.startswith('zh_HK') or lang.startswith('zh_Hant'):
+                return 'zh-Hant'
+            elif lang.startswith('zh'):
+                return 'zh'
+            elif lang.startswith('ja'):
+                return 'ja'
+    except:
+        pass
+    return 'en'
+
 class ConfigManager:
     def __init__(self):
         # macOS 规范的配置文件存放路径 (Application Support)
@@ -86,6 +317,21 @@ class MacSenderApp:
         self.selected_port = 5000
         self.logged_errors = set()
         
+        self.lang_setting = self.config_mgr.get("language") or "跟随系统"
+        if self.lang_setting == "简体中文":
+            self.lang_code = "zh"
+        elif self.lang_setting == "繁體中文":
+            self.lang_code = "zh-Hant"
+        elif self.lang_setting == "English":
+            self.lang_code = "en"
+        elif self.lang_setting == "日本語":
+            self.lang_code = "ja"
+        else:
+            self.lang_code = get_system_language()
+            
+    def _(self, key):
+        return I18N.get(self.lang_code, I18N["en"]).get(key, I18N["en"].get(key, key))
+
         self.setup_ui()
         self.setup_macos_dock_behavior()
         
@@ -97,7 +343,7 @@ class MacSenderApp:
         except Exception:
             local_ip = "127.0.0.1"
             
-        self.log(f"程序已启动，本机局域网 IP: {local_ip}")
+        self.log(self._("prog_started").format(local_ip))
         
         # 线程启动
         self.discovery_thread = threading.Thread(target=self.listen_for_discovery, daemon=True)
@@ -134,9 +380,9 @@ class MacSenderApp:
         self.tab_devices = ttk.Frame(self.notebook, padding=15)
         self.tab_settings = ttk.Frame(self.notebook, padding=15)
         
-        self.notebook.add(self.tab_player, text="  播放控制  ")
-        self.notebook.add(self.tab_devices, text="  设备状态  ")
-        self.notebook.add(self.tab_settings, text="  设置  ")
+        self.notebook.add(self.tab_player, text=self._("tab_player"))
+        self.notebook.add(self.tab_devices, text=self._("tab_devices"))
+        self.notebook.add(self.tab_settings, text=self._("tab_settings"))
         
         self.build_player_tab()
         self.build_devices_tab()
@@ -144,37 +390,37 @@ class MacSenderApp:
 
     def build_player_tab(self):
         # 播放信息展示区
-        info_frame = ttk.LabelFrame(self.tab_player, text="当前媒体信息", padding=20)
+        info_frame = ttk.LabelFrame(self.tab_player, text=self._("current_media"), padding=20)
         info_frame.pack(fill=tk.X, expand=False, pady=10)
         
-        self.lbl_title = ttk.Label(info_frame, text="等待同步...", font=("", 18, "bold"))
+        self.lbl_title = ttk.Label(info_frame, text=self._("waiting_sync"), font=("", 18, "bold"))
         self.lbl_title.pack(anchor=tk.W, pady=5)
         
-        self.lbl_artist = ttk.Label(info_frame, text="歌手: -", font=("", 13))
+        self.lbl_artist = ttk.Label(info_frame, text=self._("artist") + "-", font=("", 13))
         self.lbl_artist.pack(anchor=tk.W, pady=2)
         
-        self.lbl_album = ttk.Label(info_frame, text="专辑: -", font=("", 12), foreground="gray")
+        self.lbl_album = ttk.Label(info_frame, text=self._("album") + "-", font=("", 12), foreground="gray")
         self.lbl_album.pack(anchor=tk.W, pady=2)
         
-        self.lbl_status = ttk.Label(info_frame, text="状态: -", font=("", 12), foreground="gray")
+        self.lbl_status = ttk.Label(info_frame, text=self._("status") + "-", font=("", 12), foreground="gray")
         self.lbl_status.pack(anchor=tk.W, pady=(10, 2))
 
-        ttk.Label(self.tab_player, text="* 注: Mac 端当前以提取和同步数据为主，若需播放控制请在 Windows 端操作。", 
+        ttk.Label(self.tab_player, text=self._("mac_note"), 
                   foreground="gray", wraplength=600).pack(side=tk.BOTTOM, pady=10)
 
     def build_devices_tab(self):
         top_frame = ttk.Frame(self.tab_devices)
         top_frame.pack(fill=tk.X)
         
-        ttk.Label(top_frame, text="已发现的 Windows 接收端：", font=("", 12)).pack(side=tk.LEFT)
+        ttk.Label(top_frame, text=self._("discovered_devices"), font=("", 12)).pack(side=tk.LEFT)
         
         self.device_listbox = tk.Listbox(self.tab_devices, height=4, font=("", 12))
         self.device_listbox.pack(fill=tk.X, pady=10)
         
-        self.btn_connect = ttk.Button(self.tab_devices, text="连接并同步", command=self.toggle_sync)
+        self.btn_connect = ttk.Button(self.tab_devices, text=self._("connect_sync"), command=self.toggle_sync)
         self.btn_connect.pack(fill=tk.X)
         
-        ttk.Label(self.tab_devices, text="🔧 开发者调试日志 (Debug Log)：", font=("", 11)).pack(anchor=tk.W, pady=(15, 5))
+        ttk.Label(self.tab_devices, text=self._("debug_log"), font=("", 11)).pack(anchor=tk.W, pady=(15, 5))
         self.log_area = st.ScrolledText(self.tab_devices, height=10, font=("Menlo", 10), bg="#fcfcfc")
         self.log_area.pack(fill=tk.BOTH, expand=True)
 
@@ -192,41 +438,41 @@ class MacSenderApp:
         form_frame.pack(fill=tk.X)
         
         # 设备名称
-        ttk.Label(form_frame, text="设备名称:").grid(row=0, column=0, sticky=tk.W, pady=8)
+        ttk.Label(form_frame, text=self._("dev_name")).grid(row=0, column=0, sticky=tk.W, pady=8)
         self.ent_dev_name = ttk.Entry(form_frame, width=25)
         self.ent_dev_name.insert(0, self.config_mgr.get("device_name") or "")
         self.ent_dev_name.grid(row=0, column=1, padx=10, pady=8)
         
         # 发现端口
-        ttk.Label(form_frame, text="设备发现端口 (UDP):").grid(row=1, column=0, sticky=tk.W, pady=8)
+        ttk.Label(form_frame, text=self._("disc_port")).grid(row=1, column=0, sticky=tk.W, pady=8)
         self.ent_disc_port = ttk.Entry(form_frame, width=25)
         self.ent_disc_port.insert(0, str(self.config_mgr.get("discovery_port") or ""))
         self.ent_disc_port.grid(row=1, column=1, padx=10, pady=8)
 
         # 控制端口
-        ttk.Label(form_frame, text="播放控制端口 (TCP/UDP):").grid(row=2, column=0, sticky=tk.W, pady=8)
+        ttk.Label(form_frame, text=self._("cmd_port")).grid(row=2, column=0, sticky=tk.W, pady=8)
         self.ent_cmd_port = ttk.Entry(form_frame, width=25)
         self.ent_cmd_port.insert(0, str(self.config_mgr.get("command_port") or ""))
         self.ent_cmd_port.grid(row=2, column=1, padx=10, pady=8)
 
         # 主题
-        ttk.Label(form_frame, text="主题外观:").grid(row=3, column=0, sticky=tk.W, pady=8)
+        ttk.Label(form_frame, text=self._("theme")).grid(row=3, column=0, sticky=tk.W, pady=8)
         self.theme_var = tk.StringVar()
-        self.cb_theme = ttk.Combobox(form_frame, textvariable=self.theme_var, values=["跟随系统", "浅色 (Light)", "深色 (Dark)"], state="readonly", width=23)
+        self.cb_theme = ttk.Combobox(form_frame, textvariable=self.theme_var, values=[self._("theme_sys"), self._("theme_light"), self._("theme_dark")], state="readonly", width=23)
         self.cb_theme.set(self.config_mgr.get("theme") or "跟随系统")
         self.cb_theme.grid(row=3, column=1, padx=10, pady=8)
 
         # 语言
-        ttk.Label(form_frame, text="应用语言:").grid(row=4, column=0, sticky=tk.W, pady=8)
+        ttk.Label(form_frame, text=self._("lang")).grid(row=4, column=0, sticky=tk.W, pady=8)
         self.lang_var = tk.StringVar()
-        self.cb_lang = ttk.Combobox(form_frame, textvariable=self.lang_var, values=["跟随系统", "简体中文", "English"], state="readonly", width=23)
+        self.cb_lang = ttk.Combobox(form_frame, textvariable=self.lang_var, values=[self._("lang_sys"), self._("lang_zh"), self._("lang_hant"), self._("lang_en"), self._("lang_ja")], state="readonly", width=23)
         self.cb_lang.set(self.config_mgr.get("language") or "跟随系统")
         self.cb_lang.grid(row=4, column=1, padx=10, pady=8)
         
-        btn_save = ttk.Button(left_frame, text="保存设置", command=self.save_settings)
+        btn_save = ttk.Button(left_frame, text=self._("save_settings"), command=self.save_settings)
         btn_save.pack(anchor=tk.W, pady=20)
         
-        ttk.Label(left_frame, text="配置文件存储路径:\n" + self.config_mgr.config_path, 
+        ttk.Label(left_frame, text=self._("config_path") + self.config_mgr.config_path, 
                   foreground="gray", wraplength=350).pack(anchor=tk.W, side=tk.BOTTOM)
 
         # 右侧关于区域
@@ -238,10 +484,10 @@ class MacSenderApp:
         ttk.Label(right_frame, text=version_text, font=("", 12), foreground="gray").pack(pady=(0, 20))
 
         import webbrowser
-        btn_github = ttk.Button(right_frame, text="获取接收端 / 访问官网", command=lambda: webbrowser.open("https://github.com/jayfunc/CarpeCast"))
+        btn_github = ttk.Button(right_frame, text=self._("get_receiver"), command=lambda: webbrowser.open("https://github.com/jayfunc/CarpeCast"))
         btn_github.pack(fill=tk.X, pady=5)
 
-        btn_lyrics = ttk.Button(right_frame, text="了解 BetterLyrics", command=lambda: webbrowser.open("https://github.com/jayfunc/BetterLyrics"))
+        btn_lyrics = ttk.Button(right_frame, text=self._("about_lyrics"), command=lambda: webbrowser.open("https://github.com/jayfunc/BetterLyrics"))
         btn_lyrics.pack(fill=tk.X, pady=5)
 
     def save_settings(self):
@@ -252,9 +498,9 @@ class MacSenderApp:
             self.config_mgr.set("theme", self.theme_var.get())
             self.config_mgr.set("language", self.lang_var.get())
             self.config_mgr.save()
-            messagebox.showinfo("成功", "设置已保存！\n(部分网络及界面设置需要重启应用生效)")
+            messagebox.showinfo(self._("success"), self._("success_msg"))
         except ValueError:
-            messagebox.showerror("错误", "端口号必须是数字！")
+            messagebox.showerror(self._("error"), self._("error_port"))
 
     def log_once(self, msg):
         if msg not in self.logged_errors:
@@ -277,7 +523,7 @@ class MacSenderApp:
 
     def listen_for_discovery(self):
         port = self.config_mgr.get("discovery_port")
-        self.log(f"启动 UDP 监听，端口: {port}...")
+        self.log(self._("start_listen").format(port))
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         if hasattr(socket, 'SO_REUSEPORT'):
@@ -285,9 +531,9 @@ class MacSenderApp:
             
         try:
             sock.bind(('', port))
-            self.log(f"✅ 成功绑定发现端口 {port}，等待 Windows 广播包...")
+            self.log(self._("bind_success").format(port))
         except Exception as e:
-            self.log(f"❌ 绑定端口 {port} 失败: {e}")
+            self.log(self._("bind_fail").format(port, e))
             return
         
         while True:
@@ -305,7 +551,7 @@ class MacSenderApp:
                         os_name = parts[4]
                         
                         if ip not in self.discovered_devices:
-                            self.log(f"🔍 新发现设备! IP: {ip}, 名字: {name}, 数据端口: {dataport}")
+                            self.log(self._("new_device").format(ip, name, dataport))
                             self.discovered_devices[ip] = (name, dataport, dtype, os_name)
                             self.root.after(0, self.update_device_list)
             except Exception as e:
@@ -314,13 +560,13 @@ class MacSenderApp:
     def toggle_sync(self):
         if self.is_syncing:
             self.is_syncing = False
-            self.btn_connect.config(text="连接并同步")
-            self.log("🛑 用户停止了同步。")
-            self.update_player_ui("已断开同步", "-", "-", False, "-")
+            self.btn_connect.config(text=self._("connect_sync"))
+            self.log(self._("stop_sync"))
+            self.update_player_ui(self._("disconnected"), "-", "-", False, "-")
         else:
             selection = self.device_listbox.curselection()
             if not selection:
-                messagebox.showwarning("提示", "请先从列表中选择一台接收端设备。")
+                messagebox.showwarning(self._("tip"), self._("tip_select"))
                 return
             
             index = selection[0]
@@ -329,17 +575,17 @@ class MacSenderApp:
             self.selected_port = self.discovered_devices[self.selected_ip][1]
             
             self.is_syncing = True
-            self.btn_connect.config(text="断开连接")
+            self.btn_connect.config(text=self._("disconnect"))
             
             dev_name = self.discovered_devices[self.selected_ip][0]
-            self.log(f"▶️ 开始同步至 {dev_name} ({self.selected_ip}:{self.selected_port})")
+            self.log(self._("start_sync").format(dev_name, self.selected_ip, self.selected_port))
 
     def update_player_ui(self, title, artist, album, is_playing, method):
         self.lbl_title.config(text=title)
-        self.lbl_artist.config(text=f"歌手: {artist}")
-        self.lbl_album.config(text=f"专辑: {album}")
-        status_text = "播放中" if is_playing else "已暂停"
-        self.lbl_status.config(text=f"状态: {status_text} (来源: {method})")
+        self.lbl_artist.config(text=f"{self._('artist')}{artist}")
+        self.lbl_album.config(text=f"{self._('album')}{album}")
+        status_text = self._("playing") if is_playing else self._("paused")
+        self.lbl_status.config(text=f"{self._('status')}{status_text} ({self._('source')}{method})")
 
     def get_applescript_fallback(self):
         # 使用 osascript 直接调用，并避开 System Events，防止额外的权限弹窗
@@ -396,9 +642,9 @@ class MacSenderApp:
             if result.stderr:
                 err = result.stderr.strip()
                 if "-1743" in err or "Not authorized" in err:
-                    self.log_once("🍎 系统权限拦截: 请在 Mac [系统设置 -> 隐私与安全性 -> 自动化] 中，允许 CarpeCast 控制 Music/Spotify！")
+                    self.log_once(self._("perm_error"))
                 else:
-                    self.log_once(f"⚠️ AppleScript 错误: {err}")
+                    self.log_once(self._("as_error").format(err))
             return result.stdout.strip()
         except Exception as e:
             return ""
@@ -476,7 +722,7 @@ class MacSenderApp:
                         self.root.after(0, self.update_player_ui, title, artist, album, is_playing, method)
                         
                     except Exception as e:
-                        self.log_once(f"❌ UDP 发送失败: {e}")
+                        self.log_once(self._("send_fail").format(e))
                 else:
                     self.root.after(0, self.update_player_ui, "当前无媒体播放", "-", "-", False, "-")
                     

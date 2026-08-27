@@ -30,7 +30,7 @@ public class SettingsService : ISettingsService
         }
     }
 
-    public string AppLanguage { get; set; } = "zh-CN";
+    public string AppLanguage { get; set; } = "";
     public bool ShowOnStartup { get; set; } = true;
 
     public event System.Action<string>? ThemeChanged;
@@ -48,7 +48,7 @@ public class SettingsService : ISettingsService
         DataPort = _localSettings.Values["DataPort"] is int dsp ? dsp : 5000;
 
         AppTheme = _localSettings.Values["AppTheme"] as string ?? "System";
-        AppLanguage = _localSettings.Values["AppLanguage"] as string ?? "zh-CN";
+        AppLanguage = _localSettings.Values["AppLanguage"] as string ?? "";
         ShowOnStartup = _localSettings.Values["ShowOnStartup"] is bool sos ? sos : true;
     }
 

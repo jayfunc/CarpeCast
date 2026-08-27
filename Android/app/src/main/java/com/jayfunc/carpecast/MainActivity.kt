@@ -823,7 +823,9 @@ fun SettingsScreen(onNavigateToSources: () -> Unit) {
             val langOptions = listOf(
                 stringResource(R.string.language_system) to "",
                 stringResource(R.string.language_english) to "en",
-                stringResource(R.string.language_chinese) to "zh"
+                stringResource(R.string.language_chinese) to "zh",
+                stringResource(R.string.language_chinese_traditional) to "zh-Hant",
+                stringResource(R.string.language_japanese) to "ja"
             )
 
             SettingItem(

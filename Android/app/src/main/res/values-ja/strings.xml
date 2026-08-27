@@ -1,0 +1,57 @@
+<resources>
+    <string name="app_name">CarpeCast</string>
+
+    <!-- Player Strings -->
+    <string name="no_media_playing">メディアが再生されていません</string>
+    <string name="unknown_artist">不明なアーティスト</string>
+    <string name="unknown_album">不明なアルバム</string>
+    <string name="status_playing">再生中</string>
+    <string name="status_paused">一時停止</string>
+    <string name="status_stopped">停止</string>
+    <string name="app_name_placeholder">音楽</string>
+
+    <!-- Device Status Strings -->
+    <string name="syncing_to_pc">PCに同期中: %1$s</string>
+    <string name="waiting_for_pc">PCの接続を待機しています...</string>
+    <string name="connection_status">接続ステータス</string>
+    <string name="grant_service_permission">通知へのアクセスを許可</string>
+    <string name="disconnect">切断</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_player">プレーヤー</string>
+    <string name="nav_devices">デバイス</string>
+    <string name="nav_settings">設定</string>
+
+    <!-- Settings -->
+    <string name="settings_title">設定</string>
+    <string name="settings_network">ネットワーク</string>
+    <string name="settings_theme">テーマ</string>
+    <string name="settings_theme_desc">アプリの外観を選択します</string>
+    <string name="settings_language">言語</string>
+    <string name="settings_language_desc">希望の言語を選択します</string>
+    <string name="theme_system">システムに従う</string>
+    <string name="theme_light">ライト</string>
+    <string name="theme_dark">ダーク</string>
+    <string name="language_system">システムに従う</string>
+    <string name="language_english">English</string>
+    <string name="language_chinese">簡体字中国語</string>
+    <string name="language_chinese_traditional">繁体字中国語</string>
+    <string name="language_japanese">日本語</string>
+    <string name="settings_device_name">デバイス名</string>
+    <string name="restore_default">デフォルトに戻す</string>
+    <string name="settings_discovery_port">探索ポート</string>
+    <string name="settings_discovery_port_desc">ローカルネットワークでのデバイス検索に使用します。デフォルト: 5001</string>
+    <string name="settings_command_port">コマンドポート</string>
+    <string name="settings_command_port_desc">PCからの再生/一時停止コマンドを受信するために使用します。デフォルト: 5002</string>
+    <string name="settings_allowed_sources">許可されたソース</string>
+    <string name="settings_allowed_sources_desc">同期するアプリを選択します</string>
+    <string name="dialog_allowed_sources_title">許可されたソースを選択</string>
+    <string name="allow_all_sources">すべてのアプリを許可</string>
+    <string name="no_media_apps_found">音楽プレーヤーが見つかりません</string>
+    <string name="settings_save_restart">保存して再起動</string>
+
+    <string name="settings_recommended">おすすめ</string>
+    <string name="settings_betterlyrics_desc">最高のデスクトップ歌詞体験を得るには、BetterLyricsをおすすめします。</string>
+    <string name="settings_download_windows_title">PC版CarpeCastをダウンロード</string>
+    <string name="settings_download_windows_desc">音楽を同期するには、PCにCarpeCastをインストールしてください。</string>
+</resources>

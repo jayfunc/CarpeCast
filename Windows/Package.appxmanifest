@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
@@ -28,8 +28,10 @@
   </Dependencies>
 
   <Resources>
-	<Resource Language="en-US"/>
-	<Resource Language="zh-CN"/>
+	<Resource Language="en"/>
+	<Resource Language="zh-Hans"/>
+	<Resource Language="zh-Hant"/>
+	<Resource Language="ja"/>
   </Resources>
 
   <Applications>
@@ -38,7 +40,7 @@
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
         DisplayName="CarpeCast"
-        Description="CarpeCast Receiver"
+        Description="CarpeCast"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">

@@ -35,6 +35,8 @@
     <string name="language_system">System Default</string>
     <string name="language_english">English</string>
     <string name="language_chinese">简体中文</string>
+    <string name="language_chinese_traditional">繁體中文</string>
+    <string name="language_japanese">日本語</string>
     <string name="settings_device_name">Device Name</string>
     <string name="restore_default">Restore Default</string>
     <string name="settings_discovery_port">Discovery Port</string>

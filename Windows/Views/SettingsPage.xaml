@@ -137,8 +137,11 @@
                     <TextBlock x:Uid="LanguageLabel" Text="Language" />
                 </tk:SettingsCard.Header>
                 <ComboBox Width="150" SelectedIndex="{x:Bind ViewModel.SelectedLanguageIndex, Mode=TwoWay}">
+                    <ComboBoxItem x:Uid="ThemeSystem" Content="System default" Tag="" />
                     <ComboBoxItem Content="English" Tag="en-US" />
-                    <ComboBoxItem Content="中文" Tag="zh-CN" />
+                    <ComboBoxItem Content="简体中文" Tag="zh-Hans" />
+                    <ComboBoxItem Content="繁體中文" Tag="zh-Hant" />
+                    <ComboBoxItem Content="日本語" Tag="ja" />
                 </ComboBox>
             </tk:SettingsCard>
 

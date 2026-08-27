@@ -30,7 +30,14 @@ public partial class SettingsViewModel : ObservableObject
             _ => 0
         };
 
-        SelectedLanguageIndex = _settingsService.AppLanguage == "zh-CN" ? 1 : 0;
+        SelectedLanguageIndex = _settingsService.AppLanguage switch
+        {
+            "en-US" or "en" => 1,
+            "zh-Hans" or "zh-CN" => 2,
+            "zh-Hant" => 3,
+            "ja" => 4,
+            _ => 0
+        };
         ShowOnStartup = _settingsService.ShowOnStartup;
 
         _initialDiscoveryPort = DiscoveryPort;
@@ -105,7 +112,14 @@ public partial class SettingsViewModel : ObservableObject
             _ => "System"
         };
         
-        _settingsService.AppLanguage = SelectedLanguageIndex == 1 ? "zh-CN" : "en-US";
+        _settingsService.AppLanguage = SelectedLanguageIndex switch
+        {
+            1 => "en-US",
+            2 => "zh-Hans",
+            3 => "zh-Hant",
+            4 => "ja",
+            _ => ""
+        };
         _settingsService.ShowOnStartup = ShowOnStartup;
         
         _settingsService.Save();

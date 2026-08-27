@@ -30,8 +30,10 @@ jobs:
     - name: Compile Swift Helper
       working-directory: ./Mac
       run: |
-        # 编译 Swift 脚本为可执行的二进制文件
-        swiftc nowplaying.swift -o mac_nowplaying
+        # 分别编译 x86_64 和 arm64 架构的 Swift 二进制文件，并使用 lipo 合并为 Universal 2 通用程序
+        swiftc nowplaying.swift -target x86_64-apple-macosx10.15 -o mac_nowplaying_x86_64
+        swiftc nowplaying.swift -target arm64-apple-macosx11.0 -o mac_nowplaying_arm64
+        lipo -create -output mac_nowplaying mac_nowplaying_x86_64 mac_nowplaying_arm64
         chmod +x mac_nowplaying
 
     - name: Build with PyInstaller
@@ -47,8 +49,8 @@ jobs:
         # 生成 build_info.json 注入版本信息
         echo "{\"version\": \"$VERSION\", \"commit\": \"$HASH\"}" > build_info.json
         
-        # 使用 --windowed 打包，指定名字、图标并添加附加文件
-        pyinstaller --windowed --name "CarpeCast" --icon=icon.icns --add-binary "mac_nowplaying:." --add-data "build_info.json:." sender.py 
+        # 使用 --windowed 打包，指定名字、图标并添加附加文件，并打包为 Universal 2 通用架构（支持 x64 和 arm64）
+        pyinstaller --target-arch universal2 --windowed --name "CarpeCast" --icon=icon.icns --add-binary "mac_nowplaying:." --add-data "build_info.json:." sender.py 
         
         # 压缩 .app 以防 GitHub Actions 上传时吞掉顶层目录，文件名加上版本号和 Hash
         cd dist
