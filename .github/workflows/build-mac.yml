@@ -6,7 +6,6 @@ on:
     paths:
       - 'Mac/**'
       - '.github/workflows/build-mac.yml'
-      - 'Windows/Assets/CarpeCast-logo.png'
   workflow_dispatch: # 允许手动触发打包
 
 jobs:
@@ -25,35 +24,30 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pyinstaller pillow
+        pip install pillow
 
-    - name: Compile Swift Helper
+    - name: Generate App Icon
       working-directory: ./Mac
       run: |
-        # 分别编译 x86_64 和 arm64 架构的 Swift 二进制文件，并使用 lipo 合并为 Universal 2 通用程序
-        swiftc nowplaying.swift -target x86_64-apple-macosx10.15 -o mac_nowplaying_x86_64
-        swiftc nowplaying.swift -target arm64-apple-macosx11.0 -o mac_nowplaying_arm64
-        lipo -create -output mac_nowplaying mac_nowplaying_x86_64 mac_nowplaying_arm64
-        chmod +x mac_nowplaying
+        python -c "from PIL import Image; Image.open('../Windows/Assets/CarpeCast-logo.png').resize((512,512)).save('AppIcon.icns')"
 
-    - name: Build with PyInstaller
+    - name: Build Native Swift App
       working-directory: ./Mac
       run: |
-        # 使用 Pillow 无损将 PNG 转换为 macOS 专用的 .icns 格式 (绕过 sips 的色彩配置文件报错)
-        python -c "from PIL import Image; Image.open('../Windows/Assets/CarpeCast-logo.png').resize((512,512)).save('icon.icns')"
-        
+        chmod +x build.sh
+        ./build.sh
+        cp AppIcon.icns build/CarpeCast.app/Contents/Resources/
+
+    - name: Package App
+      working-directory: ./Mac
+      run: |
         # 提取版本号和 Hash
-        VERSION=$(grep -oE 'version = "[^"]+"' sender.py | head -1 | cut -d'"' -f2)
+        VERSION=$(grep -oE '<key>CFBundleShortVersionString</key>[[:space:]]*<string>[^<]+</string>' CarpeCast-Swift/Info.plist | grep -oE '<string>[^<]+</string>' | sed -e 's/<string>//' -e 's/<\/string>//' | head -1)
+        if [ -z "$VERSION" ]; then VERSION="1.0"; fi
         HASH=$(git rev-parse --short HEAD)
         
-        # 生成 build_info.json 注入版本信息
-        echo "{\"version\": \"$VERSION\", \"commit\": \"$HASH\"}" > build_info.json
-        
-        # 使用 --windowed 打包，指定名字、图标并添加附加文件，并打包为 Universal 2 通用架构（支持 x64 和 arm64）
-        pyinstaller --target-arch universal2 --windowed --name "CarpeCast" --icon=icon.icns --add-binary "mac_nowplaying:." --add-data "build_info.json:." --add-data "../Windows/Assets/CarpeCast-logo.png:." sender.py 
-        
         # 压缩 .app 以防 GitHub Actions 上传时吞掉顶层目录，文件名加上版本号和 Hash
-        cd dist
+        cd build
         ZIP_NAME="CarpeCast-Mac-v${VERSION}-${HASH}.zip"
         zip -ry "$ZIP_NAME" CarpeCast.app
         echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
@@ -62,4 +56,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: CarpeCast-Mac
-        path: Mac/dist/CarpeCast-Mac-*.zip
+        path: Mac/build/CarpeCast-Mac-*.zip

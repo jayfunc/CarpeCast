@@ -14,10 +14,19 @@ echo "Building $APP_NAME..."
 mkdir -p "$MACOS_DIR"
 mkdir -p "$RESOURCES_DIR"
 
-# Compile Swift files
+# Compile Swift files for x86_64 and arm64, then combine with lipo
 swiftc -O \
+    -target x86_64-apple-macosx10.15 \
     "$SRC_DIR"/*.swift \
-    -o "$MACOS_DIR/$APP_NAME"
+    -o "$MACOS_DIR/${APP_NAME}_x86_64"
+
+swiftc -O \
+    -target arm64-apple-macosx11.0 \
+    "$SRC_DIR"/*.swift \
+    -o "$MACOS_DIR/${APP_NAME}_arm64"
+
+lipo -create -output "$MACOS_DIR/$APP_NAME" "$MACOS_DIR/${APP_NAME}_x86_64" "$MACOS_DIR/${APP_NAME}_arm64"
+rm "$MACOS_DIR/${APP_NAME}_x86_64" "$MACOS_DIR/${APP_NAME}_arm64"
 
 # Copy Info.plist
 cp "$SRC_DIR/Info.plist" "$APP_BUNDLE/Contents/Info.plist"
