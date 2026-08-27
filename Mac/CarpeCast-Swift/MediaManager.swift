@@ -16,7 +16,19 @@ class MediaManager: ObservableObject {
     private var updateTimer: Timer?
     
     init() {
+        registerForNotifications()
         startPolling()
+    }
+    
+    private func registerForNotifications() {
+        let bundleURL = NSURL(fileURLWithPath: "/System/Library/PrivateFrameworks/MediaRemote.framework")
+        guard let bundle = CFBundleCreate(kCFAllocatorDefault, bundleURL),
+              let pointer = CFBundleGetFunctionPointerForName(bundle, "MRMediaRemoteRegisterForNowPlayingNotifications" as CFString) else {
+            return
+        }
+        typealias RegisterFunc = @convention(c) (DispatchQueue) -> Void
+        let register = unsafeBitCast(pointer, to: RegisterFunc.self)
+        register(DispatchQueue.main)
     }
     
     func startPolling() {
