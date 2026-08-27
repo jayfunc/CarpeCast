@@ -118,8 +118,9 @@ class NetworkManager: ObservableObject {
                     }
                 }
             }
-            // Always cancel the UDP connection to prevent file descriptor exhaustion
-            connection.cancel()
+            if error == nil {
+                self?.receiveDiscovery(connection: connection)
+            }
         }
     }
     
@@ -172,7 +173,9 @@ class NetworkManager: ObservableObject {
                     MediaManager.shared.sendCommand(cmd)
                 }
             }
-            connection.cancel()
+            if error == nil {
+                self.receiveCommand(connection: connection)
+            }
         }
     }
     
