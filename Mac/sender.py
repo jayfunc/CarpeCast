@@ -317,14 +317,14 @@ class MacSenderApp:
         self.selected_port = 5000
         self.logged_errors = set()
         
-        self.lang_setting = self.config_mgr.get("language") or "跟随系统"
-        if self.lang_setting == "简体中文":
+        self.lang_setting = self.config_mgr.get("language") or "sys"
+        if self.lang_setting == "zh":
             self.lang_code = "zh"
-        elif self.lang_setting == "繁體中文":
+        elif self.lang_setting == "zh-Hant":
             self.lang_code = "zh-Hant"
-        elif self.lang_setting == "English":
+        elif self.lang_setting == "en":
             self.lang_code = "en"
-        elif self.lang_setting == "日本語":
+        elif self.lang_setting == "ja":
             self.lang_code = "ja"
         else:
             self.lang_code = get_system_language()
@@ -425,79 +425,123 @@ class MacSenderApp:
         self.log_area = st.ScrolledText(self.tab_devices, height=10, font=("Menlo", 10), bg="#fcfcfc")
         self.log_area.pack(fill=tk.BOTH, expand=True)
 
+    def get_lang_map(self):
+        return {
+            self._("lang_sys"): "sys",
+            self._("lang_zh"): "zh",
+            self._("lang_hant"): "zh-Hant",
+            self._("lang_en"): "en",
+            self._("lang_ja"): "ja"
+        }
+
+    def get_theme_map(self):
+        return {
+            self._("theme_sys"): "sys",
+            self._("theme_light"): "light",
+            self._("theme_dark"): "dark"
+        }
+
     def build_settings_tab(self):
+        # 使用垂直布局
         main_frame = ttk.Frame(self.tab_settings)
         main_frame.pack(fill=tk.BOTH, expand=True, pady=10)
 
-        left_frame = ttk.Frame(main_frame)
-        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        # 1. 顶部：Logo 与版本号
+        top_frame = ttk.Frame(main_frame)
+        top_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        logo_path = get_resource_path("CarpeCast-logo.png")
+        if os.path.exists(logo_path):
+            try:
+                self.logo_img = tk.PhotoImage(file=logo_path)
+                # 缩放Logo适应界面，假设原图较大，缩小到1/4或合适尺寸（此处根据实际调整，由于是PhotoImage, zoom/subsample可用）
+                self.logo_img = self.logo_img.subsample(8, 8) 
+                ttk.Label(top_frame, image=self.logo_img).pack()
+            except Exception:
+                ttk.Label(top_frame, text="🎵", font=("", 48)).pack()
+        else:
+            ttk.Label(top_frame, text="🎵", font=("", 48)).pack()
+            
+        ttk.Label(top_frame, text="CarpeCast", font=("", 18, "bold")).pack()
+        version, commit_hash = get_version_info()
+        version_text = f"v{version} - {commit_hash}" if commit_hash else f"v{version}"
+        ttk.Label(top_frame, text=version_text, font=("", 12), foreground="gray").pack()
 
-        right_frame = ttk.Frame(main_frame)
-        right_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=10)
-
-        form_frame = ttk.Frame(left_frame)
-        form_frame.pack(fill=tk.X)
+        # 2. 中间：表单设置
+        form_frame = ttk.Frame(main_frame)
+        form_frame.pack(fill=tk.X, padx=20)
         
         # 设备名称
         ttk.Label(form_frame, text=self._("dev_name")).grid(row=0, column=0, sticky=tk.W, pady=8)
         self.ent_dev_name = ttk.Entry(form_frame, width=25)
         self.ent_dev_name.insert(0, self.config_mgr.get("device_name") or "")
-        self.ent_dev_name.grid(row=0, column=1, padx=10, pady=8)
+        self.ent_dev_name.grid(row=0, column=1, padx=10, pady=8, sticky=tk.EW)
         
         # 发现端口
         ttk.Label(form_frame, text=self._("disc_port")).grid(row=1, column=0, sticky=tk.W, pady=8)
         self.ent_disc_port = ttk.Entry(form_frame, width=25)
         self.ent_disc_port.insert(0, str(self.config_mgr.get("discovery_port") or ""))
-        self.ent_disc_port.grid(row=1, column=1, padx=10, pady=8)
+        self.ent_disc_port.grid(row=1, column=1, padx=10, pady=8, sticky=tk.EW)
 
         # 控制端口
         ttk.Label(form_frame, text=self._("cmd_port")).grid(row=2, column=0, sticky=tk.W, pady=8)
         self.ent_cmd_port = ttk.Entry(form_frame, width=25)
         self.ent_cmd_port.insert(0, str(self.config_mgr.get("command_port") or ""))
-        self.ent_cmd_port.grid(row=2, column=1, padx=10, pady=8)
+        self.ent_cmd_port.grid(row=2, column=1, padx=10, pady=8, sticky=tk.EW)
 
         # 主题
         ttk.Label(form_frame, text=self._("theme")).grid(row=3, column=0, sticky=tk.W, pady=8)
         self.theme_var = tk.StringVar()
-        self.cb_theme = ttk.Combobox(form_frame, textvariable=self.theme_var, values=[self._("theme_sys"), self._("theme_light"), self._("theme_dark")], state="readonly", width=23)
-        self.cb_theme.set(self.config_mgr.get("theme") or "跟随系统")
-        self.cb_theme.grid(row=3, column=1, padx=10, pady=8)
+        theme_map = self.get_theme_map()
+        rev_theme = {v: k for k, v in theme_map.items()}
+        current_theme_code = self.config_mgr.get("theme") or "sys"
+        self.cb_theme = ttk.Combobox(form_frame, textvariable=self.theme_var, values=list(theme_map.keys()), state="readonly", width=23)
+        self.cb_theme.set(rev_theme.get(current_theme_code, rev_theme["sys"]))
+        self.cb_theme.grid(row=3, column=1, padx=10, pady=8, sticky=tk.EW)
 
         # 语言
         ttk.Label(form_frame, text=self._("lang")).grid(row=4, column=0, sticky=tk.W, pady=8)
         self.lang_var = tk.StringVar()
-        self.cb_lang = ttk.Combobox(form_frame, textvariable=self.lang_var, values=[self._("lang_sys"), self._("lang_zh"), self._("lang_hant"), self._("lang_en"), self._("lang_ja")], state="readonly", width=23)
-        self.cb_lang.set(self.config_mgr.get("language") or "跟随系统")
-        self.cb_lang.grid(row=4, column=1, padx=10, pady=8)
+        lang_map = self.get_lang_map()
+        rev_lang = {v: k for k, v in lang_map.items()}
+        current_lang_code = self.config_mgr.get("language") or "sys"
+        self.cb_lang = ttk.Combobox(form_frame, textvariable=self.lang_var, values=list(lang_map.keys()), state="readonly", width=23)
+        self.cb_lang.set(rev_lang.get(current_lang_code, rev_lang["sys"]))
+        self.cb_lang.grid(row=4, column=1, padx=10, pady=8, sticky=tk.EW)
         
-        btn_save = ttk.Button(left_frame, text=self._("save_settings"), command=self.save_settings)
-        btn_save.pack(anchor=tk.W, pady=20)
-        
-        ttk.Label(left_frame, text=self._("config_path") + self.config_mgr.config_path, 
-                  foreground="gray", wraplength=350).pack(anchor=tk.W, side=tk.BOTTOM)
+        form_frame.columnconfigure(1, weight=1)
 
-        # 右侧关于区域
-        ttk.Label(right_frame, text="🎵", font=("", 48)).pack(pady=(10, 0))
-        ttk.Label(right_frame, text="CarpeCast", font=("", 18, "bold")).pack()
-        
-        version, commit_hash = get_version_info()
-        version_text = f"v{version} - {commit_hash}" if commit_hash else f"v{version}"
-        ttk.Label(right_frame, text=version_text, font=("", 12), foreground="gray").pack(pady=(0, 20))
+        # 3. 保存按钮
+        btn_save = ttk.Button(form_frame, text=self._("save_settings"), command=self.save_settings)
+        btn_save.grid(row=5, column=0, columnspan=2, pady=(15, 5), sticky=tk.EW)
 
+        # 4. 底部外部链接按钮
+        bottom_frame = ttk.Frame(main_frame)
+        bottom_frame.pack(fill=tk.X, padx=20, pady=(10, 0))
+        
         import webbrowser
-        btn_github = ttk.Button(right_frame, text=self._("get_receiver"), command=lambda: webbrowser.open("https://github.com/jayfunc/CarpeCast"))
-        btn_github.pack(fill=tk.X, pady=5)
+        btn_github = ttk.Button(bottom_frame, text=self._("get_receiver"), command=lambda: webbrowser.open("https://github.com/jayfunc/CarpeCast"))
+        btn_github.pack(fill=tk.X, pady=4)
 
-        btn_lyrics = ttk.Button(right_frame, text=self._("about_lyrics"), command=lambda: webbrowser.open("https://github.com/jayfunc/BetterLyrics"))
-        btn_lyrics.pack(fill=tk.X, pady=5)
+        btn_lyrics = ttk.Button(bottom_frame, text=self._("about_lyrics"), command=lambda: webbrowser.open("https://github.com/jayfunc/BetterLyrics"))
+        btn_lyrics.pack(fill=tk.X, pady=4)
+
+        # 配置文件路径显示
+        ttk.Label(main_frame, text=self._("config_path") + self.config_mgr.config_path, 
+                  foreground="gray", justify=tk.CENTER, wraplength=400).pack(side=tk.BOTTOM, pady=10)
 
     def save_settings(self):
         try:
             self.config_mgr.set("device_name", self.ent_dev_name.get().strip())
             self.config_mgr.set("discovery_port", int(self.ent_disc_port.get().strip()))
             self.config_mgr.set("command_port", int(self.ent_cmd_port.get().strip()))
-            self.config_mgr.set("theme", self.theme_var.get())
-            self.config_mgr.set("language", self.lang_var.get())
+            
+            theme_map = self.get_theme_map()
+            self.config_mgr.set("theme", theme_map.get(self.theme_var.get(), "sys"))
+            
+            lang_map = self.get_lang_map()
+            self.config_mgr.set("language", lang_map.get(self.lang_var.get(), "sys"))
+            
             self.config_mgr.save()
             messagebox.showinfo(self._("success"), self._("success_msg"))
         except ValueError:

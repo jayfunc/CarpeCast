@@ -50,7 +50,7 @@ jobs:
         echo "{\"version\": \"$VERSION\", \"commit\": \"$HASH\"}" > build_info.json
         
         # 使用 --windowed 打包，指定名字、图标并添加附加文件，并打包为 Universal 2 通用架构（支持 x64 和 arm64）
-        pyinstaller --target-arch universal2 --windowed --name "CarpeCast" --icon=icon.icns --add-binary "mac_nowplaying:." --add-data "build_info.json:." sender.py 
+        pyinstaller --target-arch universal2 --windowed --name "CarpeCast" --icon=icon.icns --add-binary "mac_nowplaying:." --add-data "build_info.json:." --add-data "../Windows/Assets/CarpeCast-logo.png:." sender.py 
         
         # 压缩 .app 以防 GitHub Actions 上传时吞掉顶层目录，文件名加上版本号和 Hash
         cd dist
