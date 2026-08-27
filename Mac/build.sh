@@ -34,4 +34,8 @@ cp "$SRC_DIR/Info.plist" "$APP_BUNDLE/Contents/Info.plist"
 # Create PkgInfo
 echo -n "APPL????" > "$APP_BUNDLE/Contents/PkgInfo"
 
+# Code sign the app with ad-hoc signature and MediaRemote entitlements
+echo "Codesigning app with entitlements..."
+codesign --force --deep --sign - --entitlements "$SRC_DIR/CarpeCast.entitlements" "$APP_BUNDLE"
+
 echo "Build complete! App bundle created at $APP_BUNDLE"
