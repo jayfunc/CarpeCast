@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using CarpeCast.ViewModels;
 
@@ -14,5 +14,16 @@ public sealed partial class PlayerPage : Page
         this.InitializeComponent();
 
         ViewModel.StartNetworking();
+    }
+
+    private void ProgressSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    {
+        if (ViewModel == null) return;
+        
+        // Ignore programmatic updates from the timer or SeekCommand itself
+        if (System.Math.Abs(e.NewValue - ViewModel.CurrentPosition) > 1.0)
+        {
+            ViewModel.SeekCommand.Execute(e.NewValue);
+        }
     }
 }

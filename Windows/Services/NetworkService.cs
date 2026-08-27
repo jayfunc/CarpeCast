@@ -228,6 +228,11 @@ public class NetworkService : INetworkService
         }
     }
 
+    public async Task SendSeekAsync(long positionMs)
+    {
+        await SendCommandAsync($"SEEK:{positionMs}");
+    }
+
     public async Task SendCommandToEndpointAsync(string command, IPEndPoint endpoint)
     {
         if (_dataClient != null)

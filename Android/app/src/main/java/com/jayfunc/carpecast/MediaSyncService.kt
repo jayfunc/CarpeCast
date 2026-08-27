@@ -434,6 +434,12 @@ class MediaSyncService : NotificationListenerService() {
 
                 "ACTION_NEXT" -> controller?.transportControls?.skipToNext()
                 "ACTION_PREV" -> controller?.transportControls?.skipToPrevious()
+                "ACTION_SEEK" -> {
+                    val position = intent.getLongExtra("position", -1L)
+                    if (position != -1L) {
+                        controller?.transportControls?.seekTo(position)
+                    }
+                }
             }
         }
         return START_STICKY
@@ -449,6 +455,16 @@ class MediaSyncService : NotificationListenerService() {
 
             val controller = activeControllers.firstOrNull() ?: return@post
             val transportControls = controller.transportControls
+            
+            if (cmd.startsWith("SEEK:")) {
+                val posStr = cmd.removePrefix("SEEK:")
+                val pos = posStr.toLongOrNull()
+                if (pos != null) {
+                    transportControls.seekTo(pos)
+                }
+                return@post
+            }
+
             when (cmd) {
                 "TOGGLE_PLAY" -> {
                     if (controller.playbackState?.state == PlaybackState.STATE_PLAYING) {

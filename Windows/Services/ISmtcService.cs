@@ -8,6 +8,7 @@ public interface ISmtcService
     event EventHandler PausePressed;
     event EventHandler NextPressed;
     event EventHandler PreviousPressed;
+    event EventHandler<double> SeekRequested;
 
     void Initialize();
     void UpdateMediaState(string title, string artist, string album, bool isPlaying, double position, double duration, string albumArtBase64 = "");

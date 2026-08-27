@@ -13,6 +13,7 @@ public class SmtcService : ISmtcService
     public event EventHandler? PausePressed;
     public event EventHandler? NextPressed;
     public event EventHandler? PreviousPressed;
+    public event EventHandler<double>? SeekRequested;
 
     public void Initialize()
     {
@@ -25,8 +26,15 @@ public class SmtcService : ISmtcService
         _smtc.IsPauseEnabled = true;
         _smtc.IsNextEnabled = true;
         _smtc.IsPreviousEnabled = true;
+        
+        _smtc.PlaybackPositionChangeRequested += Smtc_PlaybackPositionChangeRequested;
 
         _smtc.ButtonPressed += Smtc_ButtonPressed;
+    }
+
+    private void Smtc_PlaybackPositionChangeRequested(SystemMediaTransportControls sender, PlaybackPositionChangeRequestedEventArgs args)
+    {
+        SeekRequested?.Invoke(this, args.RequestedPlaybackPosition.TotalMilliseconds);
     }
 
     private void Smtc_ButtonPressed(SystemMediaTransportControls sender, SystemMediaTransportControlsButtonPressedEventArgs args)

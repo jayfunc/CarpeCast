@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -73,6 +74,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -86,6 +88,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -481,15 +484,31 @@ fun PlayerScreen(state: MediaState) {
 
             // Progress
             Column(modifier = Modifier.fillMaxWidth()) {
-                val progress = if (state.duration > 0) state.position.toFloat() / state.duration else 0f
-                LinearProgressIndicator(
-                    progress = progress.coerceIn(0f, 1f),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(6.dp)
-                        .clip(RoundedCornerShape(50)),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.primaryContainer
+                var sliderValue by remember { mutableFloatStateOf(0f) }
+                var isDragging by remember { mutableStateOf(false) }
+
+                LaunchedEffect(state.position, state.duration, isDragging) {
+                    if (!isDragging) {
+                        sliderValue = if (state.duration > 0) state.position.toFloat() / state.duration else 0f
+                    }
+                }
+
+                Slider(
+                    value = sliderValue.coerceIn(0f, 1f),
+                    onValueChange = { 
+                        isDragging = true
+                        sliderValue = it 
+                    },
+                    onValueChangeFinished = {
+                        isDragging = false
+                        val targetPos = (sliderValue * state.duration).toLong()
+                        val intent = Intent(context, MediaSyncService::class.java).apply {
+                            action = "ACTION_SEEK"
+                            putExtra("position", targetPos)
+                        }
+                        context.startService(intent)
+                    },
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 Row(
@@ -498,8 +517,9 @@ fun PlayerScreen(state: MediaState) {
                         .padding(top = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+                    val currentDisplayPosition = if (isDragging) (sliderValue * state.duration).toLong() else state.position
                     Text(
-                        formatTime(state.position),
+                        formatTime(currentDisplayPosition),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

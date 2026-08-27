@@ -30,5 +30,6 @@ public interface INetworkService
     void StopListening();
     Task SendCommandAsync(string command);
     Task SendCommandToEndpointAsync(string command, System.Net.IPEndPoint endpoint);
+    Task SendSeekAsync(long positionMs);
     void DisconnectLocal();
 }

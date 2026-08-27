@@ -70,6 +70,7 @@ public partial class PlayerViewModel : ObservableObject
         _smtcService.PausePressed += async (s, e) => await PlayPauseCommand.ExecuteAsync(null);
         _smtcService.NextPressed += async (s, e) => await NextCommand.ExecuteAsync(null);
         _smtcService.PreviousPressed += async (s, e) => await PreviousCommand.ExecuteAsync(null);
+        _smtcService.SeekRequested += async (s, position) => await SeekCommand.ExecuteAsync(position);
 
         DevicesVM.ActiveDeviceChanged += DevicesVM_ActiveDeviceChanged;
 
@@ -233,6 +234,21 @@ public partial class PlayerViewModel : ObservableObject
     private async Task Previous()
     {
         await _networkService.SendCommandAsync("PREV");
+    }
+
+    [RelayCommand]
+    private async Task Seek(double position)
+    {
+        long posMs = (long)position;
+        await _networkService.SendSeekAsync(posMs);
+        
+        // Optimistically update position
+        _basePosition = position;
+        _lastUpdateTime = DateTime.Now;
+        CurrentPosition = position;
+        FormattedPosition = FormatTime(position);
+        Media.Position = position;
+        _smtcService.UpdateTimeline(position, Media.Duration);
     }
 
     private void ResetState()
