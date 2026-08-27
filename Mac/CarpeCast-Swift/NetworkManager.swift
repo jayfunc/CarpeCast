@@ -118,9 +118,8 @@ class NetworkManager: ObservableObject {
                     }
                 }
             }
-            if error == nil {
-                self?.receiveDiscovery(connection: connection)
-            }
+            // Always cancel the UDP connection to prevent file descriptor exhaustion
+            connection.cancel()
         }
     }
     
@@ -129,7 +128,7 @@ class NetworkManager: ObservableObject {
             guard let self = self else { return }
             let now = Date()
             self.discoveredDevices.removeAll { device in
-                let isLost = now.timeIntervalSince(device.lastSeen) > 5.0
+                let isLost = now.timeIntervalSince(device.lastSeen) > 10.0 // Relaxed to 10 seconds
                 if isLost && self.connectedDevice?.ip == device.ip {
                     self.disconnect()
                 }
@@ -173,9 +172,7 @@ class NetworkManager: ObservableObject {
                     MediaManager.shared.sendCommand(cmd)
                 }
             }
-            if error == nil {
-                self.receiveCommand(connection: connection)
-            }
+            connection.cancel()
         }
     }
     
