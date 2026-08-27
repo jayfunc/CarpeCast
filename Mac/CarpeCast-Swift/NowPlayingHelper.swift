@@ -17,6 +17,8 @@ public func run_helper() {
 
     let MRMediaRemoteGetNowPlayingInfo = unsafeBitCast(pointer, to: MRMediaRemoteGetNowPlayingInfoFunction.self)
 
+    try? "Perl injected and MRMediaRemoteGetNowPlayingInfo loaded".write(toFile: "/tmp/perl_debug.log", atomically: true, encoding: .utf8)
+
     let group = DispatchGroup()
     group.enter()
 
@@ -24,9 +26,12 @@ public func run_helper() {
         defer { group.leave() }
         
         guard let info = infoOpt else {
+            try? "infoOpt is nil".write(toFile: "/tmp/perl_debug.log", atomically: true, encoding: .utf8)
             print("nil")
             return
         }
+        
+        try? "infoOpt received: \(info.keys)".write(toFile: "/tmp/perl_debug.log", atomically: true, encoding: .utf8)
         
         let title = (info["kMRMediaRemoteNowPlayingInfoTitle"] as? String) ?? ""
         let artist = (info["kMRMediaRemoteNowPlayingInfoArtist"] as? String) ?? ""

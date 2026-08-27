@@ -91,16 +91,20 @@ class MediaManager: ObservableObject {
                 
                 let data = pipe.fileHandleForReading.readDataToEndOfFile()
                 if let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) {
+                    try? "Perl output: \(output)".write(toFile: "/tmp/perl_output.log", atomically: true, encoding: .utf8)
                     if output == "nil" || output.isEmpty {
                         completion(nil)
-                    } else {
+                    } else if output.components(separatedBy: "|||").count >= 6 {
                         completion(output)
+                    } else {
+                        // Probably a perl error
+                        completion(nil)
                     }
                 } else {
                     completion(nil)
                 }
             } catch {
-                print("Failed to run mac_nowplaying: \(error)")
+                try? "Process error: \(error)".write(toFile: "/tmp/perl_output.log", atomically: true, encoding: .utf8)
                 completion(nil)
             }
         }
