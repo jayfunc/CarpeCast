@@ -100,7 +100,7 @@ public class SmtcService : ISmtcService
 
             updater.Update();
         }
-
+        
         _smtc.PlaybackStatus = isPlaying ? MediaPlaybackStatus.Playing : MediaPlaybackStatus.Paused;
 
         var timeline = new SystemMediaTransportControlsTimelineProperties
@@ -116,7 +116,7 @@ public class SmtcService : ISmtcService
 
     public void UpdateTimeline(double position, double duration)
     {
-        if (_smtc == null) return;
+        if (_smtc == null || !_smtc.IsEnabled) return;
         
         var timeline = new SystemMediaTransportControlsTimelineProperties
         {

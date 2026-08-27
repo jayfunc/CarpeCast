@@ -187,7 +187,8 @@ public partial class PlayerViewModel : ObservableObject
 
     private void UiTimer_Tick(object? sender, object e)
     {
-        if (Media.IsPlaying && Media.Duration > 0)
+        bool hasMedia = !string.IsNullOrWhiteSpace(Media.Title) && Media.Title != "Unknown";
+        if (hasMedia && Media.IsPlaying && Media.Duration > 0)
         {
             var elapsedMs = (DateTime.Now - _lastUpdateTime).TotalMilliseconds;
             var estimatedPosition = _basePosition + elapsedMs;
