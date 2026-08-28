@@ -193,19 +193,19 @@ class NetworkManager: ObservableObject {
                 self.lastSentTrackKey = trackKey
                 self.cachedAlbumArtBase64 = ""
                 
-                print("[CarpeCast] Track changed: \(trackKey), albumArtBase64 length: \(m.albumArtBase64.count)")
+                NSLog("[CarpeCast] Track changed: %@, albumArtBase64 length: %d", trackKey, m.albumArtBase64.count)
                 
                 if !m.albumArtBase64.isEmpty,
                    let artData = Data(base64Encoded: m.albumArtBase64, options: .ignoreUnknownCharacters) {
                     
-                    print("[CarpeCast] Art data decoded, bytes: \(artData.count)")
+                    NSLog("[CarpeCast] Art data decoded, bytes: %d", artData.count)
                     
                     // Use CGImageSource for reliable decoding of any format (JPEG/PNG/HEIC etc.)
                     let options: [CFString: Any] = [kCGImageSourceShouldCache: false]
                     if let imageSource = CGImageSourceCreateWithData(artData as CFData, options as CFDictionary),
                        let cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nil) {
                         
-                        print("[CarpeCast] CGImage created: \(cgImage.width)x\(cgImage.height)")
+                        NSLog("[CarpeCast] CGImage created: %dx%d", cgImage.width, cgImage.height)
                         
                         let targetPixels = 500
                         let colorSpace = CGColorSpaceCreateDeviceRGB()
@@ -229,7 +229,7 @@ class NetworkManager: ObservableObject {
                                         let base64 = jpeg.base64EncodedString()
                                         if base64.utf8.count < 55000 {
                                             self.cachedAlbumArtBase64 = base64
-                                            print("[CarpeCast] Art compressed at quality \(compression), base64 length: \(base64.count)")
+                                            NSLog("[CarpeCast] Art compressed at quality %f, base64 length: %d", compression, base64.count)
                                             break
                                         }
                                     }
@@ -238,15 +238,15 @@ class NetworkManager: ObservableObject {
                             }
                         }
                     } else {
-                        print("[CarpeCast] Failed to create CGImageSource or CGImage from art data")
+                        NSLog("[CarpeCast] Failed to create CGImageSource or CGImage from art data")
                     }
                 } else {
-                    print("[CarpeCast] albumArtBase64 is empty or failed to decode")
+                    NSLog("[CarpeCast] albumArtBase64 is empty or failed to decode")
                 }
                 
                 // Include albumArt in this packet (even if empty — signals "track has no art")
                 dict["albumArt"] = self.cachedAlbumArtBase64
-                print("[CarpeCast] Sending albumArt with length: \(self.cachedAlbumArtBase64.count)")
+                NSLog("[CarpeCast] Sending albumArt with length: %d", self.cachedAlbumArtBase64.count)
             }
             // If track hasn't changed, omit albumArt key entirely — Windows keeps the cached image image
             
