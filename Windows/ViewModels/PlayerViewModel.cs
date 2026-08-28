@@ -17,6 +17,7 @@ public partial class PlayerViewModel : ObservableObject
     private Microsoft.UI.Xaml.DispatcherTimer _uiTimer;
     private DateTime _lastUpdateTime;
     private double _basePosition;
+    private string _cachedAlbumArtBase64 = string.Empty;
 
     [ObservableProperty]
     public partial MediaState Media { get; set; } = new();
@@ -152,10 +153,11 @@ public partial class PlayerViewModel : ObservableObject
             // albumArt == "" means track has no art. Non-empty = new art to display.
             bool artIncluded = newState.AlbumArtBase64 != null;
 
-            // When track changes, clear old art immediately (new art will arrive shortly)
+            // When track changes, clear cached art immediately (new art will arrive shortly)
             if (titleChanged)
             {
                 AlbumArtImage = null;
+                _cachedAlbumArtBase64 = string.Empty;
             }
 
             Media = newState;
@@ -170,6 +172,9 @@ public partial class PlayerViewModel : ObservableObject
 
             if (artIncluded)
             {
+                // Update persistent cache whenever new art arrives
+                _cachedAlbumArtBase64 = newState.AlbumArtBase64 ?? string.Empty;
+
                 if (!string.IsNullOrEmpty(newState.AlbumArtBase64))
                 {
                     try
@@ -195,7 +200,8 @@ public partial class PlayerViewModel : ObservableObject
 
             if (hasMedia)
             {
-                _smtcService.UpdateMediaState(Media.Title, Media.Artist, Media.Album, Media.IsPlaying, Media.Position, Media.Duration, Media.AlbumArtBase64 ?? string.Empty);
+                // Always pass _cachedAlbumArtBase64 so SMTC keeps the art on every heartbeat update
+                _smtcService.UpdateMediaState(Media.Title, Media.Artist, Media.Album, Media.IsPlaying, Media.Position, Media.Duration, _cachedAlbumArtBase64);
                 _smtcService.UpdateTimeline(CurrentPosition, CurrentDuration);
             }
             else
