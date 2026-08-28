@@ -101,8 +101,8 @@
                         HorizontalAlignment="Stretch"
                         IsThumbToolTipEnabled="False"
                         Maximum="{x:Bind ViewModel.CurrentDuration, Mode=OneWay}"
-                        Value="{x:Bind ViewModel.CurrentPosition, Mode=OneWay}"
-                        ValueChanged="ProgressSlider_ValueChanged" />
+                        ValueChanged="ProgressSlider_ValueChanged"
+                        Value="{x:Bind ViewModel.CurrentPosition, Mode=OneWay}" />
                     <Grid>
                         <TextBlock
                             HorizontalAlignment="Left"
