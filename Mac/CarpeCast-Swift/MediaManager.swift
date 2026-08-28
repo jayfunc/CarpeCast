@@ -54,8 +54,13 @@ class MediaManager: ObservableObject {
                 self.artist = parts[1]
                 self.album = parts[2]
                 self.isPlaying = (parts[3] == "true")
-                self.position = (Double(parts[4]) ?? 0.0) * 1000.0
-                self.duration = (Double(parts[5]) ?? 0.0) * 1000.0
+                
+                let posStr = parts[4].replacingOccurrences(of: ",", with: ".")
+                self.position = (Double(posStr) ?? 0.0) * 1000.0
+                
+                let durStr = parts[5].replacingOccurrences(of: ",", with: ".")
+                self.duration = (Double(durStr) ?? 0.0) * 1000.0
+                
                 self.albumArtBase64 = parts.count >= 7 ? parts[6] : ""
                 self.lastFetchMethod = method
             }
@@ -117,9 +122,9 @@ class MediaManager: ObservableObject {
             
             do {
                 try process.run()
+                let data = pipe.fileHandleForReading.readDataToEndOfFile()
                 process.waitUntilExit()
                 
-                let data = pipe.fileHandleForReading.readDataToEndOfFile()
                 if let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) {
                     if output == "null" || output.isEmpty {
                         completion(nil)
@@ -197,8 +202,8 @@ class MediaManager: ObservableObject {
             
             do {
                 try process.run()
-                process.waitUntilExit()
                 let data = pipe.fileHandleForReading.readDataToEndOfFile()
+                process.waitUntilExit()
                 let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
                 if let out = output, !out.isEmpty {
                     completion(out)
