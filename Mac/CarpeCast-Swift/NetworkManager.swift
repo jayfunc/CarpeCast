@@ -191,7 +191,7 @@ class NetworkManager: ObservableObject {
                     if let data = Data(base64Encoded: m.albumArtBase64, options: .ignoreUnknownCharacters),
                        let image = NSImage(data: data) {
                         
-                        let targetPixels = 300
+                        let targetPixels = 500
                         let rep = NSBitmapImageRep(bitmapDataPlanes: nil,
                                                    pixelsWide: targetPixels,
                                                    pixelsHigh: targetPixels,
@@ -212,11 +212,11 @@ class NetworkManager: ObservableObject {
                                        fraction: 1.0)
                             NSGraphicsContext.restoreGraphicsState()
                             
-                            var compression: CGFloat = 0.6
+                            var compression: CGFloat = 0.8
                             while compression >= 0.1 {
                                 if let jpeg = rep.representation(using: .jpeg, properties: [.compressionFactor: compression]) {
                                     let base64 = jpeg.base64EncodedString()
-                                    if base64.count < 50000 {
+                                    if base64.count < 55000 {
                                         self.cachedCompressedAlbumArtBase64 = base64
                                         break
                                     }
