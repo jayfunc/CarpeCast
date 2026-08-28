@@ -105,8 +105,13 @@ public partial class PlayerViewModel : ObservableObject
         });
     }
 
+    private bool _isNetworkingStarted;
+
     public void StartNetworking()
     {
+        if (_isNetworkingStarted) return;
+        _isNetworkingStarted = true;
+        
         _networkService.StartListening();
         _smtcService.Initialize();
     }

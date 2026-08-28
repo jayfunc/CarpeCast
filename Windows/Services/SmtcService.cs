@@ -15,8 +15,13 @@ public class SmtcService : ISmtcService
     public event EventHandler? PreviousPressed;
     public event EventHandler<double>? SeekRequested;
 
+    private bool _isInitialized;
+
     public void Initialize()
     {
+        if (_isInitialized) return;
+        _isInitialized = true;
+        
         _mediaPlayer = new MediaPlayer();
         _mediaPlayer.CommandManager.IsEnabled = false; 
 
