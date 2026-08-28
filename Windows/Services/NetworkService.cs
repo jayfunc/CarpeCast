@@ -11,11 +11,32 @@ namespace CarpeCast.Services;
 
 public class NetworkService : INetworkService
 {
+    private sealed class AlbumArtTransfer
+    {
+        public int ChunkCount { get; }
+        public string?[] Chunks { get; }
+
+        public AlbumArtTransfer(int chunkCount)
+        {
+            ChunkCount = chunkCount;
+            Chunks = new string?[chunkCount];
+        }
+
+        public bool AddChunk(int index, string chunk)
+        {
+            Chunks[index] = chunk;
+            return Chunks.All(part => part != null);
+        }
+
+        public string GetAlbumArt() => string.Concat(Chunks!);
+    }
+
     private readonly ISettingsService _settings;
     private CancellationTokenSource? _cts;
     private UdpClient? _dataClient;
     private UdpClient? _discoveryClient;
     private readonly System.Collections.Concurrent.ConcurrentDictionary<string, DeviceModel> _senderCache = new();
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<string, AlbumArtTransfer> _albumArtTransfers = new();
 
     public IPEndPoint? ActiveEndpoint { get; set; }
 
@@ -119,12 +140,47 @@ public class NetworkService : INetworkService
                         continue;
                     }
 
+                    string? albumArt = document.RootElement.TryGetProperty("albumArt", out var artbProp)
+                        ? artbProp.GetString()
+                        : null;
+
+                    if (document.RootElement.TryGetProperty("albumArtTransferId", out var transferIdProp) &&
+                        document.RootElement.TryGetProperty("albumArtChunkIndex", out var chunkIndexProp) &&
+                        document.RootElement.TryGetProperty("albumArtChunkCount", out var chunkCountProp) &&
+                        document.RootElement.TryGetProperty("albumArtChunk", out var chunkProp))
+                    {
+                        var transferId = transferIdProp.GetString();
+                        var chunk = chunkProp.GetString();
+                        var chunkIndex = chunkIndexProp.GetInt32();
+                        var chunkCount = chunkCountProp.GetInt32();
+
+                        if (!string.IsNullOrEmpty(transferId) &&
+                            chunk != null &&
+                            chunkCount > 0 &&
+                            chunkCount <= 1_000 &&
+                            chunkIndex >= 0 &&
+                            chunkIndex < chunkCount)
+                        {
+                            string transferKey = $"{incomingEndpoint.Address}:{transferId}";
+                            var transfer = _albumArtTransfers.AddOrUpdate(
+                                transferKey,
+                                _ => new AlbumArtTransfer(chunkCount),
+                                (_, existing) => existing.ChunkCount == chunkCount ? existing : new AlbumArtTransfer(chunkCount));
+
+                            if (transfer.AddChunk(chunkIndex, chunk))
+                            {
+                                albumArt = transfer.GetAlbumArt();
+                                _albumArtTransfers.TryRemove(transferKey, out _);
+                            }
+                        }
+                    }
+
                     var state = new MediaState
                     {
                         Title = document.RootElement.TryGetProperty("title", out var titleProp) ? titleProp.GetString() ?? "Unknown" : "Unknown",
                         Artist = document.RootElement.TryGetProperty("artist", out var artProp) ? artProp.GetString() ?? "Unknown" : "Unknown",
                         Album = document.RootElement.TryGetProperty("album", out var albProp) ? albProp.GetString() ?? "" : "",
-                        AlbumArtBase64 = document.RootElement.TryGetProperty("albumArt", out var artbProp) ? artbProp.GetString() : null,
+                        AlbumArtBase64 = albumArt,
                         IsPlaying = document.RootElement.TryGetProperty("isPlaying", out var pProp) && pProp.GetBoolean(),
                         Position = document.RootElement.TryGetProperty("position", out var posProp) ? posProp.GetDouble() : 0.0,
                         Duration = document.RootElement.TryGetProperty("duration", out var durProp) ? durProp.GetDouble() : 0.0,

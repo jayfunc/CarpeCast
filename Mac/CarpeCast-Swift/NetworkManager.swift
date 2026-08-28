@@ -26,6 +26,7 @@ class NetworkManager: ObservableObject {
     // Album art caching: only compress + send when track changes
     private var lastSentTrackKey: String = ""
     private var cachedAlbumArtBase64: String = ""
+    private let albumArtChunkSize = 1_000
     
     private let discoveryPort: UInt16 = 5001
     private let commandPort: UInt16 = 5002
@@ -187,7 +188,7 @@ class NetworkManager: ObservableObject {
                 "deviceType": "Desktop",
                 "osVersion": "macOS"
             ]
-            let trackKey = "\(m.title)|\(m.artist)"
+            let trackKey = "\(m.title)|\(m.artist)|\(m.album)"
             if trackKey != self.lastSentTrackKey {
                 // Track changed — recompress art and attach it this packet
                 self.lastSentTrackKey = trackKey
@@ -244,9 +245,33 @@ class NetworkManager: ObservableObject {
                     NSLog("[CarpeCast] albumArtBase64 is empty or failed to decode")
                 }
                 
-                // Include albumArt in this packet (even if empty — signals "track has no art")
-                dict["albumArt"] = self.cachedAlbumArtBase64
-                NSLog("[CarpeCast] Sending albumArt with length: %d", self.cachedAlbumArtBase64.count)
+                // Small UDP packets avoid IP fragmentation, which otherwise causes the
+                // receiver to discard the whole album-art payload when one fragment drops.
+                if self.cachedAlbumArtBase64.isEmpty {
+                    dict["albumArt"] = ""
+                    NSLog("[CarpeCast] Sending empty albumArt")
+                } else {
+                    let artBytes = Array(self.cachedAlbumArtBase64.utf8)
+                    let transferId = UUID().uuidString
+                    let chunkCount = (artBytes.count + self.albumArtChunkSize - 1) / self.albumArtChunkSize
+
+                    for chunkIndex in 0..<chunkCount {
+                        let start = chunkIndex * self.albumArtChunkSize
+                        let end = min(start + self.albumArtChunkSize, artBytes.count)
+                        var chunkPacket = dict
+                        chunkPacket["albumArtTransferId"] = transferId
+                        chunkPacket["albumArtChunkIndex"] = chunkIndex
+                        chunkPacket["albumArtChunkCount"] = chunkCount
+                        chunkPacket["albumArtChunk"] = String(decoding: artBytes[start..<end], as: UTF8.self)
+
+                        if let data = try? JSONSerialization.data(withJSONObject: chunkPacket, options: []) {
+                            sock.send(data: data, to: device.ip, port: UInt16(device.port))
+                        }
+                    }
+
+                    NSLog("[CarpeCast] Sending albumArt in %d chunks, total length: %d", chunkCount, self.cachedAlbumArtBase64.count)
+                    return
+                }
             }
             // If track hasn't changed, omit albumArt key entirely — Windows keeps the cached image image
             
