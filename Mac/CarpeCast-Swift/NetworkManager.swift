@@ -27,6 +27,8 @@ class NetworkManager: ObservableObject {
     private var lastSentTrackKey: String = ""
     private var cachedAlbumArtBase64: String = ""
     private let albumArtChunkSize = 1_000
+    private var albumArtTransferId: String?
+    private var albumArtRetriesRemaining = 0
     
     private let discoveryPort: UInt16 = 5001
     private let commandPort: UInt16 = 5002
@@ -69,6 +71,8 @@ class NetworkManager: ObservableObject {
         // Reset art cache so the next sync packet includes art for the new receiver
         lastSentTrackKey = ""
         cachedAlbumArtBase64 = ""
+        albumArtTransferId = nil
+        albumArtRetriesRemaining = 0
     }
     
     func disconnect(clearTarget: Bool = true) {
@@ -193,6 +197,8 @@ class NetworkManager: ObservableObject {
                 // Track changed — recompress art and attach it this packet
                 self.lastSentTrackKey = trackKey
                 self.cachedAlbumArtBase64 = ""
+                self.albumArtTransferId = nil
+                self.albumArtRetriesRemaining = 0
                 
                 NSLog("[CarpeCast] Track changed: %@, albumArtBase64 length: %d", trackKey, m.albumArtBase64.count)
                 
@@ -251,27 +257,36 @@ class NetworkManager: ObservableObject {
                     dict["albumArt"] = ""
                     NSLog("[CarpeCast] Sending empty albumArt")
                 } else {
-                    let artBytes = Array(self.cachedAlbumArtBase64.utf8)
-                    let transferId = UUID().uuidString
-                    let chunkCount = (artBytes.count + self.albumArtChunkSize - 1) / self.albumArtChunkSize
-
-                    for chunkIndex in 0..<chunkCount {
-                        let start = chunkIndex * self.albumArtChunkSize
-                        let end = min(start + self.albumArtChunkSize, artBytes.count)
-                        var chunkPacket = dict
-                        chunkPacket["albumArtTransferId"] = transferId
-                        chunkPacket["albumArtChunkIndex"] = chunkIndex
-                        chunkPacket["albumArtChunkCount"] = chunkCount
-                        chunkPacket["albumArtChunk"] = String(decoding: artBytes[start..<end], as: UTF8.self)
-
-                        if let data = try? JSONSerialization.data(withJSONObject: chunkPacket, options: []) {
-                            sock.send(data: data, to: device.ip, port: UInt16(device.port))
-                        }
-                    }
-
-                    NSLog("[CarpeCast] Sending albumArt in %d chunks, total length: %d", chunkCount, self.cachedAlbumArtBase64.count)
-                    return
+                    self.albumArtTransferId = UUID().uuidString
+                    // Re-send with the same ID so a receiver that starts mid-transfer,
+                    // or loses a UDP packet, can finish assembling the cached chunks.
+                    self.albumArtRetriesRemaining = 3
                 }
+            }
+
+            if self.albumArtRetriesRemaining > 0,
+               let transferId = self.albumArtTransferId,
+               !self.cachedAlbumArtBase64.isEmpty {
+                let artBytes = Array(self.cachedAlbumArtBase64.utf8)
+                let chunkCount = (artBytes.count + self.albumArtChunkSize - 1) / self.albumArtChunkSize
+
+                for chunkIndex in 0..<chunkCount {
+                    let start = chunkIndex * self.albumArtChunkSize
+                    let end = min(start + self.albumArtChunkSize, artBytes.count)
+                    var chunkPacket = dict
+                    chunkPacket["albumArtTransferId"] = transferId
+                    chunkPacket["albumArtChunkIndex"] = chunkIndex
+                    chunkPacket["albumArtChunkCount"] = chunkCount
+                    chunkPacket["albumArtChunk"] = String(decoding: artBytes[start..<end], as: UTF8.self)
+
+                    if let data = try? JSONSerialization.data(withJSONObject: chunkPacket, options: []) {
+                        sock.send(data: data, to: device.ip, port: UInt16(device.port))
+                    }
+                }
+
+                self.albumArtRetriesRemaining -= 1
+                NSLog("[CarpeCast] Sending albumArt in %d chunks, total length: %d, retries remaining: %d", chunkCount, self.cachedAlbumArtBase64.count, self.albumArtRetriesRemaining)
+                return
             }
             // If track hasn't changed, omit albumArt key entirely — Windows keeps the cached image image
             
