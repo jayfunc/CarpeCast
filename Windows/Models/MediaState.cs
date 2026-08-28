@@ -14,7 +14,7 @@ public partial class MediaState : ObservableObject
     public partial string Album { get; set; } = "Unknown Album";
 
     [ObservableProperty]
-    public partial string AlbumArtBase64 { get; set; } = string.Empty;
+    public partial string? AlbumArtBase64 { get; set; } = null;
 
     [ObservableProperty]
     public partial bool IsPlaying { get; set; } = false;

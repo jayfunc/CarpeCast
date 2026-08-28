@@ -147,9 +147,16 @@ public partial class PlayerViewModel : ObservableObject
                 : (loader.GetString("UnknownAlbum/Text") ?? "Unknown Album");
             
             bool titleChanged = Media.Title != newState.Title;
-            bool playStateChanged = Media.IsPlaying != newState.IsPlaying;
 
-            bool albumArtChanged = Media.AlbumArtBase64 != newState.AlbumArtBase64;
+            // albumArt == null means this packet has no art update (track unchanged).
+            // albumArt == "" means track has no art. Non-empty = new art to display.
+            bool artIncluded = newState.AlbumArtBase64 != null;
+
+            // When track changes, clear old art immediately (new art will arrive shortly)
+            if (titleChanged)
+            {
+                AlbumArtImage = null;
+            }
 
             Media = newState;
             
@@ -161,7 +168,7 @@ public partial class PlayerViewModel : ObservableObject
             FormattedPosition = FormatTime(_basePosition);
             PlayPauseIcon = Media.IsPlaying ? "\uE769" : "\uE768"; // Pause : Play
 
-            if (albumArtChanged)
+            if (artIncluded)
             {
                 if (!string.IsNullOrEmpty(newState.AlbumArtBase64))
                 {
@@ -188,7 +195,7 @@ public partial class PlayerViewModel : ObservableObject
 
             if (hasMedia)
             {
-                _smtcService.UpdateMediaState(Media.Title, Media.Artist, Media.Album, Media.IsPlaying, Media.Position, Media.Duration, Media.AlbumArtBase64);
+                _smtcService.UpdateMediaState(Media.Title, Media.Artist, Media.Album, Media.IsPlaying, Media.Position, Media.Duration, Media.AlbumArtBase64 ?? string.Empty);
                 _smtcService.UpdateTimeline(CurrentPosition, CurrentDuration);
             }
             else

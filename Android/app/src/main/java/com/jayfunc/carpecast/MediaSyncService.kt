@@ -42,6 +42,10 @@ class MediaSyncService : NotificationListenerService() {
 
     private var targetConnectedPcIp: String? = null
 
+    // Album art caching: only compress + send when track changes
+    private var lastSentTrackKey: String = ""
+    private var cachedAlbumArtBase64: String = ""
+
     @Volatile
     private var isRunning = false
 
@@ -142,7 +146,6 @@ class MediaSyncService : NotificationListenerService() {
         var isPlaying = false
         var position = 0L
         var duration = 0L
-        var albumArtBase64 = ""
 
         if (controller != null) {
             val allowAll = prefs.getBoolean("allow_all_sources", true)
@@ -157,44 +160,16 @@ class MediaSyncService : NotificationListenerService() {
             isPlaying = playbackState?.state == PlaybackState.STATE_PLAYING
             position = playbackState?.position ?: 0L
             if (playbackState?.state == PlaybackState.STATE_PLAYING) {
-                val timeDelta =
-                    android.os.SystemClock.elapsedRealtime() - playbackState.lastPositionUpdateTime
+                val timeDelta = android.os.SystemClock.elapsedRealtime() - playbackState.lastPositionUpdateTime
                 position += (timeDelta * playbackState.playbackSpeed).toLong()
             }
             duration = metadata?.getLong(MediaMetadata.METADATA_KEY_DURATION) ?: 0L
 
-            val albumArt = metadata?.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
-                ?: metadata?.getBitmap(MediaMetadata.METADATA_KEY_ART)
-
-            if (albumArt != null) {
-                try {
-                    val maxDim = 500
-                    var width = albumArt.width
-                    var height = albumArt.height
-                    if (width > maxDim || height > maxDim) {
-                        val ratio = Math.min(maxDim.toFloat() / width, maxDim.toFloat() / height)
-                        width = Math.round(ratio * width)
-                        height = Math.round(ratio * height)
-                        val scaled = android.graphics.Bitmap.createScaledBitmap(albumArt, width, height, true)
-                        val stream = java.io.ByteArrayOutputStream()
-                        scaled.compress(android.graphics.Bitmap.CompressFormat.JPEG, 50, stream)
-                        albumArtBase64 = android.util.Base64.encodeToString(stream.toByteArray(), android.util.Base64.NO_WRAP)
-                    } else {
-                        val stream = java.io.ByteArrayOutputStream()
-                        albumArt.compress(android.graphics.Bitmap.CompressFormat.JPEG, 50, stream)
-                        albumArtBase64 = android.util.Base64.encodeToString(stream.toByteArray(), android.util.Base64.NO_WRAP)
-                    }
-                } catch (e: Exception) { }
-            }
-
             MediaStateRepository.updateMediaState(
-                title = title,
-                artist = artist,
-                album = album,
-                isPlaying = isPlaying,
-                position = position,
-                duration = duration,
-                albumArt = albumArt,
+                title = title, artist = artist, album = album,
+                isPlaying = isPlaying, position = position, duration = duration,
+                albumArt = metadata?.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
+                    ?: metadata?.getBitmap(MediaMetadata.METADATA_KEY_ART),
                 packageName = controller.packageName
             )
         } else {
@@ -205,12 +180,51 @@ class MediaSyncService : NotificationListenerService() {
         }
 
         val ip = selectedPcIp ?: return
+
+        // Only recompress album art when track (title+artist) changes
+        val trackKey = "$title|$artist"
+        val isNewTrack = trackKey != lastSentTrackKey
+        if (isNewTrack) {
+            lastSentTrackKey = trackKey
+            cachedAlbumArtBase64 = ""
+
+            if (controller != null) {
+                val metadata = controller.metadata
+                val albumArt = metadata?.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
+                    ?: metadata?.getBitmap(MediaMetadata.METADATA_KEY_ART)
+
+                if (albumArt != null) {
+                    try {
+                        val maxDim = 500
+                        var width = albumArt.width
+                        var height = albumArt.height
+                        val scaled = if (width > maxDim || height > maxDim) {
+                            val ratio = Math.min(maxDim.toFloat() / width, maxDim.toFloat() / height)
+                            width = Math.round(ratio * width)
+                            height = Math.round(ratio * height)
+                            android.graphics.Bitmap.createScaledBitmap(albumArt, width, height, true)
+                        } else albumArt
+
+                        var quality = 80
+                        while (quality >= 10) {
+                            val stream = java.io.ByteArrayOutputStream()
+                            scaled.compress(android.graphics.Bitmap.CompressFormat.JPEG, quality, stream)
+                            val encoded = android.util.Base64.encodeToString(stream.toByteArray(), android.util.Base64.NO_WRAP)
+                            if (encoded.length < 55000) {
+                                cachedAlbumArtBase64 = encoded
+                                break
+                            }
+                            quality -= 10
+                        }
+                    } catch (e: Exception) { }
+                }
+            }
+        }
+
         val deviceName = prefs.getString("device_name", android.os.Build.MODEL) ?: android.os.Build.MODEL
         val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as android.app.UiModeManager
-        val isTv =
-            uiModeManager.currentModeType == android.content.res.Configuration.UI_MODE_TYPE_TELEVISION
-        val isTablet =
-            (resources.configuration.screenLayout and android.content.res.Configuration.SCREENLAYOUT_SIZE_MASK) >= android.content.res.Configuration.SCREENLAYOUT_SIZE_LARGE
+        val isTv = uiModeManager.currentModeType == android.content.res.Configuration.UI_MODE_TYPE_TELEVISION
+        val isTablet = (resources.configuration.screenLayout and android.content.res.Configuration.SCREENLAYOUT_SIZE_MASK) >= android.content.res.Configuration.SCREENLAYOUT_SIZE_LARGE
         val devType = if (isTv) "TV" else if (isTablet) "Tablet" else "Phone"
 
         val json = JSONObject().apply {
@@ -224,8 +238,9 @@ class MediaSyncService : NotificationListenerService() {
             put("deviceName", deviceName)
             put("deviceType", devType)
             put("osVersion", "Android ${android.os.Build.VERSION.RELEASE}")
-            if (albumArtBase64.isNotEmpty()) {
-                put("albumArt", albumArtBase64)
+            // Only include albumArt key when track changed; absence = "keep cached art on receiver"
+            if (isNewTrack) {
+                put("albumArt", cachedAlbumArtBase64)
             }
         }
 

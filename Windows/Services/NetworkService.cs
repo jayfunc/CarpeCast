@@ -124,7 +124,7 @@ public class NetworkService : INetworkService
                         Title = document.RootElement.TryGetProperty("title", out var titleProp) ? titleProp.GetString() ?? "Unknown" : "Unknown",
                         Artist = document.RootElement.TryGetProperty("artist", out var artProp) ? artProp.GetString() ?? "Unknown" : "Unknown",
                         Album = document.RootElement.TryGetProperty("album", out var albProp) ? albProp.GetString() ?? "" : "",
-                        AlbumArtBase64 = document.RootElement.TryGetProperty("albumArt", out var artbProp) ? artbProp.GetString() ?? "" : "",
+                        AlbumArtBase64 = document.RootElement.TryGetProperty("albumArt", out var artbProp) ? artbProp.GetString() : null,
                         IsPlaying = document.RootElement.TryGetProperty("isPlaying", out var pProp) && pProp.GetBoolean(),
                         Position = document.RootElement.TryGetProperty("position", out var posProp) ? posProp.GetDouble() : 0.0,
                         Duration = document.RootElement.TryGetProperty("duration", out var durProp) ? durProp.GetDouble() : 0.0,

@@ -23,6 +23,10 @@ class NetworkManager: ObservableObject {
     private var broadcastSocket: UDPSocket?
     private var syncSocket: UDPSocket?
     
+    // Album art caching: only compress + send when track changes
+    private var lastSentTrackKey: String = ""
+    private var cachedAlbumArtBase64: String = ""
+    
     private let discoveryPort: UInt16 = 5001
     private let commandPort: UInt16 = 5002
     
@@ -180,34 +184,58 @@ class NetworkManager: ObservableObject {
                 "deviceType": "Desktop",
                 "osVersion": "macOS"
             ]
-            if !m.albumArtBase64.isEmpty {
-                if let data = Data(base64Encoded: m.albumArtBase64, options: .ignoreUnknownCharacters),
+            let trackKey = "\(m.title)|\(m.artist)"
+            if trackKey != self.lastSentTrackKey {
+                // Track changed — recompress art and attach it this packet
+                self.lastSentTrackKey = trackKey
+                self.cachedAlbumArtBase64 = ""
+                
+                if !m.albumArtBase64.isEmpty,
+                   let data = Data(base64Encoded: m.albumArtBase64, options: .ignoreUnknownCharacters),
                    let image = NSImage(data: data) {
-                    let targetSize = NSSize(width: 150, height: 150)
-                    let newImage = NSImage(size: targetSize)
-                    newImage.lockFocus()
-                    image.draw(in: NSRect(origin: .zero, size: targetSize),
-                               from: NSRect(origin: .zero, size: image.size),
-                               operation: .copy,
-                               fraction: 1.0)
-                    newImage.unlockFocus()
-                    if let tiff = newImage.tiffRepresentation,
-                       let bitmap = NSBitmapImageRep(data: tiff),
-                       let jpeg = bitmap.representation(using: .jpeg, properties: [.compressionFactor: 0.2]) {
-                        dict["albumArt"] = jpeg.base64EncodedString()
+                    
+                    let targetPixels = 500
+                    let rep = NSBitmapImageRep(bitmapDataPlanes: nil,
+                                               pixelsWide: targetPixels,
+                                               pixelsHigh: targetPixels,
+                                               bitsPerSample: 8,
+                                               samplesPerPixel: 4,
+                                               hasAlpha: true,
+                                               isPlanar: false,
+                                               colorSpaceName: .deviceRGB,
+                                               bytesPerRow: 0,
+                                               bitsPerPixel: 0)
+                    if let rep = rep {
+                        NSGraphicsContext.saveGraphicsState()
+                        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+                        image.draw(in: NSRect(x: 0, y: 0, width: targetPixels, height: targetPixels),
+                                   from: NSRect(origin: .zero, size: image.size),
+                                   operation: .copy,
+                                   fraction: 1.0)
+                        NSGraphicsContext.restoreGraphicsState()
+                        
+                        // Try highest quality first, fall back if too large
+                        var compression: CGFloat = 0.8
+                        while compression >= 0.1 {
+                            if let jpeg = rep.representation(using: .jpeg, properties: [.compressionFactor: compression]) {
+                                let base64 = jpeg.base64EncodedString()
+                                if base64.utf8.count < 55000 {
+                                    self.cachedAlbumArtBase64 = base64
+                                    break
+                                }
+                            }
+                            compression -= 0.1
+                        }
                     }
                 }
+                
+                // Include albumArt in this packet (even if empty — signals "track has no art")
+                dict["albumArt"] = self.cachedAlbumArtBase64
             }
+            // If track hasn't changed, omit albumArt key entirely — Windows keeps the cached image
             
             if let data = try? JSONSerialization.data(withJSONObject: dict, options: []) {
-                if data.count > 60000 {
-                    dict["albumArt"] = ""
-                    if let fallbackData = try? JSONSerialization.data(withJSONObject: dict, options: []) {
-                        sock.send(data: fallbackData, to: device.ip, port: UInt16(device.port))
-                    }
-                } else {
-                    sock.send(data: data, to: device.ip, port: UInt16(device.port))
-                }
+                sock.send(data: data, to: device.ip, port: UInt16(device.port))
             }
         }
     }
