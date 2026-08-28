@@ -59,7 +59,7 @@
                     x:Uid="SelectDevice"
                     MinWidth="160"
                     HorizontalAlignment="Left"
-                    ItemsSource="{x:Bind ViewModel.DevicesVM.Devices, Mode=OneWay}"
+                    ItemsSource="{x:Bind ViewModel.DevicesVM.ConnectedDevices, Mode=OneWay}"
                     PlaceholderText="Select Device"
                     SelectedItem="{x:Bind ViewModel.DevicesVM.ActiveDevice, Mode=TwoWay}">
                     <ComboBox.ItemTemplate>

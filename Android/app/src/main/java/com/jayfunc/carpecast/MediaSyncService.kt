@@ -72,6 +72,15 @@ class MediaSyncService : NotificationListenerService() {
         discoveryPort = prefs.getInt("discovery_port", 5001)
         commandPort = prefs.getInt("command_port", 5002)
         targetConnectedPcIp = prefs.getString("targetConnectedPcIp", null)
+        
+        targetConnectedPcIp?.let { ipStr ->
+            try {
+                selectedPcIp = InetAddress.getByName(ipStr)
+                MediaStateRepository.updateSelectedPcIp(ipStr)
+            } catch (e: Exception) {
+                // Ignore invalid IP
+            }
+        }
 
         android.content.IntentFilter("com.jayfunc.carpecast.RELOAD_SETTINGS").also {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -301,6 +310,12 @@ class MediaSyncService : NotificationListenerService() {
                     while (iterator.hasNext()) {
                         val entry = iterator.next()
                         if (now - entry.value > 5000) {
+                            if (targetConnectedPcIp == entry.key) {
+                                // Prevent timeout for explicitly connected PC
+                                // It might just be missing broadcast packets due to Doze/locked screen
+                                continue
+                            }
+                            
                             discoveredPcs.remove(entry.key)
                             pcInfoMap.remove(entry.key)
                             iterator.remove()

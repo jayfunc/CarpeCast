@@ -66,11 +66,11 @@ public partial class PlayerViewModel : ObservableObject
 
         _networkService.MediaStateReceived += NetworkService_MediaStateReceived;
 
-        _smtcService.PlayPressed += async (s, e) => await PlayPauseCommand.ExecuteAsync(null);
-        _smtcService.PausePressed += async (s, e) => await PlayPauseCommand.ExecuteAsync(null);
-        _smtcService.NextPressed += async (s, e) => await NextCommand.ExecuteAsync(null);
-        _smtcService.PreviousPressed += async (s, e) => await PreviousCommand.ExecuteAsync(null);
-        _smtcService.SeekRequested += async (s, position) => await SeekCommand.ExecuteAsync(position);
+        _smtcService.PlayPressed += (s, e) => _dispatcherQueue.TryEnqueue(() => PlayPauseCommand.Execute(null));
+        _smtcService.PausePressed += (s, e) => _dispatcherQueue.TryEnqueue(() => PlayPauseCommand.Execute(null));
+        _smtcService.NextPressed += (s, e) => _dispatcherQueue.TryEnqueue(() => NextCommand.Execute(null));
+        _smtcService.PreviousPressed += (s, e) => _dispatcherQueue.TryEnqueue(() => PreviousCommand.Execute(null));
+        _smtcService.SeekRequested += (s, position) => _dispatcherQueue.TryEnqueue(() => SeekCommand.Execute(position));
 
         DevicesVM.ActiveDeviceChanged += DevicesVM_ActiveDeviceChanged;
 

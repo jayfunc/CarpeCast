@@ -33,7 +33,7 @@
                 Orientation="Vertical"
                 Spacing="16"
                 Visibility="{x:Bind ViewModel.NoDeviceVisibility, Mode=OneWay}">
-                <ProgressRing IsActive="True" Margin="0,0,0,16" />
+                <ProgressRing Margin="0,0,0,16" IsActive="True" />
                 <TextBlock
                     x:Uid="DevicesWaiting"
                     Foreground="{ThemeResource TextFillColorDisabledBrush}"
@@ -41,12 +41,11 @@
                     Text="Searching for devices..." />
             </StackPanel>
 
-            <ItemsControl Margin="0,24,0,0" ItemsSource="{x:Bind ViewModel.Devices, Mode=OneWay}">
+            <ItemsControl ItemsSource="{x:Bind ViewModel.Devices, Mode=OneWay}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="models:DeviceModel">
                         <Grid
                             Padding="16"
-                            Margin="0,0,0,8"
                             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1"
@@ -96,12 +95,15 @@
                                 </StackPanel>
                             </StackPanel>
 
-                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <StackPanel
+                                Grid.Column="2"
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal">
                                 <Button
-                                    Visibility="{x:Bind IsConnected, Mode=OneWay, Converter={StaticResource BoolToVis}}"
                                     Command="{Binding ElementName=RootPage, Path=ViewModel.DisconnectDeviceCommand}"
                                     CommandParameter="{x:Bind}"
-                                    Style="{ThemeResource AccentButtonStyle}">
+                                    Style="{ThemeResource AccentButtonStyle}"
+                                    Visibility="{x:Bind IsConnected, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <TextBlock
                                             x:Uid="DevicesDisconnect"
@@ -111,9 +113,9 @@
                                 </Button>
 
                                 <Button
-                                    Visibility="{x:Bind IsConnected, Mode=OneWay, Converter={StaticResource InverseBoolToVis}}"
                                     Command="{Binding ElementName=RootPage, Path=ViewModel.ConnectToSenderCommand}"
-                                    CommandParameter="{x:Bind}">
+                                    CommandParameter="{x:Bind}"
+                                    Visibility="{x:Bind IsConnected, Mode=OneWay, Converter={StaticResource InverseBoolToVis}}">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <TextBlock
                                             x:Uid="DevicesConnect"
