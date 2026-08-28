@@ -23,9 +23,6 @@ class NetworkManager: ObservableObject {
     private var broadcastSocket: UDPSocket?
     private var syncSocket: UDPSocket?
     
-    private var lastRawAlbumArtBase64: String = ""
-    private var cachedCompressedAlbumArtBase64: String = ""
-    
     private let discoveryPort: UInt16 = 5001
     private let commandPort: UInt16 = 5002
     
@@ -184,55 +181,22 @@ class NetworkManager: ObservableObject {
                 "osVersion": "macOS"
             ]
             if !m.albumArtBase64.isEmpty {
-                if self.lastRawAlbumArtBase64 != m.albumArtBase64 {
-                    self.lastRawAlbumArtBase64 = m.albumArtBase64
-                    self.cachedCompressedAlbumArtBase64 = ""
-                    
-                    if let data = Data(base64Encoded: m.albumArtBase64, options: .ignoreUnknownCharacters),
-                       let image = NSImage(data: data) {
-                        
-                        let targetPixels = 500
-                        let rep = NSBitmapImageRep(bitmapDataPlanes: nil,
-                                                   pixelsWide: targetPixels,
-                                                   pixelsHigh: targetPixels,
-                                                   bitsPerSample: 8,
-                                                   samplesPerPixel: 4,
-                                                   hasAlpha: true,
-                                                   isPlanar: false,
-                                                   colorSpaceName: .deviceRGB,
-                                                   bytesPerRow: 0,
-                                                   bitsPerPixel: 0)
-                        
-                        if let rep = rep {
-                            NSGraphicsContext.saveGraphicsState()
-                            NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
-                            image.draw(in: NSRect(x: 0, y: 0, width: targetPixels, height: targetPixels),
-                                       from: NSRect(origin: .zero, size: image.size),
-                                       operation: .copy,
-                                       fraction: 1.0)
-                            NSGraphicsContext.restoreGraphicsState()
-                            
-                            var compression: CGFloat = 0.5
-                            while compression >= 0.1 {
-                                if let jpeg = rep.representation(using: .jpeg, properties: [.compressionFactor: compression]) {
-                                    let base64 = jpeg.base64EncodedString()
-                                    if base64.count < 25000 {
-                                        self.cachedCompressedAlbumArtBase64 = base64
-                                        break
-                                    }
-                                }
-                                compression -= 0.1
-                            }
-                        }
+                if let data = Data(base64Encoded: m.albumArtBase64, options: .ignoreUnknownCharacters),
+                   let image = NSImage(data: data) {
+                    let targetSize = NSSize(width: 150, height: 150)
+                    let newImage = NSImage(size: targetSize)
+                    newImage.lockFocus()
+                    image.draw(in: NSRect(origin: .zero, size: targetSize),
+                               from: NSRect(origin: .zero, size: image.size),
+                               operation: .copy,
+                               fraction: 1.0)
+                    newImage.unlockFocus()
+                    if let tiff = newImage.tiffRepresentation,
+                       let bitmap = NSBitmapImageRep(data: tiff),
+                       let jpeg = bitmap.representation(using: .jpeg, properties: [.compressionFactor: 0.2]) {
+                        dict["albumArt"] = jpeg.base64EncodedString()
                     }
                 }
-                
-                if !self.cachedCompressedAlbumArtBase64.isEmpty {
-                    dict["albumArt"] = self.cachedCompressedAlbumArtBase64
-                }
-            } else {
-                self.lastRawAlbumArtBase64 = ""
-                self.cachedCompressedAlbumArtBase64 = ""
             }
             
             if let data = try? JSONSerialization.data(withJSONObject: dict, options: []) {
