@@ -363,7 +363,7 @@ class MediaSyncService : NotificationListenerService() {
                     } else if (cmd == "DISCONNECT_REQUEST") {
                         targetConnectedPcIp = null
                         getSharedPreferences("settings", Context.MODE_PRIVATE).edit().remove("targetConnectedPcIp").apply()
-                        if (selectedPcIp == packet.address) {
+                        if (selectedPcIp?.hostAddress == packet.address.hostAddress) {
                             selectedPcIp = null
                             MediaStateRepository.updateSelectedPcIp(null)
                         }

@@ -170,7 +170,7 @@ public partial class DevicesViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task DisconnectFromSender(DeviceModel device)
+    private async Task DisconnectDevice(DeviceModel device)
     {
         if (device != null && !string.IsNullOrEmpty(device.IPAddress))
         {
