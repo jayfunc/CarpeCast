@@ -40,6 +40,8 @@ class MediaSyncService : NotificationListenerService() {
     private var discoveryPort = 5001
     private var commandPort = 5002
 
+    private var targetConnectedPcIp: String? = null
+
     @Volatile
     private var isRunning = false
 
@@ -69,6 +71,7 @@ class MediaSyncService : NotificationListenerService() {
         val prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
         discoveryPort = prefs.getInt("discovery_port", 5001)
         commandPort = prefs.getInt("command_port", 5002)
+        targetConnectedPcIp = prefs.getString("targetConnectedPcIp", null)
 
         android.content.IntentFilter("com.jayfunc.carpecast.RELOAD_SETTINGS").also {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -269,13 +272,14 @@ class MediaSyncService : NotificationListenerService() {
                             pcLastSeen[ipString] = System.currentTimeMillis()
 
                             if (isNew || MediaStateRepository.currentState.value.pcInfoMap[ipString]?.name != deviceName) {
-                                if (selectedPcIp == null) {
-                                    selectedPcIp = packet.address
-                                    MediaStateRepository.updateSelectedPcIp(ipString)
-                                }
                                 MediaStateRepository.updateAvailablePcs(
                                     discoveredPcs.keys().toList(), pcInfoMap.toMap()
                                 )
+                            }
+                            
+                            if (selectedPcIp == null && targetConnectedPcIp == ipString) {
+                                selectedPcIp = packet.address
+                                MediaStateRepository.updateSelectedPcIp(ipString)
                             }
 
                             if (selectedPcIp == packet.address) {
@@ -305,10 +309,6 @@ class MediaSyncService : NotificationListenerService() {
                             if (selectedPcIp?.hostAddress == entry.key) {
                                 selectedPcIp = null
                                 MediaStateRepository.updateSelectedPcIp(null)
-                                discoveredPcs.values.firstOrNull()?.let { nextIp ->
-                                    selectedPcIp = nextIp
-                                    MediaStateRepository.updateSelectedPcIp(nextIp.hostAddress)
-                                }
                             }
                         }
                     }
@@ -352,12 +352,17 @@ class MediaSyncService : NotificationListenerService() {
                     commandSocket?.receive(packet)
                     val cmd = String(packet.data, 0, packet.length)
                     if (cmd == "CONNECT_REQUEST") {
+                        val ipStr = packet.address.hostAddress
+                        targetConnectedPcIp = ipStr
+                        getSharedPreferences("settings", Context.MODE_PRIVATE).edit().putString("targetConnectedPcIp", ipStr).apply()
                         selectedPcIp = packet.address
-                        MediaStateRepository.updateSelectedPcIp(packet.address.hostAddress)
+                        MediaStateRepository.updateSelectedPcIp(ipStr)
                         Handler(Looper.getMainLooper()).post {
                             sendMediaState(activeControllers.firstOrNull())
                         }
                     } else if (cmd == "DISCONNECT_REQUEST") {
+                        targetConnectedPcIp = null
+                        getSharedPreferences("settings", Context.MODE_PRIVATE).edit().remove("targetConnectedPcIp").apply()
                         if (selectedPcIp == packet.address) {
                             selectedPcIp = null
                             MediaStateRepository.updateSelectedPcIp(null)
@@ -407,6 +412,8 @@ class MediaSyncService : NotificationListenerService() {
         if (action == "ACTION_SELECT_PC") {
             val ipStr = intent.getStringExtra("ip")
             if (ipStr != null && discoveredPcs.containsKey(ipStr)) {
+                targetConnectedPcIp = ipStr
+                getSharedPreferences("settings", Context.MODE_PRIVATE).edit().putString("targetConnectedPcIp", ipStr).apply()
                 selectedPcIp = discoveredPcs[ipStr]
                 MediaStateRepository.updateSelectedPcIp(ipStr)
                 sendMediaState(activeControllers.firstOrNull())
@@ -416,6 +423,8 @@ class MediaSyncService : NotificationListenerService() {
 
         if (action == "ACTION_DISCONNECT_PC") {
             sendDisconnectToPc()
+            targetConnectedPcIp = null
+            getSharedPreferences("settings", Context.MODE_PRIVATE).edit().remove("targetConnectedPcIp").apply()
             selectedPcIp = null
             MediaStateRepository.updateSelectedPcIp(null)
             return START_STICKY
@@ -448,6 +457,8 @@ class MediaSyncService : NotificationListenerService() {
     private fun handleCommand(cmd: String) {
         Handler(Looper.getMainLooper()).post {
             if (cmd == "DISCONNECT") {
+                targetConnectedPcIp = null
+                getSharedPreferences("settings", Context.MODE_PRIVATE).edit().remove("targetConnectedPcIp").apply()
                 selectedPcIp = null
                 MediaStateRepository.updateSelectedPcIp(null)
                 return@post
