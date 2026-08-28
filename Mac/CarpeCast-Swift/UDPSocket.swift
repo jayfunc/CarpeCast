@@ -78,6 +78,9 @@ class UDPSocket {
     }
     
     func enableBroadcast() {
+        if socketFD < 0 {
+            socketFD = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)
+        }
         var broadcast: Int32 = 1
         setsockopt(socketFD, SOL_SOCKET, SO_BROADCAST, &broadcast, socklen_t(MemoryLayout<Int32>.size))
     }
