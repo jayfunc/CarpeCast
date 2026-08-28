@@ -212,11 +212,11 @@ class NetworkManager: ObservableObject {
                                        fraction: 1.0)
                             NSGraphicsContext.restoreGraphicsState()
                             
-                            var compression: CGFloat = 0.8
+                            var compression: CGFloat = 0.5
                             while compression >= 0.1 {
                                 if let jpeg = rep.representation(using: .jpeg, properties: [.compressionFactor: compression]) {
                                     let base64 = jpeg.base64EncodedString()
-                                    if base64.count < 55000 {
+                                    if base64.count < 25000 {
                                         self.cachedCompressedAlbumArtBase64 = base64
                                         break
                                     }
