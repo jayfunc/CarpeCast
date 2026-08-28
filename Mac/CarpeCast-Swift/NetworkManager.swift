@@ -193,46 +193,62 @@ class NetworkManager: ObservableObject {
                 self.lastSentTrackKey = trackKey
                 self.cachedAlbumArtBase64 = ""
                 
+                print("[CarpeCast] Track changed: \(trackKey), albumArtBase64 length: \(m.albumArtBase64.count)")
+                
                 if !m.albumArtBase64.isEmpty,
-                   let data = Data(base64Encoded: m.albumArtBase64, options: .ignoreUnknownCharacters),
-                   let image = NSImage(data: data),
-                   let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+                   let artData = Data(base64Encoded: m.albumArtBase64, options: .ignoreUnknownCharacters) {
                     
-                    let targetPixels = 500
-                    let colorSpace = CGColorSpaceCreateDeviceRGB()
-                    let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
+                    print("[CarpeCast] Art data decoded, bytes: \(artData.count)")
                     
-                    if let ctx = CGContext(data: nil,
-                                          width: targetPixels,
-                                          height: targetPixels,
-                                          bitsPerComponent: 8,
-                                          bytesPerRow: 0,
-                                          space: colorSpace,
-                                          bitmapInfo: bitmapInfo.rawValue) {
-                        ctx.interpolationQuality = .high
-                        ctx.draw(cgImage, in: CGRect(x: 0, y: 0, width: targetPixels, height: targetPixels))
+                    // Use CGImageSource for reliable decoding of any format (JPEG/PNG/HEIC etc.)
+                    let options: [CFString: Any] = [kCGImageSourceShouldCache: false]
+                    if let imageSource = CGImageSourceCreateWithData(artData as CFData, options as CFDictionary),
+                       let cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nil) {
                         
-                        if let resizedCGImage = ctx.makeImage() {
-                            let bitmapRep = NSBitmapImageRep(cgImage: resizedCGImage)
-                            var compression: CGFloat = 0.8
-                            while compression >= 0.1 {
-                                if let jpeg = bitmapRep.representation(using: .jpeg, properties: [.compressionFactor: compression]) {
-                                    let base64 = jpeg.base64EncodedString()
-                                    if base64.utf8.count < 55000 {
-                                        self.cachedAlbumArtBase64 = base64
-                                        break
+                        print("[CarpeCast] CGImage created: \(cgImage.width)x\(cgImage.height)")
+                        
+                        let targetPixels = 500
+                        let colorSpace = CGColorSpaceCreateDeviceRGB()
+                        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
+                        
+                        if let ctx = CGContext(data: nil,
+                                              width: targetPixels,
+                                              height: targetPixels,
+                                              bitsPerComponent: 8,
+                                              bytesPerRow: 0,
+                                              space: colorSpace,
+                                              bitmapInfo: bitmapInfo.rawValue) {
+                            ctx.interpolationQuality = .high
+                            ctx.draw(cgImage, in: CGRect(x: 0, y: 0, width: targetPixels, height: targetPixels))
+                            
+                            if let resizedCGImage = ctx.makeImage() {
+                                let bitmapRep = NSBitmapImageRep(cgImage: resizedCGImage)
+                                var compression: CGFloat = 0.8
+                                while compression >= 0.1 {
+                                    if let jpeg = bitmapRep.representation(using: .jpeg, properties: [.compressionFactor: compression]) {
+                                        let base64 = jpeg.base64EncodedString()
+                                        if base64.utf8.count < 55000 {
+                                            self.cachedAlbumArtBase64 = base64
+                                            print("[CarpeCast] Art compressed at quality \(compression), base64 length: \(base64.count)")
+                                            break
+                                        }
                                     }
+                                    compression -= 0.1
                                 }
-                                compression -= 0.1
                             }
                         }
+                    } else {
+                        print("[CarpeCast] Failed to create CGImageSource or CGImage from art data")
                     }
+                } else {
+                    print("[CarpeCast] albumArtBase64 is empty or failed to decode")
                 }
                 
                 // Include albumArt in this packet (even if empty — signals "track has no art")
                 dict["albumArt"] = self.cachedAlbumArtBase64
+                print("[CarpeCast] Sending albumArt with length: \(self.cachedAlbumArtBase64.count)")
             }
-            // If track hasn't changed, omit albumArt key entirely — Windows keeps the cached image
+            // If track hasn't changed, omit albumArt key entirely — Windows keeps the cached image image
             
             if let data = try? JSONSerialization.data(withJSONObject: dict, options: []) {
                 sock.send(data: data, to: device.ip, port: UInt16(device.port))
