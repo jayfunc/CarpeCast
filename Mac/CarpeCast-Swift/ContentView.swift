@@ -158,6 +158,7 @@ struct SettingsView: View {
             }
         }
     }
+    }
     
     private func restartNetworking() {
         NetworkManager.shared.restartNetworking()
