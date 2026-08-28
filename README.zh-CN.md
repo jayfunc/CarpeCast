@@ -12,7 +12,7 @@ CarpeCast 是一个在局域网内将 Android 或 macOS 设备的媒体播放状
 
 ## 下载
 
-- **Windows**: [Microsoft Store](https://apps.microsoft.com/detail/9PNM741WNTGZ)
+- **Windows**: [GitHub Releases](https://github.com/jayfunc/CarpeCast/releases)
 - **Android**: [GitHub Releases](https://github.com/jayfunc/CarpeCast/releases)
 - **Mac (实验性)**: [GitHub Releases](https://github.com/jayfunc/CarpeCast/releases)
 

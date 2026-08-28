@@ -5,7 +5,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:CarpeCast.Models"
-    x:Name="RootPage"
     Background="Transparent"
     mc:Ignorable="d">
 
@@ -100,8 +99,7 @@
                                 VerticalAlignment="Center"
                                 Orientation="Horizontal">
                                 <Button
-                                    Command="{Binding ElementName=RootPage, Path=ViewModel.DisconnectDeviceCommand}"
-                                    CommandParameter="{x:Bind}"
+                                    Click="DisconnectDeviceButton_Click"
                                     Style="{ThemeResource AccentButtonStyle}"
                                     Visibility="{x:Bind IsConnected, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
@@ -112,10 +110,7 @@
                                     </StackPanel>
                                 </Button>
 
-                                <Button
-                                    Command="{Binding ElementName=RootPage, Path=ViewModel.ConnectToSenderCommand}"
-                                    CommandParameter="{x:Bind}"
-                                    Visibility="{x:Bind IsConnected, Mode=OneWay, Converter={StaticResource InverseBoolToVis}}">
+                                <Button Click="ConnectToSenderButton_Click" Visibility="{x:Bind IsConnected, Mode=OneWay, Converter={StaticResource InverseBoolToVis}}">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <TextBlock
                                             x:Uid="DevicesConnect"

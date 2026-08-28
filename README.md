@@ -12,7 +12,7 @@ CarpeCast is a local-network application suite that syncs media playback from an
 
 ## Download
 
-- **Windows**: [Microsoft Store](https://apps.microsoft.com/detail/9PNM741WNTGZ)
+- **Windows**: [GitHub Releases](https://github.com/jayfunc/CarpeCast/releases)
 - **Android**: [GitHub Releases](https://github.com/jayfunc/CarpeCast/releases)
 - **Mac (Experimental)**: [GitHub Releases](https://github.com/jayfunc/CarpeCast/releases)
 

@@ -5,6 +5,7 @@ using Microsoft.UI;
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using CarpeCast.ViewModels;
+using CarpeCast.Models;
 
 namespace CarpeCast.Views;
 
@@ -17,16 +18,28 @@ public sealed partial class DevicesPage : Page
         ViewModel = App.Current.Services.GetRequiredService<DevicesViewModel>();
         this.InitializeComponent();
     }
+
+    private void DisconnectDeviceButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        var device = (sender as Button)?.DataContext as DeviceModel;
+        ViewModel.DisconnectDeviceCommand.Execute(device);
+    }
+
+    private void ConnectToSenderButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        var device = (sender as Button)?.DataContext as DeviceModel;
+        ViewModel.ConnectToSenderCommand.Execute(device);
+    }
 }
 
-public class StatusToColorConverter : IValueConverter
+public partial class StatusToColorConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
         if (value is string status)
         {
-            return status == "Active" 
-                ? new SolidColorBrush(Colors.MediumSeaGreen) 
+            return status == "Active"
+                ? new SolidColorBrush(Colors.MediumSeaGreen)
                 : new SolidColorBrush(Colors.Gray);
         }
         return new SolidColorBrush(Colors.Gray);
@@ -38,7 +51,7 @@ public class StatusToColorConverter : IValueConverter
     }
 }
 
-public class BoolToVisibilityConverter : IValueConverter
+public partial class BoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
@@ -48,7 +61,7 @@ public class BoolToVisibilityConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, string language) => throw new NotImplementedException();
 }
 
-public class InverseBoolToVisibilityConverter : IValueConverter
+public partial class InverseBoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
