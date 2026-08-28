@@ -56,17 +56,21 @@ class NetworkManager: ObservableObject {
     }
     
     func connectToDevice(_ device: DiscoveredDevice) {
+        UserDefaults.standard.set(device.ip, forKey: "targetConnectedDeviceIP")
         connectedDevice = device
         if syncSocket == nil {
             syncSocket = UDPSocket()
         }
     }
     
-    func disconnect() {
-        if let device = connectedDevice, let sock = syncSocket {
-            let dict: [String: Any] = ["command": "DISCONNECT"]
-            if let data = try? JSONSerialization.data(withJSONObject: dict, options: []) {
-                sock.send(data: data, to: device.ip, port: UInt16(device.port))
+    func disconnect(clearTarget: Bool = true) {
+        if clearTarget {
+            UserDefaults.standard.removeObject(forKey: "targetConnectedDeviceIP")
+            if let device = connectedDevice, let sock = syncSocket {
+                let dict: [String: Any] = ["command": "DISCONNECT"]
+                if let data = try? JSONSerialization.data(withJSONObject: dict, options: []) {
+                    sock.send(data: data, to: device.ip, port: UInt16(device.port))
+                }
             }
         }
         connectedDevice = nil
@@ -85,13 +89,22 @@ class NetworkManager: ObservableObject {
                     let type = parts.count > 3 ? parts[3] : "Desktop"
                     
                     DispatchQueue.main.async {
+                        var currentDevice: DiscoveredDevice
                         if let idx = self?.discoveredDevices.firstIndex(where: { $0.ip == ip }) {
                             self?.discoveredDevices[idx].name = name
                             self?.discoveredDevices[idx].port = port
                             self?.discoveredDevices[idx].type = type
                             self?.discoveredDevices[idx].lastSeen = Date()
+                            currentDevice = (self?.discoveredDevices[idx])!
                         } else {
-                            self?.discoveredDevices.append(DiscoveredDevice(ip: ip, name: name, port: port, type: type))
+                            currentDevice = DiscoveredDevice(ip: ip, name: name, port: port, type: type)
+                            self?.discoveredDevices.append(currentDevice)
+                        }
+                        
+                        // Auto-reconnect if it matches target
+                        if let targetIp = UserDefaults.standard.string(forKey: "targetConnectedDeviceIP"),
+                           targetIp == ip, self?.connectedDevice == nil {
+                            self?.connectToDevice(currentDevice)
                         }
                     }
                 }
@@ -108,7 +121,7 @@ class NetworkManager: ObservableObject {
             self.discoveredDevices.removeAll { device in
                 let isLost = now.timeIntervalSince(device.lastSeen) > 10.0
                 if isLost && self.connectedDevice?.ip == device.ip {
-                    self.disconnect()
+                    self.disconnect(clearTarget: false)
                 }
                 return isLost
             }
@@ -128,7 +141,7 @@ class NetworkManager: ObservableObject {
                     }
                 } else if cmd == "DISCONNECT_REQUEST" {
                     DispatchQueue.main.async {
-                        self.disconnect()
+                        self.disconnect(clearTarget: true)
                     }
                 } else {
                     MediaManager.shared.sendCommand(cmd)

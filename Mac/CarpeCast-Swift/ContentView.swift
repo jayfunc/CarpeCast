@@ -32,7 +32,7 @@ struct DevicesView: View {
                         if networkManager.connectedDevice?.ip == device.ip {
                             Text(localized("Connected")).foregroundColor(.green)
                             Button(localized("Disconnect")) {
-                                networkManager.disconnect()
+                                networkManager.disconnect(clearTarget: true)
                             }
                         } else {
                             Button(localized("Connect")) {

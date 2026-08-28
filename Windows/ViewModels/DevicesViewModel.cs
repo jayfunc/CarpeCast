@@ -40,9 +40,21 @@ public partial class DevicesViewModel : ObservableObject
         _networkService.SenderLost += NetworkService_SenderLost;
     }
 
+    private string? TargetConnectedDeviceIP
+    {
+        get => Windows.Storage.ApplicationData.Current.LocalSettings.Values["TargetConnectedDeviceIP"] as string;
+        set
+        {
+            if (value == null)
+                Windows.Storage.ApplicationData.Current.LocalSettings.Values.Remove("TargetConnectedDeviceIP");
+            else
+                Windows.Storage.ApplicationData.Current.LocalSettings.Values["TargetConnectedDeviceIP"] = value;
+        }
+    }
+
     private void NetworkService_SenderDiscovered(object? sender, SenderDiscoveredEventArgs e)
     {
-        _dispatcherQueue.TryEnqueue(() =>
+        _dispatcherQueue.TryEnqueue(async () =>
         {
             var existing = Devices.FirstOrDefault(d => d.IPAddress == e.Sender.IPAddress);
             if (existing == null)
@@ -57,6 +69,11 @@ public partial class DevicesViewModel : ObservableObject
                 existing.DeviceType = e.Sender.DeviceType;
                 existing.OsVersion = e.Sender.OsVersion;
                 existing.CommandPort = e.Sender.CommandPort;
+            }
+
+            if (ActiveDevice == null && TargetConnectedDeviceIP == e.Sender.IPAddress)
+            {
+                await ConnectToSender(e.Sender);
             }
         });
     }
@@ -80,6 +97,7 @@ public partial class DevicesViewModel : ObservableObject
     {
         if (device != null && !string.IsNullOrEmpty(device.IPAddress))
         {
+            TargetConnectedDeviceIP = device.IPAddress;
             var endpoint = new System.Net.IPEndPoint(System.Net.IPAddress.Parse(device.IPAddress), device.CommandPort);
             await _networkService.SendCommandToEndpointAsync("CONNECT_REQUEST", endpoint);
         }
@@ -99,7 +117,11 @@ public partial class DevicesViewModel : ObservableObject
                 {
                     existingDevice.IsConnected = false;
                     existingDevice.LastMediaState = null;
-                    if (ActiveDevice == existingDevice) ActiveDevice = null;
+                    if (ActiveDevice == existingDevice)
+                    {
+                        ActiveDevice = null;
+                        TargetConnectedDeviceIP = null;
+                    }
                 }
                 return;
             }
@@ -148,15 +170,19 @@ public partial class DevicesViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task DisconnectDevice(DeviceModel device)
+    private async Task DisconnectFromSender(DeviceModel device)
     {
         if (device != null && !string.IsNullOrEmpty(device.IPAddress))
         {
+            TargetConnectedDeviceIP = null;
             var endpoint = new System.Net.IPEndPoint(System.Net.IPAddress.Parse(device.IPAddress), device.CommandPort);
             await _networkService.SendCommandToEndpointAsync("DISCONNECT_REQUEST", endpoint);
             
             device.IsConnected = false;
-            if (ActiveDevice == device) ActiveDevice = null;
+            if (ActiveDevice == device)
+            {
+                ActiveDevice = null;
+            }
         }
     }
 }
