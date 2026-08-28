@@ -65,6 +65,9 @@ class NetworkManager: ObservableObject {
         if syncSocket == nil {
             syncSocket = UDPSocket()
         }
+        // Reset art cache so the next sync packet includes art for the new receiver
+        lastSentTrackKey = ""
+        cachedAlbumArtBase64 = ""
     }
     
     func disconnect(clearTarget: Bool = true) {
@@ -192,39 +195,36 @@ class NetworkManager: ObservableObject {
                 
                 if !m.albumArtBase64.isEmpty,
                    let data = Data(base64Encoded: m.albumArtBase64, options: .ignoreUnknownCharacters),
-                   let image = NSImage(data: data) {
+                   let image = NSImage(data: data),
+                   let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
                     
                     let targetPixels = 500
-                    let rep = NSBitmapImageRep(bitmapDataPlanes: nil,
-                                               pixelsWide: targetPixels,
-                                               pixelsHigh: targetPixels,
-                                               bitsPerSample: 8,
-                                               samplesPerPixel: 4,
-                                               hasAlpha: true,
-                                               isPlanar: false,
-                                               colorSpaceName: .deviceRGB,
-                                               bytesPerRow: 0,
-                                               bitsPerPixel: 0)
-                    if let rep = rep {
-                        NSGraphicsContext.saveGraphicsState()
-                        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
-                        image.draw(in: NSRect(x: 0, y: 0, width: targetPixels, height: targetPixels),
-                                   from: NSRect(origin: .zero, size: image.size),
-                                   operation: .copy,
-                                   fraction: 1.0)
-                        NSGraphicsContext.restoreGraphicsState()
+                    let colorSpace = CGColorSpaceCreateDeviceRGB()
+                    let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
+                    
+                    if let ctx = CGContext(data: nil,
+                                          width: targetPixels,
+                                          height: targetPixels,
+                                          bitsPerComponent: 8,
+                                          bytesPerRow: 0,
+                                          space: colorSpace,
+                                          bitmapInfo: bitmapInfo.rawValue) {
+                        ctx.interpolationQuality = .high
+                        ctx.draw(cgImage, in: CGRect(x: 0, y: 0, width: targetPixels, height: targetPixels))
                         
-                        // Try highest quality first, fall back if too large
-                        var compression: CGFloat = 0.8
-                        while compression >= 0.1 {
-                            if let jpeg = rep.representation(using: .jpeg, properties: [.compressionFactor: compression]) {
-                                let base64 = jpeg.base64EncodedString()
-                                if base64.utf8.count < 55000 {
-                                    self.cachedAlbumArtBase64 = base64
-                                    break
+                        if let resizedCGImage = ctx.makeImage() {
+                            let bitmapRep = NSBitmapImageRep(cgImage: resizedCGImage)
+                            var compression: CGFloat = 0.8
+                            while compression >= 0.1 {
+                                if let jpeg = bitmapRep.representation(using: .jpeg, properties: [.compressionFactor: compression]) {
+                                    let base64 = jpeg.base64EncodedString()
+                                    if base64.utf8.count < 55000 {
+                                        self.cachedAlbumArtBase64 = base64
+                                        break
+                                    }
                                 }
+                                compression -= 0.1
                             }
-                            compression -= 0.1
                         }
                     }
                 }
