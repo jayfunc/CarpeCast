@@ -25,6 +25,7 @@ class NetworkManager: ObservableObject {
     
     // Album art caching: only compress + send when track changes
     private var lastSentTrackKey: String = ""
+    private var lastProcessedAlbumArtSource: String = ""
     private var cachedAlbumArtBase64: String = ""
     private let albumArtChunkSize = 1_000
     private var albumArtTransferId: String?
@@ -70,6 +71,7 @@ class NetworkManager: ObservableObject {
         }
         // Reset art cache so the next sync packet includes art for the new receiver
         lastSentTrackKey = ""
+        lastProcessedAlbumArtSource = ""
         cachedAlbumArtBase64 = ""
         albumArtTransferId = nil
         albumArtRetriesRemaining = 0
@@ -193,9 +195,16 @@ class NetworkManager: ObservableObject {
                 "osVersion": "macOS"
             ]
             let trackKey = "\(m.title)|\(m.artist)|\(m.album)"
-            if trackKey != self.lastSentTrackKey {
+            let trackChanged = trackKey != self.lastSentTrackKey
+            // MediaRemote can publish a new track before its artwork is available.
+            // Reprocess when the artwork arrives later without treating transient
+            // empty artwork on an unchanged track as a request to clear the image.
+            let artworkArrived = !m.albumArtBase64.isEmpty &&
+                m.albumArtBase64 != self.lastProcessedAlbumArtSource
+            if trackChanged || artworkArrived {
                 // Track changed — recompress art and attach it this packet
                 self.lastSentTrackKey = trackKey
+                self.lastProcessedAlbumArtSource = m.albumArtBase64
                 self.cachedAlbumArtBase64 = ""
                 self.albumArtTransferId = nil
                 self.albumArtRetriesRemaining = 0
