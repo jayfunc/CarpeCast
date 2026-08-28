@@ -58,13 +58,14 @@ struct SettingsView: View {
     @AppStorage("discoveryPort") private var discoveryPort: Int = 5001
     @AppStorage("language") private var language: String = "System"
     @AppStorage("theme") private var theme: String = "System"
-    
-    var appVersion: String {
-        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
-    }
-    
+    @State private var isShowingAllowedSources = false
+
     var body: some View {
-        NavigationView {
+        if isShowingAllowedSources {
+            AllowedSourcesView {
+                isShowingAllowedSources = false
+            }
+        } else {
             ScrollView {
                 VStack {
                     VStack(spacing: 10) {
@@ -76,17 +77,17 @@ struct SettingsView: View {
                         Text("CarpeCast")
                             .font(.title2)
                             .fontWeight(.bold)
-                        Text("v\(appVersion)")
+                        Text("v1.0.4 (\(BuildInfo.commitHash))")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                     .padding(.top, 20)
-                    
+
                     Form {
                     Section(header: Text(localized("General")).font(.headline)) {
                         TextField(localized("Device Name"), text: $deviceName)
                             .onChange(of: deviceName) { _ in restartNetworking() }
-                        
+
                         Picker(localized("Language"), selection: $language) {
                             Text(localized("System")).tag("System")
                             Text("English").tag("en")
@@ -106,7 +107,9 @@ struct SettingsView: View {
                     .padding(.bottom, 15)
 
                     Section(header: Text(localized("Playback Sources")).font(.headline)) {
-                        NavigationLink(destination: AllowedSourcesView()) {
+                        Button {
+                            isShowingAllowedSources = true
+                        } label: {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(localized("Allowed Sources"))
                                 Text(localized("Choose which apps can sync playback."))
@@ -114,13 +117,14 @@ struct SettingsView: View {
                                     .foregroundColor(.secondary)
                             }
                         }
+                        .buttonStyle(PlainButtonStyle())
                     }
                     .padding(.bottom, 15)
-                    
+
                     Section(header: Text(localized("Network Ports")).font(.headline)) {
                         TextField(localized("Discovery Port"), value: $discoveryPort, formatter: NumberFormatter())
                             .onChange(of: discoveryPort) { _ in restartNetworking() }
-                        
+
                         Text(localized("Note: Port changes require network service restart."))
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -132,12 +136,12 @@ struct SettingsView: View {
                             .foregroundColor(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
-                    
+
                     Section(header: Text(localized("Recommended")).font(.headline).padding(.top, 15)) {
                         Link(localized("Download CarpeCast for Windows"), destination: URL(string: "https://github.com/jayfunc/CarpeCast")!)
                         Link(localized("Download BetterLyrics"), destination: URL(string: "https://github.com/jayfunc/BetterLyrics")!)
                     }
-                    
+
                     HStack {
                         Spacer()
                         Button(localized("Restart Network Service")) {
@@ -147,11 +151,11 @@ struct SettingsView: View {
                     .padding(.top, 20)
                 }
                 .padding(30)
+                .padding(.leading, 16)
+                .padding(.trailing, 16)
+                .frame(maxWidth: 500, alignment: .top)
+                .padding(.bottom, 20)
             }
-            .frame(maxWidth: 500, alignment: .top)
-            .padding(.bottom, 20)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
     
@@ -170,6 +174,7 @@ private struct SourceApplication: Identifiable, Hashable {
 }
 
 struct AllowedSourcesView: View {
+    let onBack: () -> Void
     @AppStorage("allowAllSources") private var allowAllSources = true
     @AppStorage("language") private var language: String = "System"
     @State private var applications: [SourceApplication] = []
@@ -185,30 +190,43 @@ struct AllowedSourcesView: View {
     }
 
     var body: some View {
-        List {
-            Section {
-                Toggle(localized("Allow All Sources"), isOn: Binding(
-                    get: { allowAllSources },
-                    set: updateAllowAllSources
-                ))
-            } footer: {
-                Text(localized("When disabled, only selected apps can sync playback."))
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Button(action: onBack) {
+                    Label(localized("Back"), systemImage: "chevron.left")
+                }
+                .buttonStyle(PlainButtonStyle())
+
+                Text(localized("Allowed Sources"))
+                    .font(.title2)
+                    .fontWeight(.semibold)
+
+                Spacer()
+
+                Button(localized("Clear Selection"), action: clearSelection)
+                    .disabled(allowAllSources || selectedSources.isEmpty)
             }
 
-            Section(header: Text(localized("Applications"))) {
-                TextField(localized("Search applications"), text: $searchText)
+            Toggle(localized("Allow All Sources"), isOn: Binding(
+                get: { allowAllSources },
+                set: updateAllowAllSources
+            ))
+            Text(localized("When disabled, only selected apps can sync playback."))
+                .font(.caption)
+                .foregroundColor(.secondary)
 
-                ForEach(filteredApplications) { application in
-                    Toggle(application.name, isOn: Binding(
-                        get: { allowAllSources || selectedSources.contains(application.bundleIdentifier) },
-                        set: { isSelected in
-                            updateSource(application.bundleIdentifier, isSelected: isSelected)
-                        }
-                    ))
-                }
+            TextField(localized("Search applications"), text: $searchText)
+
+            List(filteredApplications) { application in
+                Toggle(application.name, isOn: Binding(
+                    get: { allowAllSources || selectedSources.contains(application.bundleIdentifier) },
+                    set: { isSelected in
+                        updateSource(application.bundleIdentifier, isSelected: isSelected)
+                    }
+                ))
             }
         }
-        .navigationTitle(localized("Allowed Sources"))
+        .padding(24)
         .onAppear {
             applications = installedApplications()
         }
@@ -231,6 +249,12 @@ struct AllowedSourcesView: View {
         } else {
             selectedSources.remove(bundleIdentifier)
         }
+        saveSelectedSources()
+    }
+
+    private func clearSelection() {
+        allowAllSources = false
+        selectedSources.removeAll()
         saveSelectedSources()
     }
 
@@ -311,6 +335,8 @@ func getLocalizedString(_ key: String, language: String) -> String {
         case "When disabled, only selected apps can sync playback.": return "關閉後，只有已選擇的應用程式可以同步播放狀態。"
         case "Applications": return "應用程式"
         case "Search applications": return "搜尋應用程式"
+        case "Clear Selection": return "清除選取"
+        case "Back": return "返回"
         case "Theme": return "主題"
         case "Device Name": return "設備名稱"
         case "Language": return "語言"
@@ -346,6 +372,8 @@ func getLocalizedString(_ key: String, language: String) -> String {
         case "When disabled, only selected apps can sync playback.": return "关闭后，只有选中的应用可以同步播放状态。"
         case "Applications": return "应用"
         case "Search applications": return "搜索应用"
+        case "Clear Selection": return "清除选择"
+        case "Back": return "返回"
         case "Theme": return "主题"
         case "Device Name": return "设备名称"
         case "Language": return "语言"
@@ -381,6 +409,8 @@ func getLocalizedString(_ key: String, language: String) -> String {
         case "When disabled, only selected apps can sync playback.": return "無効にすると、選択したアプリだけが再生状態を同期できます。"
         case "Applications": return "アプリケーション"
         case "Search applications": return "アプリを検索"
+        case "Clear Selection": return "選択を解除"
+        case "Back": return "戻る"
         case "Theme": return "テーマ"
         case "Device Name": return "デバイス名"
         case "Language": return "言語"
