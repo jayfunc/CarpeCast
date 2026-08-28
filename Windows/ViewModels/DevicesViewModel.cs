@@ -40,7 +40,14 @@ public partial class DevicesViewModel : ObservableObject
 
     partial void OnActiveDeviceChanged(DeviceModel? value)
     {
-        _networkService.ActiveEndpoint = value?.Endpoint;
+        if (value != null && !string.IsNullOrEmpty(value.IPAddress))
+        {
+            _networkService.ActiveEndpoint = new System.Net.IPEndPoint(System.Net.IPAddress.Parse(value.IPAddress), value.CommandPort);
+        }
+        else
+        {
+            _networkService.ActiveEndpoint = null;
+        }
         ActiveDeviceChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -179,7 +186,7 @@ public partial class DevicesViewModel : ObservableObject
                 
                 if (ActiveDevice == existingDevice)
                 {
-                    _networkService.ActiveEndpoint = e.SenderEndpoint;
+                    _networkService.ActiveEndpoint = new System.Net.IPEndPoint(System.Net.IPAddress.Parse(existingDevice.IPAddress), existingDevice.CommandPort);
                 }
                 else if (ActiveDevice == null) 
                 {

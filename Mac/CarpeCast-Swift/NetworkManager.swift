@@ -193,14 +193,21 @@ class NetworkManager: ObservableObject {
                     newImage.unlockFocus()
                     if let tiff = newImage.tiffRepresentation,
                        let bitmap = NSBitmapImageRep(data: tiff),
-                       let jpeg = bitmap.representation(using: .jpeg, properties: [.compressionFactor: 0.5]) {
+                       let jpeg = bitmap.representation(using: .jpeg, properties: [.compressionFactor: 0.2]) {
                         dict["albumArt"] = jpeg.base64EncodedString()
                     }
                 }
             }
             
             if let data = try? JSONSerialization.data(withJSONObject: dict, options: []) {
-                sock.send(data: data, to: device.ip, port: UInt16(device.port))
+                if data.count > 60000 {
+                    dict["albumArt"] = ""
+                    if let fallbackData = try? JSONSerialization.data(withJSONObject: dict, options: []) {
+                        sock.send(data: fallbackData, to: device.ip, port: UInt16(device.port))
+                    }
+                } else {
+                    sock.send(data: data, to: device.ip, port: UInt16(device.port))
+                }
             }
         }
     }
