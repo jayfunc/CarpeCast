@@ -63,6 +63,12 @@ class NetworkManager: ObservableObject {
     }
     
     func disconnect() {
+        if let device = connectedDevice, let sock = syncSocket {
+            let dict: [String: Any] = ["command": "DISCONNECT"]
+            if let data = try? JSONSerialization.data(withJSONObject: dict, options: []) {
+                sock.send(data: data, to: device.ip, port: UInt16(device.port))
+            }
+        }
         connectedDevice = nil
         syncSocket?.close()
         syncSocket = nil
