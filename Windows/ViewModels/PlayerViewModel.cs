@@ -121,7 +121,7 @@ public partial class PlayerViewModel : ObservableObject
         _dispatcherQueue.TryEnqueue(() =>
         {
             if (e.SenderEndpoint == null || _networkService.ActiveEndpoint == null) return;
-            if (!e.SenderEndpoint.Equals(_networkService.ActiveEndpoint)) return;
+            if (!e.SenderEndpoint.Address.Equals(_networkService.ActiveEndpoint.Address)) return;
 
             if (e.IsDisconnect)
             {
