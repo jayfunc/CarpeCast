@@ -304,15 +304,19 @@ struct AllowedSourcesView: View {
 struct ContentView: View {
     @AppStorage("language") private var language: String = "System"
     @AppStorage("theme") private var theme: String = "System"
+    @State private var selectedTab = 0
     
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             PlayerView()
                 .tabItem { Text(localized("Now Playing")) }
+                .tag(0)
             DevicesView()
                 .tabItem { Text(localized("Devices")) }
+                .tag(1)
             SettingsView()
                 .tabItem { Text(localized("Settings")) }
+                .tag(2)
         }
         .frame(minWidth: 400, minHeight: 500)
         .preferredColorScheme(theme == "Light" ? .light : (theme == "Dark" ? .dark : nil))
