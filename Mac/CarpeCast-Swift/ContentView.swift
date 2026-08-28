@@ -64,24 +64,25 @@ struct SettingsView: View {
     }
     
     var body: some View {
-        ScrollView {
-            VStack {
-                VStack(spacing: 10) {
-                    Image(nsImage: NSImage(named: "AppIcon") ?? NSImage())
-                        .resizable()
-                        .frame(width: 80, height: 80)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+        NavigationView {
+            ScrollView {
+                VStack {
+                    VStack(spacing: 10) {
+                        Image(nsImage: NSImage(named: "AppIcon") ?? NSImage())
+                            .resizable()
+                            .frame(width: 80, height: 80)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+
+                        Text("CarpeCast")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        Text("v\(appVersion)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.top, 20)
                     
-                    Text("CarpeCast")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                    Text("v\(appVersion)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                .padding(.top, 20)
-                
-                Form {
+                    Form {
                     Section(header: Text(localized("General")).font(.headline)) {
                         TextField(localized("Device Name"), text: $deviceName)
                             .onChange(of: deviceName) { _ in restartNetworking() }
@@ -103,6 +104,18 @@ struct SettingsView: View {
                         .pickerStyle(SegmentedPickerStyle())
                     }
                     .padding(.bottom, 15)
+
+                    Section(header: Text(localized("Playback Sources")).font(.headline)) {
+                        NavigationLink(destination: AllowedSourcesView()) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(localized("Allowed Sources"))
+                                Text(localized("Choose which apps can sync playback."))
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    .padding(.bottom, 15)
                     
                     Section(header: Text(localized("Network Ports")).font(.headline)) {
                         TextField(localized("Discovery Port"), value: $discoveryPort, formatter: NumberFormatter())
@@ -112,7 +125,7 @@ struct SettingsView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
-                    
+
                     Section(header: Text(localized("System Permissions")).font(.headline).padding(.top, 15)) {
                         Text(localized("Please grant Automation permissions in System Settings -> Privacy & Security to allow CarpeCast to control playback."))
                             .font(.caption)
@@ -139,12 +152,127 @@ struct SettingsView: View {
             .padding(.bottom, 20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
     }
     
     private func restartNetworking() {
         NetworkManager.shared.restartNetworking()
     }
     
+    private func localized(_ key: String) -> String { getLocalizedString(key, language: language) }
+}
+
+private struct SourceApplication: Identifiable, Hashable {
+    let bundleIdentifier: String
+    let name: String
+
+    var id: String { bundleIdentifier }
+}
+
+struct AllowedSourcesView: View {
+    @AppStorage("allowAllSources") private var allowAllSources = true
+    @AppStorage("language") private var language: String = "System"
+    @State private var applications: [SourceApplication] = []
+    @State private var selectedSources = Set(UserDefaults.standard.stringArray(forKey: "allowedSources") ?? [])
+    @State private var searchText = ""
+
+    private var filteredApplications: [SourceApplication] {
+        guard !searchText.isEmpty else { return applications }
+        return applications.filter {
+            $0.name.localizedCaseInsensitiveContains(searchText) ||
+            $0.bundleIdentifier.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+
+    var body: some View {
+        List {
+            Section {
+                Toggle(localized("Allow All Sources"), isOn: Binding(
+                    get: { allowAllSources },
+                    set: updateAllowAllSources
+                ))
+            } footer: {
+                Text(localized("When disabled, only selected apps can sync playback."))
+            }
+
+            Section(header: Text(localized("Applications"))) {
+                TextField(localized("Search applications"), text: $searchText)
+
+                ForEach(filteredApplications) { application in
+                    Toggle(application.name, isOn: Binding(
+                        get: { allowAllSources || selectedSources.contains(application.bundleIdentifier) },
+                        set: { isSelected in
+                            updateSource(application.bundleIdentifier, isSelected: isSelected)
+                        }
+                    ))
+                }
+            }
+        }
+        .navigationTitle(localized("Allowed Sources"))
+        .onAppear {
+            applications = installedApplications()
+        }
+    }
+
+    private func updateAllowAllSources(_ isEnabled: Bool) {
+        allowAllSources = isEnabled
+        selectedSources = isEnabled ? [] : Set(applications.map(\.bundleIdentifier))
+        saveSelectedSources()
+    }
+
+    private func updateSource(_ bundleIdentifier: String, isSelected: Bool) {
+        if allowAllSources {
+            allowAllSources = false
+            selectedSources = Set(applications.map(\.bundleIdentifier))
+        }
+
+        if isSelected {
+            selectedSources.insert(bundleIdentifier)
+        } else {
+            selectedSources.remove(bundleIdentifier)
+        }
+        saveSelectedSources()
+    }
+
+    private func saveSelectedSources() {
+        UserDefaults.standard.set(Array(selectedSources), forKey: "allowedSources")
+    }
+
+    private func installedApplications() -> [SourceApplication] {
+        let fileManager = FileManager.default
+        let applicationDirectories = [
+            URL(fileURLWithPath: "/Applications"),
+            URL(fileURLWithPath: "/System/Applications"),
+            fileManager.homeDirectoryForCurrentUser.appendingPathComponent("Applications")
+        ]
+
+        var discovered = [String: SourceApplication]()
+        for directory in applicationDirectories {
+            guard let enumerator = fileManager.enumerator(
+                at: directory,
+                includingPropertiesForKeys: [.isDirectoryKey],
+                options: [.skipsHiddenFiles, .skipsPackageDescendants]
+            ) else {
+                continue
+            }
+
+            for case let url as URL in enumerator where url.pathExtension == "app" {
+                guard let bundle = Bundle(url: url),
+                      let bundleIdentifier = bundle.bundleIdentifier else {
+                    continue
+                }
+                let name = bundle.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ??
+                    bundle.object(forInfoDictionaryKey: "CFBundleName") as? String ??
+                    url.deletingPathExtension().lastPathComponent
+                discovered[bundleIdentifier] = SourceApplication(bundleIdentifier: bundleIdentifier, name: name)
+            }
+        }
+
+        return discovered.values.sorted {
+            $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+        }
+    }
+
     private func localized(_ key: String) -> String { getLocalizedString(key, language: language) }
 }
 
@@ -176,6 +304,13 @@ func getLocalizedString(_ key: String, language: String) -> String {
         case "Devices": return "設備狀態"
         case "Settings": return "設定"
         case "General": return "一般"
+        case "Playback Sources": return "播放來源"
+        case "Allowed Sources": return "允許的播放來源"
+        case "Choose which apps can sync playback.": return "選擇可同步播放狀態的應用程式。"
+        case "Allow All Sources": return "允許所有播放來源"
+        case "When disabled, only selected apps can sync playback.": return "關閉後，只有已選擇的應用程式可以同步播放狀態。"
+        case "Applications": return "應用程式"
+        case "Search applications": return "搜尋應用程式"
         case "Theme": return "主題"
         case "Device Name": return "設備名稱"
         case "Language": return "語言"
@@ -204,6 +339,13 @@ func getLocalizedString(_ key: String, language: String) -> String {
         case "Devices": return "设备状态"
         case "Settings": return "设置"
         case "General": return "通用"
+        case "Playback Sources": return "播放源"
+        case "Allowed Sources": return "允许的播放源"
+        case "Choose which apps can sync playback.": return "选择可同步播放状态的应用。"
+        case "Allow All Sources": return "允许所有播放源"
+        case "When disabled, only selected apps can sync playback.": return "关闭后，只有选中的应用可以同步播放状态。"
+        case "Applications": return "应用"
+        case "Search applications": return "搜索应用"
         case "Theme": return "主题"
         case "Device Name": return "设备名称"
         case "Language": return "语言"
@@ -232,6 +374,13 @@ func getLocalizedString(_ key: String, language: String) -> String {
         case "Devices": return "デバイスの状態"
         case "Settings": return "設定"
         case "General": return "一般"
+        case "Playback Sources": return "再生ソース"
+        case "Allowed Sources": return "許可された再生ソース"
+        case "Choose which apps can sync playback.": return "再生状態を同期するアプリを選択します。"
+        case "Allow All Sources": return "すべての再生ソースを許可"
+        case "When disabled, only selected apps can sync playback.": return "無効にすると、選択したアプリだけが再生状態を同期できます。"
+        case "Applications": return "アプリケーション"
+        case "Search applications": return "アプリを検索"
         case "Theme": return "テーマ"
         case "Device Name": return "デバイス名"
         case "Language": return "言語"

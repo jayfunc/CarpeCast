@@ -3,6 +3,8 @@ import AppKit
 
 class MediaManager: ObservableObject {
     static let shared = MediaManager()
+    private static let allowAllSourcesKey = "allowAllSources"
+    private static let allowedSourcesKey = "allowedSources"
     
     @Published var title: String = ""
     @Published var artist: String = ""
@@ -12,8 +14,22 @@ class MediaManager: ObservableObject {
     @Published var duration: Double = 0.0
     @Published var albumArtBase64: String = ""
     @Published var lastFetchMethod: String = ""
+    @Published var sourceBundleIdentifier: String?
     
     private var updateTimer: Timer?
+
+    private static func isSourceAllowed(_ bundleIdentifier: String?) -> Bool {
+        if UserDefaults.standard.object(forKey: allowAllSourcesKey) == nil ||
+            UserDefaults.standard.bool(forKey: allowAllSourcesKey) {
+            return true
+        }
+
+        guard let bundleIdentifier else {
+            return false
+        }
+
+        return Set(UserDefaults.standard.stringArray(forKey: allowedSourcesKey) ?? []).contains(bundleIdentifier)
+    }
     
     init() {
         startPolling()
@@ -50,6 +66,13 @@ class MediaManager: ObservableObject {
         if method == "AppleScript" {
             let parts = raw.components(separatedBy: "|||")
             if parts.count >= 6 {
+                let sourceBundleIdentifier = parts.count >= 7 ? parts[6] : nil
+                guard Self.isSourceAllowed(sourceBundleIdentifier) else {
+                    clearInfo()
+                    return
+                }
+
+                self.sourceBundleIdentifier = sourceBundleIdentifier
                 self.title = parts[0]
                 self.artist = parts[1]
                 self.album = parts[2]
@@ -61,7 +84,7 @@ class MediaManager: ObservableObject {
                 let durStr = parts[5].replacingOccurrences(of: ",", with: ".")
                 self.duration = (Double(durStr) ?? 0.0) * 1000.0
                 
-                self.albumArtBase64 = parts.count >= 7 ? parts[6] : ""
+                self.albumArtBase64 = parts.count >= 8 ? parts[7] : ""
                 self.lastFetchMethod = method
             }
         } else {
@@ -71,6 +94,14 @@ class MediaManager: ObservableObject {
                 return
             }
             
+            let sourceBundleIdentifier = json["parentApplicationBundleIdentifier"] as? String ??
+                json["bundleIdentifier"] as? String
+            guard Self.isSourceAllowed(sourceBundleIdentifier) else {
+                clearInfo()
+                return
+            }
+
+            self.sourceBundleIdentifier = sourceBundleIdentifier
             self.title = json["title"] as? String ?? ""
             self.artist = json["artist"] as? String ?? ""
             self.album = json["album"] as? String ?? ""
@@ -103,6 +134,7 @@ class MediaManager: ObservableObject {
         self.duration = 0.0
         self.albumArtBase64 = ""
         self.lastFetchMethod = ""
+        self.sourceBundleIdentifier = nil
     }
     
     // MARK: - MediaRemote Fetch
@@ -152,6 +184,7 @@ class MediaManager: ObservableObject {
             set is_playing to "false"
             set track_duration to 0.0
             set track_position to 0.0
+            set source_bundle_id to ""
 
             try
                 if application "Spotify" is running then
@@ -165,6 +198,7 @@ class MediaManager: ObservableObject {
                             end if
                             set track_duration to (duration of current track) / 1000.0
                             set track_position to player position
+                            set source_bundle_id to "com.spotify.client"
                         end if
                     end tell
                 end if
@@ -180,6 +214,7 @@ class MediaManager: ObservableObject {
                             end if
                             set track_duration to duration of current track
                             set track_position to player position
+                            set source_bundle_id to "com.apple.Music"
                         end if
                     end tell
                 end if
@@ -188,7 +223,7 @@ class MediaManager: ObservableObject {
             end try
 
             if track_name is not "" then
-                return track_name & "|||" & track_artist & "|||" & track_album & "|||" & is_playing & "|||" & track_position & "|||" & track_duration
+                return track_name & "|||" & track_artist & "|||" & track_album & "|||" & is_playing & "|||" & track_position & "|||" & track_duration & "|||" & source_bundle_id
             else
                 return ""
             end if

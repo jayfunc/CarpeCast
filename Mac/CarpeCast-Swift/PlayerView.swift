@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct PlayerView: View {
     @ObservedObject var mediaManager = MediaManager.shared
@@ -42,6 +43,27 @@ struct PlayerView: View {
                 Spacer()
                 
                 VStack(alignment: .leading, spacing: 5) {
+                    if let sourceApplication {
+                        Button(action: {
+                            NSWorkspace.shared.open(sourceApplication.url)
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(nsImage: sourceApplication.icon)
+                                    .resizable()
+                                    .frame(width: 16, height: 16)
+                                Text(sourceApplication.name)
+                                    .font(.caption)
+                                    .fontWeight(.semibold)
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(Color(NSColor.windowBackgroundColor).opacity(0.6))
+                            .clipShape(Capsule())
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding(.bottom, 11)
+                    }
+
                     Text(mediaManager.title.isEmpty ? "Not Playing" : mediaManager.title)
                         .font(.title)
                         .fontWeight(.bold)
@@ -114,5 +136,18 @@ struct PlayerView: View {
         let minutes = totalSeconds / 60
         let seconds = totalSeconds % 60
         return String(format: "%d:%02d", minutes, seconds)
+    }
+
+    private var sourceApplication: (name: String, icon: NSImage, url: URL)? {
+        guard let bundleIdentifier = mediaManager.sourceBundleIdentifier,
+              let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleIdentifier),
+              let bundle = Bundle(url: url) else {
+            return nil
+        }
+
+        let name = bundle.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ??
+            bundle.object(forInfoDictionaryKey: "CFBundleName") as? String ??
+            url.deletingPathExtension().lastPathComponent
+        return (name, NSWorkspace.shared.icon(forFile: url.path), url)
     }
 }
