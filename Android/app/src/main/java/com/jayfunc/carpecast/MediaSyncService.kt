@@ -181,43 +181,46 @@ class MediaSyncService : NotificationListenerService() {
 
         val ip = selectedPcIp ?: return
 
-        // Only recompress album art when track (title+artist) changes
-        val trackKey = "$title|$artist"
-        val isNewTrack = trackKey != lastSentTrackKey
-        if (isNewTrack) {
+        // Use title + artist + art bitmap identity as the art key.
+        // This catches: (a) track changes, (b) art arriving after title already changed,
+        // (c) same title/artist but different cover (e.g. compilation albums).
+        val albumArt = if (controller != null) {
+            val metadata = controller.metadata
+            metadata?.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
+                ?: metadata?.getBitmap(MediaMetadata.METADATA_KEY_ART)
+        } else null
+        val artId = albumArt?.generationId?.toString() ?: "noart"
+        val trackKey = "$title|$artist|$artId"
+
+        val isNewArt = trackKey != lastSentTrackKey
+        if (isNewArt) {
             lastSentTrackKey = trackKey
             cachedAlbumArtBase64 = ""
 
-            if (controller != null) {
-                val metadata = controller.metadata
-                val albumArt = metadata?.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
-                    ?: metadata?.getBitmap(MediaMetadata.METADATA_KEY_ART)
+            if (albumArt != null) {
+                try {
+                    val maxDim = 500
+                    var width = albumArt.width
+                    var height = albumArt.height
+                    val scaled = if (width > maxDim || height > maxDim) {
+                        val ratio = Math.min(maxDim.toFloat() / width, maxDim.toFloat() / height)
+                        width = Math.round(ratio * width)
+                        height = Math.round(ratio * height)
+                        android.graphics.Bitmap.createScaledBitmap(albumArt, width, height, true)
+                    } else albumArt
 
-                if (albumArt != null) {
-                    try {
-                        val maxDim = 500
-                        var width = albumArt.width
-                        var height = albumArt.height
-                        val scaled = if (width > maxDim || height > maxDim) {
-                            val ratio = Math.min(maxDim.toFloat() / width, maxDim.toFloat() / height)
-                            width = Math.round(ratio * width)
-                            height = Math.round(ratio * height)
-                            android.graphics.Bitmap.createScaledBitmap(albumArt, width, height, true)
-                        } else albumArt
-
-                        var quality = 80
-                        while (quality >= 10) {
-                            val stream = java.io.ByteArrayOutputStream()
-                            scaled.compress(android.graphics.Bitmap.CompressFormat.JPEG, quality, stream)
-                            val encoded = android.util.Base64.encodeToString(stream.toByteArray(), android.util.Base64.NO_WRAP)
-                            if (encoded.length < 55000) {
-                                cachedAlbumArtBase64 = encoded
-                                break
-                            }
-                            quality -= 10
+                    var quality = 80
+                    while (quality >= 10) {
+                        val stream = java.io.ByteArrayOutputStream()
+                        scaled.compress(android.graphics.Bitmap.CompressFormat.JPEG, quality, stream)
+                        val encoded = android.util.Base64.encodeToString(stream.toByteArray(), android.util.Base64.NO_WRAP)
+                        if (encoded.length < 55000) {
+                            cachedAlbumArtBase64 = encoded
+                            break
                         }
-                    } catch (e: Exception) { }
-                }
+                        quality -= 10
+                    }
+                } catch (e: Exception) { }
             }
         }
 
@@ -238,8 +241,8 @@ class MediaSyncService : NotificationListenerService() {
             put("deviceName", deviceName)
             put("deviceType", devType)
             put("osVersion", "Android ${android.os.Build.VERSION.RELEASE}")
-            // Only include albumArt key when track changed; absence = "keep cached art on receiver"
-            if (isNewTrack) {
+            // Only include albumArt key when art changed; absence = "keep cached art on receiver"
+            if (isNewArt) {
                 put("albumArt", cachedAlbumArtBase64)
             }
         }
@@ -387,6 +390,8 @@ class MediaSyncService : NotificationListenerService() {
                         getSharedPreferences("settings", Context.MODE_PRIVATE).edit().putString("targetConnectedPcIp", ipStr).apply()
                         selectedPcIp = packet.address
                         MediaStateRepository.updateSelectedPcIp(ipStr)
+                        // Reset art key so the next send includes the current art for the new receiver
+                        lastSentTrackKey = ""
                         Handler(Looper.getMainLooper()).post {
                             sendMediaState(activeControllers.firstOrNull())
                         }
@@ -446,6 +451,7 @@ class MediaSyncService : NotificationListenerService() {
                 getSharedPreferences("settings", Context.MODE_PRIVATE).edit().putString("targetConnectedPcIp", ipStr).apply()
                 selectedPcIp = discoveredPcs[ipStr]
                 MediaStateRepository.updateSelectedPcIp(ipStr)
+                lastSentTrackKey = "" // Reset so art is included in the first packet to new receiver
                 sendMediaState(activeControllers.firstOrNull())
             }
             return START_STICKY
