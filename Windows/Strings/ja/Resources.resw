@@ -40,31 +40,31 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="SettingsTitle.Text" xml:space="preserve"><value>設定</value></data>
-  <data name="ThemeLabel.Text" xml:space="preserve"><value>テーマ</value></data>
-  <data name="ThemeSystem.Content" xml:space="preserve"><value>システムに従う</value></data>
-  <data name="ThemeLight.Content" xml:space="preserve"><value>ライト</value></data>
+  <data name="ThemeLabel.Text" xml:space="preserve"><value>テー�?/value></data>
+  <data name="ThemeSystem.Content" xml:space="preserve"><value>システムに従�?/value></data>
+  <data name="ThemeLight.Content" xml:space="preserve"><value>ライ�?/value></data>
   <data name="ThemeDark.Content" xml:space="preserve"><value>ダーク</value></data>
-  <data name="LanguageLabel.Text" xml:space="preserve"><value>言語</value></data>
+  <data name="LanguageLabel.Text" xml:space="preserve"><value>言�?/value></data>
   <data name="LanguageRestartNote.Text" xml:space="preserve"><value>アプリの再起動後に完全に適用されます</value></data>
   <data name="StatusWaiting.Text" xml:space="preserve"><value>接続を待機しています...</value></data>
   <data name="NoMediaPlaying.Text" xml:space="preserve"><value>メディアが再生されていません</value></data>
-  <data name="UnknownArtist.Text" xml:space="preserve"><value>不明なアーティスト</value></data>
-  <data name="UnknownAlbum.Text" xml:space="preserve"><value>不明なアルバム</value></data>
+  <data name="UnknownArtist.Text" xml:space="preserve"><value>不明なアーティス�?/value></data>
+  <data name="UnknownAlbum.Text" xml:space="preserve"><value>不明なアルバ�?/value></data>
   <data name="TrayShowPlayer.Text" xml:space="preserve"><value>プレーヤーを表示</value></data>
   <data name="TrayExit.Text" xml:space="preserve"><value>終了</value></data>
-  <data name="DeviceNameLabel.Text" xml:space="preserve"><value>デバイス名</value></data>
-  <data name="DiscoveryPortLabel.Text" xml:space="preserve"><value>探索ポート</value></data>
-  <data name="DataPortLabel.Text" xml:space="preserve"><value>データポート</value></data>
-  <data name="CommandPortLabel.Text" xml:space="preserve"><value>コマンドポート</value></data>
-  <data name="DiscoveryPortCard.Description" xml:space="preserve"><value>ローカルネットワーク内で存在をブロードキャストするために使用します。（デフォルト：5001）</value></data>
-  <data name="DataPortCard.Description" xml:space="preserve"><value>スマートフォンから音楽情報を受信するために使用します。（デフォルト：5000）</value></data>
-  <data name="CommandPortCard.Description" xml:space="preserve"><value>スマートフォンに再生/一時停止の制御コマンドを送信するために使用します。（デフォルト：5002）</value></data>
-  <data name="SaveSettingsBtn.Content" xml:space="preserve"><value>保存して再起動</value></data>
+  <data name="DeviceNameLabel.Text" xml:space="preserve"><value>デバイス�?/value></data>
+  <data name="DiscoveryPortLabel.Text" xml:space="preserve"><value>探索ポー�?/value></data>
+  <data name="SenderDiscoveryPortLabel.Text" xml:space="preserve"><value>データポート</value></data>
+  <data name="CommandPortLabel.Text" xml:space="preserve"><value>コマンドポー�?/value></data>
+  <data name="DiscoveryPortCard.Description" xml:space="preserve"><value>ローカルネットワーク内で存在をブロードキャストするために使用します。（デフォルト：5001�?/value></data>
+  <data name="SenderDiscoveryPortCard.Description" xml:space="preserve"><value>スマートフォンから音楽情報を受信するために使用します。（デフォルト：5000�?/value></data>
+  <data name="CommandPortCard.Description" xml:space="preserve"><value>スマートフォンに再生/一時停止の制御コマンドを送信するために使用します。（デフォルト：5002�?/value></data>
+  <data name="SaveSettingsBtn.Content" xml:space="preserve"><value>保存して再起�?/value></data>
   <data name="DeviceNameCard.Description" xml:space="preserve"><value>ネットワーク上でこのPCを識別します</value></data>
-  <data name="NetworkPortsLabel.Text" xml:space="preserve"><value>ネットワークポート</value></data>
-  <data name="NetworkPortsExpander.Description" xml:space="preserve"><value>ローカルネットワーク通信に使用するUDPポート</value></data>
+  <data name="NetworkPortsLabel.Text" xml:space="preserve"><value>ネットワークポー�?/value></data>
+  <data name="NetworkPortsExpander.Description" xml:space="preserve"><value>ローカルネットワーク通信に使用するUDPポー�?/value></data>
   <data name="LanguageCard.Description" xml:space="preserve"><value>アプリの再起動が必要です</value></data>
-  <data name="NavPlayer.Content" xml:space="preserve"><value>プレーヤー</value></data>
+  <data name="NavPlayer.Content" xml:space="preserve"><value>プレーヤ�?/value></data>
   <data name="NavDevices.Content" xml:space="preserve"><value>デバイス</value></data>
   <data name="DevicesTitle.Text" xml:space="preserve"><value>デバイス</value></data>
   <data name="DevicesDescription.Text" xml:space="preserve"><value></value></data>
@@ -72,16 +72,16 @@
   <data name="DevicesDisconnect.Text" xml:space="preserve"><value>切断</value></data>
   <data name="RestoreDefaultBtn.Content" xml:space="preserve"><value>デフォルトに戻す</value></data>
   <data name="RestartPromptInfoBar.Title" xml:space="preserve"><value>再起動が必要です</value></data>
-  <data name="RestartPromptInfoBar.Message" xml:space="preserve"><value>一部の設定は、アプリを再起動した後に適用されます。</value></data>
+  <data name="RestartPromptInfoBar.Message" xml:space="preserve"><value>一部の設定は、アプリを再起動した後に適用されます�?/value></data>
   <data name="RestartNowBtn.Content" xml:space="preserve"><value>今すぐ再起動</value></data>
-  <data name="ShowOnStartupLabel.Text" xml:space="preserve"><value>自動起動時にメインウィンドウを表示する</value></data>
-  <data name="SystemStartupLabel.Text" xml:space="preserve"><value>Windowsのスタートアップ設定を開く</value></data>
-  <data name="SystemStartupDesc.Text" xml:space="preserve"><value>WindowsにログインしたときにCarpeCastを自動的に起動するかどうかを設定します。</value></data>
+  <data name="ShowOnStartupLabel.Text" xml:space="preserve"><value>自動起動時にメインウィンドウを表示す�?/value></data>
+  <data name="SystemStartupLabel.Text" xml:space="preserve"><value>Windowsのスタートアップ設定を開�?/value></data>
+  <data name="SystemStartupDesc.Text" xml:space="preserve"><value>WindowsにログインしたときにCarpeCastを自動的に起動するかどうかを設定します�?/value></data>
   <data name="AboutBetterLyricsTitle.Text" xml:space="preserve"><value>BetterLyrics</value></data>
-  <data name="AboutBetterLyricsDesc.Text" xml:space="preserve"><value>最高のデスクトップ歌詞体験を得るには、BetterLyricsをおすすめします。</value></data>
-  <data name="DownloadAndroidTitle.Text" xml:space="preserve"><value>Android版CarpeCastをダウンロード</value></data>
-  <data name="DownloadAndroidDesc.Text" xml:space="preserve"><value>音楽を同期するには、スマートフォンにCarpeCastをインストールしてください。</value></data>
+  <data name="AboutBetterLyricsDesc.Text" xml:space="preserve"><value>最高のデスクトップ歌詞体験を得るには、BetterLyricsをおすすめします�?/value></data>
+  <data name="DownloadAndroidTitle.Text" xml:space="preserve"><value>Android版CarpeCastをダウンロー�?/value></data>
+  <data name="DownloadAndroidDesc.Text" xml:space="preserve"><value>音楽を同期するには、スマートフォンにCarpeCastをインストールしてください�?/value></data>
   <data name="SelectDevice.PlaceholderText" xml:space="preserve">
-    <value>デバイスを選択</value>
+    <value>デバイスを選�?/value>
   </data>
 </root>

@@ -11,7 +11,7 @@ public partial class SettingsViewModel : ObservableObject
     private bool _isInitialized;
 
     private readonly double _initialDiscoveryPort;
-    private readonly double _initialDataPort;
+    private readonly double _initialSenderDiscoveryPort;
     private readonly int _initialThemeIndex;
     private readonly int _initialLanguageIndex;
 
@@ -21,7 +21,7 @@ public partial class SettingsViewModel : ObservableObject
         
         DeviceName = _settingsService.DeviceName;
         DiscoveryPort = _settingsService.DiscoveryPort;
-        DataPort = _settingsService.DataPort;
+        SenderDiscoveryPort = _settingsService.SenderDiscoveryPort;
 
         SelectedThemeIndex = _settingsService.AppTheme switch
         {
@@ -41,7 +41,7 @@ public partial class SettingsViewModel : ObservableObject
         ShowOnStartup = _settingsService.ShowOnStartup;
 
         _initialDiscoveryPort = DiscoveryPort;
-        _initialDataPort = DataPort;
+        _initialSenderDiscoveryPort = SenderDiscoveryPort;
         _initialThemeIndex = SelectedThemeIndex;
         _initialLanguageIndex = SelectedLanguageIndex;
 
@@ -55,7 +55,7 @@ public partial class SettingsViewModel : ObservableObject
     public partial double DiscoveryPort { get; set; }
 
     [ObservableProperty]
-    public partial double DataPort { get; set; }
+    public partial double SenderDiscoveryPort { get; set; }
 
     [ObservableProperty]
     public partial int SelectedThemeIndex { get; set; }
@@ -92,7 +92,7 @@ public partial class SettingsViewModel : ObservableObject
 
     partial void OnDeviceNameChanged(string value) => SaveSettings();
     partial void OnDiscoveryPortChanged(double value) => SaveSettings();
-    partial void OnDataPortChanged(double value) => SaveSettings();
+    partial void OnSenderDiscoveryPortChanged(double value) => SaveSettings();
     partial void OnSelectedThemeIndexChanged(int value) => SaveSettings();
     partial void OnSelectedLanguageIndexChanged(int value) => SaveSettings();
     partial void OnShowOnStartupChanged(bool value) => SaveSettings();
@@ -103,7 +103,7 @@ public partial class SettingsViewModel : ObservableObject
 
         _settingsService.DeviceName = DeviceName;
         _settingsService.DiscoveryPort = (int)DiscoveryPort;
-        _settingsService.DataPort = (int)DataPort;
+        _settingsService.SenderDiscoveryPort = (int)SenderDiscoveryPort;
         
         _settingsService.AppTheme = SelectedThemeIndex switch
         {
@@ -126,7 +126,7 @@ public partial class SettingsViewModel : ObservableObject
 
         IsRestartRequired = 
             DiscoveryPort != _initialDiscoveryPort ||
-            DataPort != _initialDataPort ||
+            SenderDiscoveryPort != _initialSenderDiscoveryPort ||
             SelectedLanguageIndex != _initialLanguageIndex;
     }
 

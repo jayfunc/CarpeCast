@@ -74,6 +74,8 @@ public class NetworkService : INetworkService
         _discoveryClient = null;
     }
 
+    private int _dataPort = 0;
+
     private void StartBroadcastTask(CancellationToken token)
     {
         Task.Run(async () =>
@@ -83,27 +85,30 @@ public class NetworkService : INetworkService
             
             while (!token.IsCancellationRequested)
             {
-                byte[] message = Encoding.UTF8.GetBytes($"CARPECAST_RECEIVER:{_settings.DeviceName}:{_settings.DataPort}:Desktop:{osName}");
-
-                foreach (var ni in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
+                if (_dataPort > 0)
                 {
-                    if (ni.OperationalStatus == System.Net.NetworkInformation.OperationalStatus.Up &&
-                        ni.NetworkInterfaceType != System.Net.NetworkInformation.NetworkInterfaceType.Loopback)
+                    byte[] message = Encoding.UTF8.GetBytes($"CARPECAST_RECEIVER:{_settings.DeviceName}:{_dataPort}:Desktop:{osName}");
+
+                    foreach (var ni in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
                     {
-                        foreach (var ip in ni.GetIPProperties().UnicastAddresses)
+                        if (ni.OperationalStatus == System.Net.NetworkInformation.OperationalStatus.Up &&
+                            ni.NetworkInterfaceType != System.Net.NetworkInformation.NetworkInterfaceType.Loopback)
                         {
-                            if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                            foreach (var ip in ni.GetIPProperties().UnicastAddresses)
                             {
-                                try
+                                if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
                                 {
-                                    using (var client = new UdpClient(new IPEndPoint(ip.Address, 0)))
+                                    try
                                     {
-                                        client.EnableBroadcast = true;
-                                        var endpoint = new IPEndPoint(IPAddress.Broadcast, _settings.DiscoveryPort);
-                                        await client.SendAsync(message, message.Length, endpoint);
+                                        using (var client = new UdpClient(new IPEndPoint(ip.Address, 0)))
+                                        {
+                                            client.EnableBroadcast = true;
+                                            var endpoint = new IPEndPoint(IPAddress.Broadcast, _settings.DiscoveryPort);
+                                            await client.SendAsync(message, message.Length, endpoint);
+                                        }
                                     }
+                                    catch { }
                                 }
-                                catch { }
                             }
                         }
                     }
@@ -117,7 +122,8 @@ public class NetworkService : INetworkService
     {
         Task.Run(async () =>
         {
-            _dataClient = new UdpClient(_settings.DataPort);
+            _dataClient = new UdpClient(0);
+            _dataPort = ((IPEndPoint)_dataClient.Client.LocalEndPoint!).Port;
             while (!token.IsCancellationRequested)
             {
                 try
@@ -217,8 +223,9 @@ public class NetworkService : INetworkService
         {
             try
             {
-                _discoveryClient = new UdpClient(5003);
+                _discoveryClient = new UdpClient(_settings.SenderDiscoveryPort);
                 while (!token.IsCancellationRequested)
+
                 {
                     var result = await _discoveryClient.ReceiveAsync();
                     string message = Encoding.UTF8.GetString(result.Buffer);

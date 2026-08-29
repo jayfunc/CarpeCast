@@ -14,7 +14,7 @@ public class SettingsService : ISettingsService
 
     public string DeviceName { get; set; } = "PC";
     public int DiscoveryPort { get; set; } = 5001;
-    public int DataPort { get; set; } = 5000;
+    public int SenderDiscoveryPort { get; set; } = 5000;
     
     private string _appTheme = "System";
     public string AppTheme 
@@ -45,7 +45,7 @@ public class SettingsService : ISettingsService
         }
 
         DiscoveryPort = _localSettings.Values["DiscoveryPort"] is int dp ? dp : 5001;
-        DataPort = _localSettings.Values["DataPort"] is int dsp ? dsp : 5000;
+        SenderDiscoveryPort = _localSettings.Values["SenderDiscoveryPort"] is int sdp ? sdp : 5003;
 
         AppTheme = _localSettings.Values["AppTheme"] as string ?? "System";
         AppLanguage = _localSettings.Values["AppLanguage"] as string ?? "";
@@ -56,7 +56,7 @@ public class SettingsService : ISettingsService
     {
         _localSettings.Values["DeviceName"] = DeviceName;
         _localSettings.Values["DiscoveryPort"] = DiscoveryPort;
-        _localSettings.Values["DataPort"] = DataPort;
+        _localSettings.Values["SenderDiscoveryPort"] = SenderDiscoveryPort;
         _localSettings.Values["AppTheme"] = AppTheme;
         _localSettings.Values["AppLanguage"] = AppLanguage;
         _localSettings.Values["ShowOnStartup"] = ShowOnStartup;

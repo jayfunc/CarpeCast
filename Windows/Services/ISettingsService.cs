@@ -4,7 +4,7 @@ public interface ISettingsService
 {
     string DeviceName { get; set; }
     int DiscoveryPort { get; set; }
-    int DataPort { get; set; }
+    int SenderDiscoveryPort { get; set; }
     string AppTheme { get; set; }
     string AppLanguage { get; set; }
     bool ShowOnStartup { get; set; }

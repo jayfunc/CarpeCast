@@ -57,6 +57,7 @@ struct DevicesView: View {
 struct SettingsView: View {
     @AppStorage("deviceName") private var deviceName: String = Host.current().localizedName ?? "Mac"
     @AppStorage("discoveryPort") private var discoveryPort: Int = 5001
+    @AppStorage("senderDiscoveryPort") private var senderDiscoveryPort: Int = 5003
     @AppStorage("language") private var language: String = "System"
     @AppStorage("theme") private var theme: String = "System"
     @State private var isShowingAllowedSources = false
@@ -125,6 +126,8 @@ struct SettingsView: View {
                     Section(header: Text(localized("Network Ports")).font(.headline)) {
                         TextField(localized("Discovery Port"), value: $discoveryPort, formatter: NumberFormatter())
                             .onChange(of: discoveryPort) { _ in restartNetworking() }
+                        TextField(localized("Sender Discovery Port"), value: $senderDiscoveryPort, formatter: NumberFormatter())
+                            .onChange(of: senderDiscoveryPort) { _ in restartNetworking() }
 
                         Text(localized("Note: Port changes require network service restart."))
                             .font(.caption)
@@ -348,6 +351,7 @@ func getLocalizedString(_ key: String, language: String) -> String {
         case "Language": return "語言"
         case "Network Ports": return "網路通訊埠"
         case "Discovery Port": return "發現通訊埠"
+        case "Sender Discovery Port": return "發送端發現通訊埠"
         case "Note: Port changes require network service restart.": return "注意：修改通訊埠後需要重啟網路服務以生效。"
         case "Restart Network Service": return "重啟網路服務"
         case "Discovered Devices": return "已發現設備"
@@ -385,6 +389,7 @@ func getLocalizedString(_ key: String, language: String) -> String {
         case "Language": return "语言"
         case "Network Ports": return "网络端口"
         case "Discovery Port": return "发现端口"
+        case "Sender Discovery Port": return "发送端发现端口"
         case "Note: Port changes require network service restart.": return "注意：修改端口后需要重启网络服务以生效。"
         case "Restart Network Service": return "重启网络服务"
         case "Discovered Devices": return "已发现设备"
@@ -422,6 +427,7 @@ func getLocalizedString(_ key: String, language: String) -> String {
         case "Language": return "言語"
         case "Network Ports": return "ネットワークポート"
         case "Discovery Port": return "検出ポート"
+        case "Sender Discovery Port": return "送信側検出ポート"
         case "Note: Port changes require network service restart.": return "注意：ポートを変更した後は、ネットワークサービスを再起動してください。"
         case "Restart Network Service": return "ネットワークサービスを再起動"
         case "Discovered Devices": return "検出されたデバイス"

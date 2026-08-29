@@ -27,6 +27,20 @@ class UDPSocket {
         return bindResult == 0
     }
     
+    func localPort() -> UInt16 {
+        var addr = sockaddr_in()
+        var len = socklen_t(MemoryLayout<sockaddr_in>.size)
+        let result = withUnsafeMutablePointer(to: &addr) {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { ptr in
+                getsockname(socketFD, ptr, &len)
+            }
+        }
+        if result == 0 {
+            return UInt16(bigEndian: addr.sin_port)
+        }
+        return 0
+    }
+    
     func startReceiving(handler: @escaping (String, String) -> Void) {
         isListening = true
         DispatchQueue.global().async {

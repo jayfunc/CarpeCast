@@ -31,8 +31,15 @@ class NetworkManager: ObservableObject {
     private var albumArtTransferId: String?
     private var albumArtRetriesRemaining = 0
     
-    private let discoveryPort: UInt16 = 5001
-    private let commandPort: UInt16 = 5002
+    private var discoveryPort: UInt16 {
+        let port = UInt16(UserDefaults.standard.integer(forKey: "discoveryPort"))
+        return port == 0 ? 5001 : port
+    }
+    private var senderDiscoveryPort: UInt16 {
+        let port = UInt16(UserDefaults.standard.integer(forKey: "senderDiscoveryPort"))
+        return port == 0 ? 5003 : port
+    }
+    private var commandPort: UInt16 = 0
     
     private var broadcastTimer: Timer?
     private var syncTimer: Timer?
@@ -144,7 +151,8 @@ class NetworkManager: ObservableObject {
     
     private func startCommandListener() {
         commandSocket = UDPSocket()
-        if commandSocket?.bind(port: commandPort) == true {
+        if commandSocket?.bind(port: 0) == true {
+            self.commandPort = commandSocket?.localPort() ?? 0
             commandSocket?.startReceiving { [weak self] (cmd, ip) in
                 guard let self = self else { return }
                 if cmd == "CONNECT_REQUEST" {
@@ -173,7 +181,7 @@ class NetworkManager: ObservableObject {
         broadcastTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
             guard let self = self else { return }
             let msg = "CARPECAST_SENDER:\(self.deviceName):\(self.commandPort):Desktop:macOS"
-            self.broadcastSocket?.send(string: msg, to: "255.255.255.255", port: 5003)
+            self.broadcastSocket?.send(string: msg, to: "255.255.255.255", port: self.senderDiscoveryPort)
         }
     }
     

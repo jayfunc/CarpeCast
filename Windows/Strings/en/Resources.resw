@@ -54,10 +54,10 @@
   <data name="TrayExit.Text" xml:space="preserve"><value>Exit</value></data>
   <data name="DeviceNameLabel.Text" xml:space="preserve"><value>Device Name</value></data>
   <data name="DiscoveryPortLabel.Text" xml:space="preserve"><value>Discovery Port</value></data>
-  <data name="DataPortLabel.Text" xml:space="preserve"><value>Data Port</value></data>
+  <data name="SenderDiscoveryPortLabel.Text" xml:space="preserve"><value>Sender Discovery Port</value></data>
   <data name="CommandPortLabel.Text" xml:space="preserve"><value>Command Port</value></data>
   <data name="DiscoveryPortCard.Description" xml:space="preserve"><value>Used to broadcast existence on local network. (Default: 5001)</value></data>
-  <data name="DataPortCard.Description" xml:space="preserve"><value>Used to receive music info from phone. (Default: 5000)</value></data>
+  <data name="SenderDiscoveryPortCard.Description" xml:space="preserve"><value>Used to discover sender devices. (Default: 5003)</value></data>
   <data name="CommandPortCard.Description" xml:space="preserve"><value>Used to send play/pause commands to phone. (Default: 5002)</value></data>
   <data name="SaveSettingsBtn.Content" xml:space="preserve"><value>Save &amp; Restart</value></data>
   <data name="DeviceNameCard.Description" xml:space="preserve"><value>Identify your PC on the network</value></data>

@@ -92,14 +92,14 @@
                             SpinButtonPlacementMode="Hidden"
                             Value="{x:Bind ViewModel.DiscoveryPort, Mode=TwoWay}" />
                     </tk:SettingsCard>
-                    <tk:SettingsCard x:Uid="DataPortCard">
+                    <tk:SettingsCard x:Uid="SenderDiscoveryPortCard">
                         <tk:SettingsCard.Header>
-                            <TextBlock x:Uid="DataPortLabel" Text="Data Port" />
+                            <TextBlock x:Uid="SenderDiscoveryPortLabel" Text="Data Port" />
                         </tk:SettingsCard.Header>
                         <NumberBox
                             Width="100"
                             SpinButtonPlacementMode="Hidden"
-                            Value="{x:Bind ViewModel.DataPort, Mode=TwoWay}" />
+                            Value="{x:Bind ViewModel.SenderDiscoveryPort, Mode=TwoWay}" />
                     </tk:SettingsCard>
                 </tk:SettingsExpander.Items>
             </tk:SettingsExpander>
@@ -142,9 +142,9 @@
                         Content="System default"
                         Tag="" />
                     <ComboBoxItem Content="English" Tag="en-US" />
-                    <ComboBoxItem Content="简体中文" Tag="zh-Hans" />
+                    <ComboBoxItem Content="简体中�? Tag="zh-Hans" />
                     <ComboBoxItem Content="繁體中文" Tag="zh-Hant" />
-                    <ComboBoxItem Content="日本語" Tag="ja" />
+                    <ComboBoxItem Content="日本�? Tag="ja" />
                 </ComboBox>
             </tk:SettingsCard>
 
