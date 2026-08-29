@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct DevicesView: View {
     @ObservedObject var networkManager = NetworkManager.shared
@@ -446,10 +447,64 @@ func getLocalizedString(_ key: String, language: String) -> String {
 struct CarpeCastApp: App {
     @StateObject var networkManager = NetworkManager.shared
     @StateObject var mediaManager = MediaManager.shared
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
+    }
+}
+
+class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
+    var statusItem: NSStatusItem!
+    weak var mainWindow: NSWindow?
+    
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        if let button = statusItem.button {
+            button.image = NSImage(systemSymbolName: "play.circle", accessibilityDescription: "CarpeCast")
+            button.image?.isTemplate = true
+        }
+        
+        let menu = NSMenu()
+        let showItem = NSMenuItem(title: "CarpeCast", action: #selector(showWindow), keyEquivalent: "")
+        showItem.target = self
+        menu.addItem(showItem)
+        menu.addItem(NSMenuItem.separator())
+        let quitItem = NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q")
+        quitItem.target = self
+        menu.addItem(quitItem)
+        statusItem.menu = menu
+        
+        DispatchQueue.main.async {
+            if let window = NSApp.windows.first(where: { $0.className.contains("AppKitWindow") }) {
+                self.mainWindow = window
+                window.delegate = self
+            }
+        }
+    }
+    
+    @objc func showWindow() {
+        NSApp.setActivationPolicy(.regular)
+        NSApp.activate(ignoringOtherApps: true)
+        mainWindow?.makeKeyAndOrderFront(nil)
+    }
+    
+    @objc func quitApp() {
+        NSApplication.shared.terminate(nil)
+    }
+    
+    func windowShouldClose(_ sender: NSWindow) -> Bool {
+        sender.orderOut(nil)
+        NSApp.setActivationPolicy(.accessory)
+        return false
+    }
+    
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if !flag {
+            showWindow()
+        }
+        return true
     }
 }
