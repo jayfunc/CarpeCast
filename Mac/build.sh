@@ -43,8 +43,9 @@ cp -R "$BUILD_DIR/mediaremote-adapter/build/MediaRemoteAdapter.framework" "$APP_
 cp "$BUILD_DIR/mediaremote-adapter/bin/mediaremote-adapter.pl" "$MACOS_DIR/mediaremote-adapter.pl"
 chmod +x "$MACOS_DIR/mediaremote-adapter.pl"
 
-# Copy Info.plist
+# Copy Info.plist and resources
 cp "$SRC_DIR/Info.plist" "$APP_BUNDLE/Contents/Info.plist"
+cp "$SRC_DIR/MenuBarIcon.png" "$RESOURCES_DIR/" || true
 
 # Create PkgInfo
 echo -n "APPL????" > "$APP_BUNDLE/Contents/PkgInfo"

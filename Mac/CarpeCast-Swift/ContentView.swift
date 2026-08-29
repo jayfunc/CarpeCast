@@ -469,10 +469,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem.button {
-            let appIcon = NSImage(named: "AppIcon") ?? NSImage(named: NSImage.applicationIconName)
-            if let icon = appIcon?.copy() as? NSImage {
-                icon.size = NSSize(width: 18, height: 18)
-                button.image = icon
+            if let menuBarIcon = NSImage(named: "MenuBarIcon") {
+                menuBarIcon.isTemplate = true
+                menuBarIcon.size = NSSize(width: 18, height: 18)
+                button.image = menuBarIcon
             } else {
                 button.image = NSImage(systemSymbolName: "play.circle", accessibilityDescription: "CarpeCast")
                 button.image?.isTemplate = true
