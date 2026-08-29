@@ -60,4 +60,10 @@
     <string name="settings_battery_optimization_desc">Prevent background sync from being killed</string>
     <string name="settings_auto_start">Auto-start</string>
     <string name="settings_auto_start_desc">Allow app to start in the background</string>
+
+    <!-- Foreground Service Notification -->
+    <string name="notification_channel_name">Background Sync</string>
+    <string name="notification_channel_desc">Keeps media sync running in the background</string>
+    <string name="notification_title_idle">Waiting for connection…</string>
+    <string name="notification_title_connected">Connected: %1$s</string>
 </resources>

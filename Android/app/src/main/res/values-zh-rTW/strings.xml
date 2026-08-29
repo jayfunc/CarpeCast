@@ -60,4 +60,10 @@
     <string name="settings_battery_optimization_desc">防止背景同步服務被系統強制關閉 (建議設為無限制)</string>
     <string name="settings_auto_start">自動啟動</string>
     <string name="settings_auto_start_desc">允許應用程式在背景執行並隨系統啟動</string>
+
+    <!-- Foreground Service Notification -->
+    <string name="notification_channel_name">背景同步</string>
+    <string name="notification_channel_desc">保持媒體同步在背景持續執行</string>
+    <string name="notification_title_idle">等待連線…</string>
+    <string name="notification_title_connected">已連線：%1$s</string>
 </resources>

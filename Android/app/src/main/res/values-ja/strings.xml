@@ -60,4 +60,10 @@
     <string name="settings_battery_optimization_desc">バックグラウンド同期の終了を防ぐ（制限なしを推奨）</string>
     <string name="settings_auto_start">自動起動</string>
     <string name="settings_auto_start_desc">アプリのバックグラウンド実行と自動起動を許可</string>
+
+    <!-- Foreground Service Notification -->
+    <string name="notification_channel_name">バックグラウンド同期</string>
+    <string name="notification_channel_desc">メディア同期をバックグラウンドで維持します</string>
+    <string name="notification_title_idle">接続を待機中…</string>
+    <string name="notification_title_connected">接続済み：%1$s</string>
 </resources>

@@ -60,4 +60,10 @@
     <string name="settings_battery_optimization_desc">防止后台同步服务被系统查杀（建议设为无限制）</string>
     <string name="settings_auto_start">自启动</string>
     <string name="settings_auto_start_desc">允许应用在后台运行并随系统启动</string>
+
+    <!-- Foreground Service Notification -->
+    <string name="notification_channel_name">后台同步</string>
+    <string name="notification_channel_desc">保持媒体同步在后台持续运行</string>
+    <string name="notification_title_idle">等待连接…</string>
+    <string name="notification_title_connected">已连接：%1$s</string>
 </resources>

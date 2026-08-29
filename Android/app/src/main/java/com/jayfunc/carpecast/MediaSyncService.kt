@@ -1,16 +1,27 @@
 package com.jayfunc.carpecast
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.media.MediaMetadata
 import android.media.session.MediaController
 import android.media.session.MediaSessionManager
 import android.media.session.PlaybackState
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
+import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
 import android.service.notification.NotificationListenerService
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -50,6 +61,28 @@ class MediaSyncService : NotificationListenerService() {
     private var isRunning = false
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + Job())
+
+    private var wakeLock: PowerManager.WakeLock? = null
+    private var wifiLock: WifiManager.WifiLock? = null
+    private var multicastLock: WifiManager.MulticastLock? = null
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
+
+    companion object {
+        private const val NOTIFICATION_ID = 1001
+        private const val CHANNEL_ID = "carpecast_bg_sync"
+    }
+
+    // When screen turns on, blast 3 rapid packets so Windows reconnects within milliseconds
+    private val screenReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == Intent.ACTION_SCREEN_ON) {
+                val mainHandler = Handler(Looper.getMainLooper())
+                repeat(3) { i ->
+                    mainHandler.postDelayed({ sendMediaState(activeControllers.firstOrNull()) }, i * 300L)
+                }
+            }
+        }
+    }
 
     private val settingsReceiver = object : android.content.BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -94,8 +127,106 @@ class MediaSyncService : NotificationListenerService() {
             }
         }
 
+        // Acquire a partial wake lock to keep CPU running in background/screen-off
+        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CarpeCast::NetworkWakeLock").apply {
+            acquire()
+        }
+
+        @Suppress("DEPRECATION")
+        val wm = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
+        // WifiLock: keep WiFi chip from deep-sleeping (deprecated on API 34 but still functional)
+        wifiLock = wm.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "CarpeCast::WifiLock").apply {
+            setReferenceCounted(false)
+            acquire()
+        }
+
+        // MulticastLock: prevent WiFi driver from filtering multicast/broadcast frames.
+        // Holding this lock forces the chip to process all incoming multicast traffic,
+        // which typically keeps it in a more active power state.
+        multicastLock = wm.createMulticastLock("CarpeCast::MulticastLock").apply {
+            setReferenceCounted(false)
+            acquire()
+        }
+
+        // requestNetwork: explicitly signal to the OS that we need a WiFi network.
+        // This can prevent the system from suspending the WiFi interface for our process.
+        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                // Network came back (e.g. screen turned on) - immediately send state
+                Handler(Looper.getMainLooper()).post {
+                    sendMediaState(activeControllers.firstOrNull())
+                }
+            }
+        }
+        try {
+            val request = NetworkRequest.Builder()
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .build()
+            cm.requestNetwork(request, networkCallback!!)
+        } catch (e: Exception) {
+            Log.w(TAG, "requestNetwork failed: $e")
+        }
+
+        // ACTION_SCREEN_ON: send burst of packets the moment screen turns on
+        // so Windows connection restores within milliseconds regardless of screen-off behaviour
+        registerReceiver(screenReceiver, android.content.IntentFilter(Intent.ACTION_SCREEN_ON))
+
+        // Start as foreground service with a persistent notification
+        createNotificationChannel()
+        startForeground(NOTIFICATION_ID, buildNotification(targetConnectedPcIp?.let { pcInfoMap[it]?.name }))
+
         startNetworkThreads()
     }
+
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                getString(R.string.notification_channel_name),
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = getString(R.string.notification_channel_desc)
+                setShowBadge(false)
+            }
+            val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            nm.createNotificationChannel(channel)
+        }
+    }
+
+    private fun buildNotification(connectedPcName: String?): android.app.Notification {
+        val openIntent = PendingIntent.getActivity(
+            this, 0,
+            Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val contentText = if (connectedPcName != null) {
+            getString(R.string.notification_title_connected, connectedPcName)
+        } else {
+            getString(R.string.notification_title_idle)
+        }
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle(getString(R.string.app_name))
+            .setContentText(contentText)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentIntent(openIntent)
+            .setOngoing(true)
+            .setSilent(true)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .build()
+    }
+
+    private fun updateForegroundNotification(connectedPcName: String?) {
+        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        nm.notify(NOTIFICATION_ID, buildNotification(connectedPcName))
+    }
+
+
 
     override fun onListenerConnected() {
         super.onListenerConnected()
@@ -392,7 +523,9 @@ class MediaSyncService : NotificationListenerService() {
                         MediaStateRepository.updateSelectedPcIp(ipStr)
                         // Reset art key so the next send includes the current art for the new receiver
                         lastSentTrackKey = ""
+                        val pcName = ipStr?.let { pcInfoMap[it]?.name }
                         Handler(Looper.getMainLooper()).post {
+                            updateForegroundNotification(pcName)
                             sendMediaState(activeControllers.firstOrNull())
                         }
                     } else if (cmd == "DISCONNECT_REQUEST") {
@@ -401,6 +534,9 @@ class MediaSyncService : NotificationListenerService() {
                         if (selectedPcIp?.hostAddress == packet.address.hostAddress) {
                             selectedPcIp = null
                             MediaStateRepository.updateSelectedPcIp(null)
+                        }
+                        Handler(Looper.getMainLooper()).post {
+                            updateForegroundNotification(null)
                         }
                     } else {
                         handleCommand(cmd)
@@ -429,17 +565,26 @@ class MediaSyncService : NotificationListenerService() {
                         
                         val msg = "CARPECAST_SENDER:$deviceName:$commandPort:$devType:Android $osVersion"
                         val data = msg.toByteArray()
+                        // Broadcast so new PCs can discover us
                         val packet = DatagramPacket(data, data.size, broadcastAddress, 5003)
                         broadcastSocket.send(packet)
+                        // Also send unicast to the connected PC if any, to pierce WiFi power-save
+                        val connectedIp = selectedPcIp
+                        if (connectedIp != null) {
+                            val unicastPacket = DatagramPacket(data, data.size, connectedIp, 5003)
+                            broadcastSocket.send(unicastPacket)
+                        }
                     } catch (e: Exception) {
                     }
-                    Thread.sleep(2000)
+                    // 1 second interval: Windows times out after 5 s, giving us 4 retries before dropout
+                    Thread.sleep(1000)
                 }
             } catch (e: Exception) {
             }
         }.start()
 
     }
+
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val action = intent?.action
@@ -452,6 +597,7 @@ class MediaSyncService : NotificationListenerService() {
                 selectedPcIp = discoveredPcs[ipStr]
                 MediaStateRepository.updateSelectedPcIp(ipStr)
                 lastSentTrackKey = "" // Reset so art is included in the first packet to new receiver
+                updateForegroundNotification(pcInfoMap[ipStr]?.name)
                 sendMediaState(activeControllers.firstOrNull())
             }
             return START_STICKY
@@ -463,6 +609,7 @@ class MediaSyncService : NotificationListenerService() {
             getSharedPreferences("settings", Context.MODE_PRIVATE).edit().remove("targetConnectedPcIp").apply()
             selectedPcIp = null
             MediaStateRepository.updateSelectedPcIp(null)
+            updateForegroundNotification(null)
             return START_STICKY
         }
 
@@ -546,10 +693,22 @@ class MediaSyncService : NotificationListenerService() {
 
     override fun onDestroy() {
         unregisterReceiver(settingsReceiver)
+        try { unregisterReceiver(screenReceiver) } catch (e: Exception) {}
         isRunning = false
         discoverySocket?.close()
         dataSocket?.close()
         commandSocket?.close()
+        wakeLock?.let { if (it.isHeld) it.release() }
+        wifiLock?.let { if (it.isHeld) it.release() }
+        multicastLock?.let { if (it.isHeld) it.release() }
+        networkCallback?.let {
+            try {
+                (getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager)
+                    .unregisterNetworkCallback(it)
+            } catch (e: Exception) {}
+        }
         super.onDestroy()
     }
+
+
 }
