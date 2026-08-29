@@ -94,7 +94,7 @@
                     </tk:SettingsCard>
                     <tk:SettingsCard x:Uid="SenderDiscoveryPortCard">
                         <tk:SettingsCard.Header>
-                            <TextBlock x:Uid="SenderDiscoveryPortLabel" Text="Data Port" />
+                            <TextBlock x:Uid="SenderDiscoveryPortLabel" Text="Sender Discovery Port" />
                         </tk:SettingsCard.Header>
                         <NumberBox
                             Width="100"
@@ -142,9 +142,9 @@
                         Content="System default"
                         Tag="" />
                     <ComboBoxItem Content="English" Tag="en-US" />
-                    <ComboBoxItem Content="简体中�? Tag="zh-Hans" />
+                    <ComboBoxItem Content="简体中文" Tag="zh-Hans" />
                     <ComboBoxItem Content="繁體中文" Tag="zh-Hant" />
-                    <ComboBoxItem Content="日本�? Tag="ja" />
+                    <ComboBoxItem Content="日本語" Tag="ja" />
                 </ComboBox>
             </tk:SettingsCard>
 

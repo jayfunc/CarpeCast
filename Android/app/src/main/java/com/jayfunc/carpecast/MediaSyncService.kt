@@ -107,7 +107,6 @@ class MediaSyncService : NotificationListenerService() {
         isRunning = true
 
         val prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
-        deviceName = prefs.getString("device_name", android.os.Build.MODEL) ?: android.os.Build.MODEL
         discoveryPort = prefs.getInt("discovery_port", 5001)
         senderDiscoveryPort = prefs.getInt("sender_discovery_port", 5003)
         // commandPort is dynamically allocated now, no need to read it from prefs

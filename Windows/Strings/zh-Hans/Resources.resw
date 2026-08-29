@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -45,42 +45,42 @@
   <data name="ThemeLight.Content" xml:space="preserve"><value>浅色</value></data>
   <data name="ThemeDark.Content" xml:space="preserve"><value>深色</value></data>
   <data name="LanguageLabel.Text" xml:space="preserve"><value>语言</value></data>
-  <data name="LanguageRestartNote.Text" xml:space="preserve"><value>重启应用后完全生�?/value></data>
-  <data name="StatusWaiting.Text" xml:space="preserve"><value>等待连接�?..</value></data>
+  <data name="LanguageRestartNote.Text" xml:space="preserve"><value>重启应用后完全生效</value></data>
+  <data name="StatusWaiting.Text" xml:space="preserve"><value>等待连接中...</value></data>
   <data name="NoMediaPlaying.Text" xml:space="preserve"><value>暂无媒体播放</value></data>
-  <data name="UnknownArtist.Text" xml:space="preserve"><value>未知艺术�?/value></data>
+  <data name="UnknownArtist.Text" xml:space="preserve"><value>未知艺术家</value></data>
   <data name="UnknownAlbum.Text" xml:space="preserve"><value>未知专辑</value></data>
-  <data name="TrayShowPlayer.Text" xml:space="preserve"><value>显示播放�?/value></data>
-  <data name="TrayExit.Text" xml:space="preserve"><value>退�?/value></data>
+  <data name="TrayShowPlayer.Text" xml:space="preserve"><value>显示播放器</value></data>
+  <data name="TrayExit.Text" xml:space="preserve"><value>退出</value></data>
   <data name="DeviceNameLabel.Text" xml:space="preserve"><value>设备名称</value></data>
   <data name="DiscoveryPortLabel.Text" xml:space="preserve"><value>发现端口</value></data>
-  <data name="SenderDiscoveryPortLabel.Text" xml:space="preserve"><value>数据端口</value></data>
+  <data name="SenderDiscoveryPortLabel.Text" xml:space="preserve"><value>发送端发现端口</value></data>
   <data name="CommandPortLabel.Text" xml:space="preserve"><value>指令端口</value></data>
-  <data name="DiscoveryPortCard.Description" xml:space="preserve"><value>用于在局域网内广播存在。（默认�?001�?/value></data>
-  <data name="SenderDiscoveryPortCard.Description" xml:space="preserve"><value>用于接收手机发来的音乐信息。（默认�?000�?/value></data>
-  <data name="CommandPortCard.Description" xml:space="preserve"><value>用于向手机发送播�?暂停控制指令。（默认�?002�?/value></data>
-  <data name="SaveSettingsBtn.Content" xml:space="preserve"><value>保存并重�?/value></data>
-  <data name="DeviceNameCard.Description" xml:space="preserve"><value>在局域网中标识这台电�?/value></data>
+  <data name="DiscoveryPortCard.Description" xml:space="preserve"><value>用于在局域网内广播存在。（默认：5001）</value></data>
+  <data name="SenderDiscoveryPortCard.Description" xml:space="preserve"><value>用于发现并接收发送端的广播信息。（默认：5003）</value></data>
+  <data name="CommandPortCard.Description" xml:space="preserve"><value>用于向手机发送播放/暂停控制指令。（默认：5002）</value></data>
+  <data name="SaveSettingsBtn.Content" xml:space="preserve"><value>保存并重启</value></data>
+  <data name="DeviceNameCard.Description" xml:space="preserve"><value>在局域网中标识这台电脑</value></data>
   <data name="NetworkPortsLabel.Text" xml:space="preserve"><value>网络端口</value></data>
-  <data name="NetworkPortsExpander.Description" xml:space="preserve"><value>用于局域网通讯�?UDP 端口</value></data>
+  <data name="NetworkPortsExpander.Description" xml:space="preserve"><value>用于局域网通讯的 UDP 端口</value></data>
   <data name="LanguageCard.Description" xml:space="preserve"><value>需要重启应用后生效</value></data>
   <data name="NavPlayer.Content" xml:space="preserve"><value>播放控制</value></data>
-  <data name="NavDevices.Content" xml:space="preserve"><value>设备状�?/value></data>
-  <data name="DevicesTitle.Text" xml:space="preserve"><value>设备状�?/value></data>
+  <data name="NavDevices.Content" xml:space="preserve"><value>设备状态</value></data>
+  <data name="DevicesTitle.Text" xml:space="preserve"><value>设备状态</value></data>
   <data name="DevicesDescription.Text" xml:space="preserve"><value></value></data>
-  <data name="DevicesWaiting.Text" xml:space="preserve"><value>等待连接�?..</value></data>
+  <data name="DevicesWaiting.Text" xml:space="preserve"><value>等待连接中...</value></data>
   <data name="DevicesDisconnect.Text" xml:space="preserve"><value>断开连接</value></data>
   <data name="RestoreDefaultBtn.Content" xml:space="preserve"><value>恢复默认</value></data>
-  <data name="RestartPromptInfoBar.Title" xml:space="preserve"><value>需要重�?/value></data>
-  <data name="RestartPromptInfoBar.Message" xml:space="preserve"><value>部分设置需要在重启应用后才会生效�?/value></data>
+  <data name="RestartPromptInfoBar.Title" xml:space="preserve"><value>需要重启</value></data>
+  <data name="RestartPromptInfoBar.Message" xml:space="preserve"><value>部分设置需要在重启应用后才会生效。</value></data>
   <data name="RestartNowBtn.Content" xml:space="preserve"><value>立即重启</value></data>
   <data name="ShowOnStartupLabel.Text" xml:space="preserve"><value>自动启动时显示主窗口</value></data>
   <data name="SystemStartupLabel.Text" xml:space="preserve"><value>打开 Windows 自启设置</value></data>
-  <data name="SystemStartupDesc.Text" xml:space="preserve"><value>配置 CarpeCast 是否在登�?Windows 时自动启动�?/value></data>
+  <data name="SystemStartupDesc.Text" xml:space="preserve"><value>配置 CarpeCast 是否在登录 Windows 时自动启动。</value></data>
   <data name="AboutBetterLyricsTitle.Text" xml:space="preserve"><value>BetterLyrics</value></data>
-  <data name="AboutBetterLyricsDesc.Text" xml:space="preserve"><value>推荐搭配 BetterLyrics 获得最佳的桌面歌词体验�?/value></data>
-  <data name="DownloadAndroidTitle.Text" xml:space="preserve"><value>下载安卓�?CarpeCast</value></data>
-  <data name="DownloadAndroidDesc.Text" xml:space="preserve"><value>在手机上安装 CarpeCast 以实现音乐同步�?/value></data>
+  <data name="AboutBetterLyricsDesc.Text" xml:space="preserve"><value>推荐搭配 BetterLyrics 获得最佳的桌面歌词体验。</value></data>
+  <data name="DownloadAndroidTitle.Text" xml:space="preserve"><value>下载安卓版 CarpeCast</value></data>
+  <data name="DownloadAndroidDesc.Text" xml:space="preserve"><value>在手机上安装 CarpeCast 以实现音乐同步。</value></data>
   <data name="SelectDevice.PlaceholderText" xml:space="preserve">
     <value>选择设备</value>
   </data>

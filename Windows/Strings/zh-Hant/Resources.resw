@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -45,42 +45,42 @@
   <data name="ThemeLight.Content" xml:space="preserve"><value>淺色</value></data>
   <data name="ThemeDark.Content" xml:space="preserve"><value>深色</value></data>
   <data name="LanguageLabel.Text" xml:space="preserve"><value>語言</value></data>
-  <data name="LanguageRestartNote.Text" xml:space="preserve"><value>重啟應用程式後完全生�?/value></data>
-  <data name="StatusWaiting.Text" xml:space="preserve"><value>等待連線�?..</value></data>
+  <data name="LanguageRestartNote.Text" xml:space="preserve"><value>重啟應用程式後完全生效</value></data>
+  <data name="StatusWaiting.Text" xml:space="preserve"><value>等待連線中...</value></data>
   <data name="NoMediaPlaying.Text" xml:space="preserve"><value>暫無媒體播放</value></data>
-  <data name="UnknownArtist.Text" xml:space="preserve"><value>未知藝術�?/value></data>
+  <data name="UnknownArtist.Text" xml:space="preserve"><value>未知藝術家</value></data>
   <data name="UnknownAlbum.Text" xml:space="preserve"><value>未知專輯</value></data>
-  <data name="TrayShowPlayer.Text" xml:space="preserve"><value>顯示播放�?/value></data>
-  <data name="TrayExit.Text" xml:space="preserve"><value>退�?/value></data>
+  <data name="TrayShowPlayer.Text" xml:space="preserve"><value>顯示播放器</value></data>
+  <data name="TrayExit.Text" xml:space="preserve"><value>退出</value></data>
   <data name="DeviceNameLabel.Text" xml:space="preserve"><value>裝置名稱</value></data>
-  <data name="DiscoveryPortLabel.Text" xml:space="preserve"><value>發現連接�?/value></data>
-  <data name="SenderDiscoveryPortLabel.Text" xml:space="preserve"><value>資料連接�?/value></data>
-  <data name="CommandPortLabel.Text" xml:space="preserve"><value>指令連接�?/value></data>
-  <data name="DiscoveryPortCard.Description" xml:space="preserve"><value>用於在區域網路內廣播存在。（預設�?001�?/value></data>
-  <data name="SenderDiscoveryPortCard.Description" xml:space="preserve"><value>用於接收手機發來的音樂資訊。（預設�?000�?/value></data>
-  <data name="CommandPortCard.Description" xml:space="preserve"><value>用於向手機發送播�?暫停控制指令。（預設�?002�?/value></data>
-  <data name="SaveSettingsBtn.Content" xml:space="preserve"><value>儲存並重�?/value></data>
+  <data name="DiscoveryPortLabel.Text" xml:space="preserve"><value>發現連接埠</value></data>
+  <data name="SenderDiscoveryPortLabel.Text" xml:space="preserve"><value>發送端發現連接埠</value></data>
+  <data name="CommandPortLabel.Text" xml:space="preserve"><value>指令連接埠</value></data>
+  <data name="DiscoveryPortCard.Description" xml:space="preserve"><value>用於在區域網路內廣播存在。（預設：5001）</value></data>
+  <data name="SenderDiscoveryPortCard.Description" xml:space="preserve"><value>用於發現並接收發送端的廣播資訊。（預設：5003）</value></data>
+  <data name="CommandPortCard.Description" xml:space="preserve"><value>用於向手機發送播放/暫停控制指令。（預設：5002）</value></data>
+  <data name="SaveSettingsBtn.Content" xml:space="preserve"><value>儲存並重啟</value></data>
   <data name="DeviceNameCard.Description" xml:space="preserve"><value>在區域網路中標識這台電腦</value></data>
-  <data name="NetworkPortsLabel.Text" xml:space="preserve"><value>網路連接�?/value></data>
-  <data name="NetworkPortsExpander.Description" xml:space="preserve"><value>用於區域網路通訊�?UDP 連接�?/value></data>
+  <data name="NetworkPortsLabel.Text" xml:space="preserve"><value>網路連接埠</value></data>
+  <data name="NetworkPortsExpander.Description" xml:space="preserve"><value>用於區域網路通訊的 UDP 連接埠</value></data>
   <data name="LanguageCard.Description" xml:space="preserve"><value>需要重啟應用程式後生效</value></data>
   <data name="NavPlayer.Content" xml:space="preserve"><value>播放控制</value></data>
-  <data name="NavDevices.Content" xml:space="preserve"><value>設備狀�?/value></data>
-  <data name="DevicesTitle.Text" xml:space="preserve"><value>設備狀�?/value></data>
+  <data name="NavDevices.Content" xml:space="preserve"><value>設備狀態</value></data>
+  <data name="DevicesTitle.Text" xml:space="preserve"><value>設備狀態</value></data>
   <data name="DevicesDescription.Text" xml:space="preserve"><value></value></data>
-  <data name="DevicesWaiting.Text" xml:space="preserve"><value>等待連線�?..</value></data>
+  <data name="DevicesWaiting.Text" xml:space="preserve"><value>等待連線中...</value></data>
   <data name="DevicesDisconnect.Text" xml:space="preserve"><value>斷開連線</value></data>
   <data name="RestoreDefaultBtn.Content" xml:space="preserve"><value>恢復預設</value></data>
-  <data name="RestartPromptInfoBar.Title" xml:space="preserve"><value>需要重�?/value></data>
-  <data name="RestartPromptInfoBar.Message" xml:space="preserve"><value>部分設定需要在重啟應用程式後才會生效�?/value></data>
+  <data name="RestartPromptInfoBar.Title" xml:space="preserve"><value>需要重啟</value></data>
+  <data name="RestartPromptInfoBar.Message" xml:space="preserve"><value>部分設定需要在重啟應用程式後才會生效。</value></data>
   <data name="RestartNowBtn.Content" xml:space="preserve"><value>立即重啟</value></data>
   <data name="ShowOnStartupLabel.Text" xml:space="preserve"><value>自動啟動時顯示主視窗</value></data>
   <data name="SystemStartupLabel.Text" xml:space="preserve"><value>打開 Windows 自啟設定</value></data>
-  <data name="SystemStartupDesc.Text" xml:space="preserve"><value>配置 CarpeCast 是否在登�?Windows 時自動啟動�?/value></data>
+  <data name="SystemStartupDesc.Text" xml:space="preserve"><value>配置 CarpeCast 是否在登入 Windows 時自動啟動。</value></data>
   <data name="AboutBetterLyricsTitle.Text" xml:space="preserve"><value>BetterLyrics</value></data>
-  <data name="AboutBetterLyricsDesc.Text" xml:space="preserve"><value>推薦搭配 BetterLyrics 獲得最佳的桌面歌詞體驗�?/value></data>
-  <data name="DownloadAndroidTitle.Text" xml:space="preserve"><value>下載安卓�?CarpeCast</value></data>
-  <data name="DownloadAndroidDesc.Text" xml:space="preserve"><value>在手機上安裝 CarpeCast 以實現音樂同步�?/value></data>
+  <data name="AboutBetterLyricsDesc.Text" xml:space="preserve"><value>推薦搭配 BetterLyrics 獲得最佳的桌面歌詞體驗。</value></data>
+  <data name="DownloadAndroidTitle.Text" xml:space="preserve"><value>下載安卓版 CarpeCast</value></data>
+  <data name="DownloadAndroidDesc.Text" xml:space="preserve"><value>在手機上安裝 CarpeCast 以實現音樂同步。</value></data>
   <data name="SelectDevice.PlaceholderText" xml:space="preserve">
     <value>選擇裝置</value>
   </data>
