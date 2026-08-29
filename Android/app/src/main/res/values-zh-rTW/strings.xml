@@ -6,20 +6,20 @@
     <string name="unknown_artist">未知歌手</string>
     <string name="unknown_album">未知專輯</string>
     <string name="status_playing">正在播放</string>
-    <string name="status_paused">已暫停</string>
-    <string name="status_stopped">已停止</string>
+    <string name="status_paused">已暫�?/string>
+    <string name="status_stopped">已停�?/string>
     <string name="app_name_placeholder">音樂</string>
 
     <!-- Device Status Strings -->
-    <string name="syncing_to_pc">正在同步至電腦: %1$s</string>
+    <string name="syncing_to_pc">正在同步至電�? %1$s</string>
     <string name="waiting_for_pc">正在等待電腦端連線...</string>
-    <string name="connection_status">連線狀態</string>
+    <string name="connection_status">連線狀�?/string>
     <string name="grant_service_permission">授予通知監聽權限</string>
     <string name="disconnect">斷開連線</string>
 
     <!-- Bottom Navigation -->
     <string name="nav_player">播放控制</string>
-    <string name="nav_devices">設備狀態</string>
+    <string name="nav_devices">設備狀�?/string>
     <string name="nav_settings">設定</string>
 
     <!-- Settings -->
@@ -36,34 +36,36 @@
     <string name="language_english">English</string>
     <string name="language_chinese">簡體中文</string>
     <string name="language_chinese_traditional">繁體中文</string>
-    <string name="language_japanese">日本語</string>
+    <string name="language_japanese">日本�?/string>
     <string name="settings_device_name">裝置名稱</string>
     <string name="restore_default">恢復預設</string>
-    <string name="settings_discovery_port">發現連接埠</string>
-    <string name="settings_discovery_port_desc">用於在區域網路中發現裝置。預設: 5001</string>
-    <string name="settings_command_port">命令接收連接埠</string>
-    <string name="settings_command_port_desc">用於接收來自電腦的播放/暫停等指令。預設: 5002</string>
+    <string name="settings_discovery_port">發現連接�?/string>
+    <string name="settings_discovery_port_desc">用於在區域網路中發現裝置。預�? 5001</string>
+    <string name="settings_sender_discovery_port">�l�Ͷ˰l�F�B�Ӳ�</string>
+    <string name="settings_sender_discovery_port_desc">��춏V�������Ա����ն˰l�F���B�Ӳ���</string>
+    <string name="settings_command_port">命令接收連接�?/string>
+    <string name="settings_command_port_desc">用於接收來自電腦的播�?暫停等指令。預�? 5002</string>
     <string name="settings_allowed_sources">允許的播放源</string>
     <string name="settings_allowed_sources_desc">選擇要同步播放狀態的應用程式</string>
     <string name="dialog_allowed_sources_title">選擇允許的播放源</string>
-    <string name="allow_all_sources">允許所有應用程式</string>
+    <string name="allow_all_sources">允許所有應用程�?/string>
     <string name="no_media_apps_found">未找到音樂播放器</string>
-    <string name="settings_save_restart">儲存並重啟服務</string>
+    <string name="settings_save_restart">儲存並重啟服�?/string>
 
     <string name="settings_recommended">推薦</string>
-    <string name="settings_betterlyrics_desc">推薦搭配 BetterLyrics 獲得最佳的桌面歌詞體驗。</string>
-    <string name="settings_download_windows_title">下載 PC 版 CarpeCast</string>
-    <string name="settings_download_windows_desc">在電腦上安裝 CarpeCast 以實現音樂同步。</string>
+    <string name="settings_betterlyrics_desc">推薦搭配 BetterLyrics 獲得最佳的桌面歌詞體驗�?/string>
+    <string name="settings_download_windows_title">下載 PC �?CarpeCast</string>
+    <string name="settings_download_windows_desc">在電腦上安裝 CarpeCast 以實現音樂同步�?/string>
 
     <string name="settings_system_permissions">系統權限</string>
     <string name="settings_battery_optimization">電池策略 (背景執行)</string>
-    <string name="settings_battery_optimization_desc">防止背景同步服務被系統強制關閉 (建議設為無限制)</string>
+    <string name="settings_battery_optimization_desc">防止背景同步服務被系統強制關�?(建議設為無限�?</string>
     <string name="settings_auto_start">自動啟動</string>
-    <string name="settings_auto_start_desc">允許應用程式在背景執行並隨系統啟動</string>
+    <string name="settings_auto_start_desc">允許應用程式在背景執行並隨系統啟�?/string>
 
     <!-- Foreground Service Notification -->
     <string name="notification_channel_name">背景同步</string>
-    <string name="notification_channel_desc">保持媒體同步在背景持續執行</string>
-    <string name="notification_title_idle">等待連線…</string>
-    <string name="notification_title_connected">已連線：%1$s</string>
+    <string name="notification_channel_desc">保持媒體同步在背景持續執�?/string>
+    <string name="notification_title_idle">等待連線�?/string>
+    <string name="notification_title_connected">已連線�?1$s</string>
 </resources>

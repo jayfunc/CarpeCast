@@ -752,7 +752,7 @@ fun SettingsScreen(onNavigateToSources: () -> Unit) {
         )
     }
     var discoveryPort by remember { mutableIntStateOf(prefs.getInt("discovery_port", 5001)) }
-    var commandPort by remember { mutableIntStateOf(prefs.getInt("command_port", 5002)) }
+    var senderDiscoveryPort by remember { mutableIntStateOf(prefs.getInt("sender_discovery_port", 5003)) }
 
     var currentTheme by remember {
         mutableIntStateOf(
@@ -769,6 +769,7 @@ fun SettingsScreen(onNavigateToSources: () -> Unit) {
 
     var showNameDialog by remember { mutableStateOf(false) }
     var showDiscoveryPortDialog by remember { mutableStateOf(false) }
+    var showSenderDiscoveryPortDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -969,8 +970,16 @@ fun SettingsScreen(onNavigateToSources: () -> Unit) {
                 desc = stringResource(R.string.settings_discovery_port_desc),
                 value = discoveryPort.toString(),
                 icon = R.drawable.ic_settings,
-                position = SettingItemPosition.Bottom
+                position = SettingItemPosition.Middle
             ) { showDiscoveryPortDialog = true }
+
+            SettingItem(
+                title = stringResource(R.string.settings_sender_discovery_port),
+                desc = stringResource(R.string.settings_sender_discovery_port_desc),
+                value = senderDiscoveryPort.toString(),
+                icon = R.drawable.ic_settings,
+                position = SettingItemPosition.Bottom
+            ) { showSenderDiscoveryPortDialog = true }
         }
 
         SettingsGroup(title = stringResource(R.string.settings_recommended)) {
@@ -1044,6 +1053,27 @@ fun SettingsScreen(onNavigateToSources: () -> Unit) {
                     })
                 }
                 showDiscoveryPortDialog = false
+            })
+    }
+
+    if (showSenderDiscoveryPortDialog) {
+        InputDialog(
+            title = stringResource(R.string.settings_sender_discovery_port),
+            initialValue = senderDiscoveryPort.toString(),
+            isNumber = true,
+            onDismiss = { showSenderDiscoveryPortDialog = false },
+            onConfirm = {
+                val port = it.toIntOrNull()
+                if (port != null && port in 1..65535) {
+                    prefs.edit().putInt("sender_discovery_port", port).apply()
+                    senderDiscoveryPort = port
+                    context.sendBroadcast(Intent("com.jayfunc.carpecast.RELOAD_SETTINGS").apply {
+                        setPackage(
+                            context.packageName
+                        )
+                    })
+                }
+                showSenderDiscoveryPortDialog = false
             })
     }
 

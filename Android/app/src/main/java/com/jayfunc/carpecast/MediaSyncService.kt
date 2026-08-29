@@ -49,7 +49,8 @@ class MediaSyncService : NotificationListenerService() {
     private val pcDataPorts = ConcurrentHashMap<String, Int>()
     private val pcInfoMap = ConcurrentHashMap<String, PcInfo>()
     private var discoveryPort = 5001
-    private var commandPort = 5002
+    private var senderDiscoveryPort = 5003
+    private var commandPort = 0
 
     private var targetConnectedPcIp: String? = null
 
@@ -106,8 +107,11 @@ class MediaSyncService : NotificationListenerService() {
         isRunning = true
 
         val prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
+        deviceName = prefs.getString("device_name", android.os.Build.MODEL) ?: android.os.Build.MODEL
         discoveryPort = prefs.getInt("discovery_port", 5001)
-        commandPort = prefs.getInt("command_port", 5002)
+        senderDiscoveryPort = prefs.getInt("sender_discovery_port", 5003)
+        // commandPort is dynamically allocated now, no need to read it from prefs
+        
         targetConnectedPcIp = prefs.getString("targetConnectedPcIp", null)
         
         targetConnectedPcIp?.let { ipStr ->
@@ -566,12 +570,12 @@ class MediaSyncService : NotificationListenerService() {
                         val msg = "CARPECAST_SENDER:$deviceName:$commandPort:$devType:Android $osVersion"
                         val data = msg.toByteArray()
                         // Broadcast so new PCs can discover us
-                        val packet = DatagramPacket(data, data.size, broadcastAddress, 5003)
+                        val packet = DatagramPacket(data, data.size, broadcastAddress, senderDiscoveryPort)
                         broadcastSocket.send(packet)
                         // Also send unicast to the connected PC if any, to pierce WiFi power-save
                         val connectedIp = selectedPcIp
                         if (connectedIp != null) {
-                            val unicastPacket = DatagramPacket(data, data.size, connectedIp, 5003)
+                            val unicastPacket = DatagramPacket(data, data.size, connectedIp, senderDiscoveryPort)
                             broadcastSocket.send(unicastPacket)
                         }
                     } catch (e: Exception) {
