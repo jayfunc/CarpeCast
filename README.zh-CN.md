@@ -4,13 +4,13 @@
   <img src="Windows/Assets/StoreLogo.scale-200.png" alt="CarpeCast logo" width="128">
 </p>
 
-<h1 align="center">CarpeCast</h1>
+<h1 align="center">CarpeCast 拾音</h1>
 
 <p align="center">
   <strong>项目文档:</strong> <a href="https://carpecast.github.io/">https://carpecast.github.io/</a>
 </p>
 
-CarpeCast 是一个在局域网内将 Android 或 macOS 设备的媒体播放状态同步到 Windows 的应用。Windows 端显示正在播放的歌曲和进度，并可远程控制发送端上的播放、暂停、上一首和下一首。
+CarpeCast 拾音 是一个在局域网内将 Android 或 macOS 设备的媒体播放状态同步到 Windows 的应用。Windows 端显示正在播放的歌曲和进度，并可远程控制发送端上的播放、暂停、上一首和下一首。
 
 ## 下载
 

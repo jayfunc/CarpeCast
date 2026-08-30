@@ -4,7 +4,7 @@ English | [简体中文](README.zh-CN.md)
   <img src="Windows/Assets/StoreLogo.scale-200.png" alt="CarpeCast logo" width="128">
 </p>
 
-<h1 align="center">CarpeCast</h1>
+<h1 align="center">CarpeCast 拾音</h1>
 
 <p align="center">
   <strong>Documentation:</strong> <a href="https://carpecast.github.io/">https://carpecast.github.io/</a>
