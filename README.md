@@ -12,7 +12,7 @@ CarpeCast is a local-network application suite that syncs media playback from an
 
 ## Download
 
-- **Windows**: [GitHub Releases](https://github.com/jayfunc/CarpeCast/releases)
+- **Windows**: [GitHub Releases](https://github.com/jayfunc/CarpeCast/releases) | [Microsoft Store](https://apps.microsoft.com/detail/9PNM741WNTGZ)
 - **Android**: [GitHub Releases](https://github.com/jayfunc/CarpeCast/releases)
 - **Mac (Experimental)**: [GitHub Releases](https://github.com/jayfunc/CarpeCast/releases)
 
@@ -20,16 +20,17 @@ CarpeCast is a local-network application suite that syncs media playback from an
 
 - Automatically discovers Windows receivers on the same local network
 - Syncs title, artist, album, playback state, and progress
-- Controls Android media sessions from Windows: play/pause, previous, and next
+- Controls Android and macOS media sessions from Windows: play/pause, previous, and next
 - Supports Windows System Media Transport Controls (SMTC)
+- Windows app minimizes to the system tray to run quietly in the background
 - Lets Android users choose which media applications may be synced
 - Provides device name, port, theme, and language settings on both platforms
 
 ## How It Works
 
 1. The Windows receiver broadcasts its details over UDP every two seconds.
-2. After discovering a receiver, Android reads authorized media sessions and sends playback state to it.
-3. Windows displays the state and sends user playback commands back to Android over UDP.
+2. After discovering a receiver, the Android or macOS sender reads media sessions and sends playback state to it.
+3. Windows displays the state and sends user playback commands back to the sender over UDP.
 
 All traffic stays on the local network; no cloud service is required.
 
@@ -47,9 +48,9 @@ If the devices are not discovered, make sure their discovery ports match and tha
 
 | Purpose | Default port | Description |
 | --- | ---: | --- |
-| Device discovery | UDP 5001 | Broadcast by Windows and received by Android |
-| Media state | UDP 5000 | Sent from Android to Windows |
-| Playback commands | Dynamic | Sent from Windows to Android (port is assigned dynamically) |
+| Device discovery | UDP 5001 | Broadcast by Windows and received by senders |
+| Media state | UDP 5000 | Sent from sender to Windows |
+| Playback commands | Dynamic | Sent from Windows to sender (port is assigned dynamically) |
 
 The Windows app can change its discovery and media-data ports. The Android app can change its discovery port. Keep the discovery ports aligned on both devices.
 
