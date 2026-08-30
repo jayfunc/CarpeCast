@@ -1,3 +1,5 @@
+English | [简体中文](README.zh-CN.md)
+
 <p align="center">
   <img src="Windows/Assets/StoreLogo.scale-200.png" alt="CarpeCast logo" width="128">
 </p>
@@ -5,7 +7,7 @@
 <h1 align="center">CarpeCast</h1>
 
 <p align="center">
-  <a href="README.md">English</a> | <a href="README.zh-CN.md">简体中文</a>
+  <strong>Documentation:</strong> <a href="https://carpecast.github.io/">https://carpecast.github.io/</a>
 </p>
 
 CarpeCast is a local-network application suite that syncs media playback from an Android or macOS device to Windows. The Windows app displays the currently playing track and its progress, and can remotely play, pause, skip to the previous track, or skip to the next track on the sender device.
