@@ -14,8 +14,8 @@ android {
         applicationId = "com.jayfunc.carpecast"
         minSdk = 26
         targetSdk = 35
-        versionCode = 104
-        versionName = "1.0.4"
+        versionCode = 105
+        versionName = "1.0.5"
         
         buildConfigField("String", "GIT_DATE", "\"${gitDate}\"")
         buildConfigField("String", "GIT_HASH", "\"${gitHash}\"")
