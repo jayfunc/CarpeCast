@@ -798,7 +798,7 @@ fun SettingsScreen(onNavigateToSources: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.mipmap.ic_launcher),
+                painter = painterResource(id = R.drawable.ic_app_logo),
                 contentDescription = null,
                 modifier = Modifier
                     .size(80.dp)
