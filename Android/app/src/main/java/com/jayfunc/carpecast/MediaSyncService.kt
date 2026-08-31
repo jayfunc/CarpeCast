@@ -437,6 +437,11 @@ class MediaSyncService : NotificationListenerService() {
                                 MediaStateRepository.updateAvailablePcs(
                                     discoveredPcs.keys().toList(), pcInfoMap.toMap()
                                 )
+                                if (targetConnectedPcIp == ipString) {
+                                    Handler(Looper.getMainLooper()).post {
+                                        updateForegroundNotification(deviceName)
+                                    }
+                                }
                             }
                             
                             if (selectedPcIp == null && targetConnectedPcIp == ipString) {
@@ -648,6 +653,7 @@ class MediaSyncService : NotificationListenerService() {
                 getSharedPreferences("settings", Context.MODE_PRIVATE).edit().remove("targetConnectedPcIp").apply()
                 selectedPcIp = null
                 MediaStateRepository.updateSelectedPcIp(null)
+                updateForegroundNotification(null)
                 return@post
             }
 
