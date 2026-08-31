@@ -1,7 +1,8 @@
-﻿<resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
     <string name="app_name">CarpeCast</string>
 
-    <!-- Player Strings -->
+    
     <string name="no_media_playing">メディアが再生されていません</string>
     <string name="unknown_artist">不明なアーティスト</string>
     <string name="unknown_album">不明なアルバム</string>
@@ -10,19 +11,19 @@
     <string name="status_stopped">停止</string>
     <string name="app_name_placeholder">音楽</string>
 
-    <!-- Device Status Strings -->
+    
     <string name="syncing_to_pc">PCに同期中: %1$s</string>
     <string name="waiting_for_pc">PCの接続を待機しています...</string>
     <string name="connection_status">接続ステータス</string>
     <string name="grant_service_permission">通知へのアクセスを許可</string>
     <string name="disconnect">切断</string>
 
-    <!-- Bottom Navigation -->
+    
     <string name="nav_player">プレーヤー</string>
     <string name="nav_devices">デバイス</string>
     <string name="nav_settings">設定</string>
 
-    <!-- Settings -->
+    
     <string name="settings_title">設定</string>
     <string name="settings_network">ネットワーク</string>
     <string name="settings_theme">テーマ</string>
@@ -64,9 +65,9 @@
     <string name="settings_auto_start">自動起動</string>
     <string name="settings_auto_start_desc">アプリのバックグラウンド実行と自動起動を許可</string>
 
-    <!-- Foreground Service Notification -->
+    
     <string name="notification_channel_name">バックグラウンド同期</string>
     <string name="notification_channel_desc">メディア同期をバックグラウンドで維持します</string>
     <string name="notification_title_idle">接続を待機中…</string>
     <string name="notification_title_connected">接続済み：%1$s</string>
-</resources>
+<string name="settings_troubleshooting">トラブルシューティング</string><string name="settings_open_log_folder">ログファイルを表示</string><string name="settings_open_log_folder_desc">トラブルシューティングのためにアプリケーションのログファイルを表示します。</string><string name="settings_clear_logs">ログをクリア</string><string name="settings_clear_logs_desc">保存されているすべてのログファイルを削除します。</string><string name="logs_cleared">ログがクリアされました。</string></resources>

@@ -159,4 +159,30 @@ public partial class SettingsViewModel : ObservableObject
     {
         Microsoft.Windows.AppLifecycle.AppInstance.Restart("");
     }
+
+    [RelayCommand]
+    private async System.Threading.Tasks.Task OpenLogFolder()
+    {
+        try
+        {
+            var logFolder = await Windows.Storage.ApplicationData.Current.LocalFolder.CreateFolderAsync("Logs", Windows.Storage.CreationCollisionOption.OpenIfExists);
+            await Windows.System.Launcher.LaunchFolderAsync(logFolder);
+        }
+        catch { }
+    }
+
+    [RelayCommand]
+    private async System.Threading.Tasks.Task ClearLogs()
+    {
+        try
+        {
+            var logFolder = await Windows.Storage.ApplicationData.Current.LocalFolder.CreateFolderAsync("Logs", Windows.Storage.CreationCollisionOption.OpenIfExists);
+            var files = await logFolder.GetFilesAsync();
+            foreach (var file in files)
+            {
+                await file.DeleteAsync();
+            }
+        }
+        catch { }
+    }
 }

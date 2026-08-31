@@ -1,7 +1,8 @@
-﻿<resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
     <string name="app_name">CarpeCast</string>
 
-    <!-- Player Strings -->
+    
     <string name="no_media_playing">No Media Playing</string>
     <string name="unknown_artist">Unknown Artist</string>
     <string name="unknown_album">Unknown Album</string>
@@ -10,19 +11,19 @@
     <string name="status_stopped">Stopped</string>
     <string name="app_name_placeholder">Music</string>
 
-    <!-- Device Status Strings -->
+    
     <string name="syncing_to_pc">Syncing to PC: %1$s</string>
     <string name="waiting_for_pc">Waiting for PC Discovery...</string>
     <string name="connection_status">Connection Status</string>
     <string name="grant_service_permission">Grant Service Permission</string>
     <string name="disconnect">Disconnect</string>
 
-    <!-- Bottom Navigation -->
+    
     <string name="nav_player">Now Playing</string>
     <string name="nav_devices">Devices</string>
     <string name="nav_settings">Settings</string>
 
-    <!-- Settings -->
+    
     <string name="settings_title">Settings</string>
     <string name="settings_network">Network</string>
     <string name="settings_theme">Theme</string>
@@ -64,7 +65,14 @@
     <string name="settings_auto_start">Auto-start</string>
     <string name="settings_auto_start_desc">Allow app to start in the background</string>
 
-    <!-- Foreground Service Notification -->
+    <string name="settings_troubleshooting">Troubleshooting</string>
+    <string name="settings_open_log_folder">View Log File</string>
+    <string name="settings_open_log_folder_desc">View application log files for troubleshooting.</string>
+    <string name="settings_clear_logs">Clear Logs</string>
+    <string name="settings_clear_logs_desc">Delete all stored log files.</string>
+    <string name="logs_cleared">Logs cleared.</string>
+
+    
     <string name="notification_channel_name">Background Sync</string>
     <string name="notification_channel_desc">Keeps media sync running in the background</string>
     <string name="notification_title_idle">Waiting for connection…</string>

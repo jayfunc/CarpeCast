@@ -170,7 +170,12 @@ public partial class PlayerViewModel : ObservableObject
             FormattedPosition = FormatTime(_basePosition);
             PlayPauseIcon = Media.IsPlaying ? "\uE769" : "\uE768"; // Pause : Play
 
-            if (artIncluded)
+            if (!hasMedia)
+            {
+                AlbumArtImage = null;
+                _cachedAlbumArtBase64 = string.Empty;
+            }
+            else if (artIncluded)
             {
                 // Update persistent cache whenever new art arrives
                 _cachedAlbumArtBase64 = newState.AlbumArtBase64 ?? string.Empty;
@@ -283,6 +288,8 @@ public partial class PlayerViewModel : ObservableObject
         CurrentPosition = 0;
         CurrentDuration = 0;
         PlayPauseIcon = "\uE768";
+        AlbumArtImage = null;
+        _cachedAlbumArtBase64 = string.Empty;
         _smtcService.ClearMediaState();
     }
 }

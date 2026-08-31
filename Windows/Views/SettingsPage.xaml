@@ -59,6 +59,7 @@
                 </InfoBar.ActionButton>
             </InfoBar>
 
+            <TextBlock x:Uid="SettingsGroupGeneral" Margin="0,0,0,8" Style="{ThemeResource BodyStrongTextBlockStyle}" Text="General" />
             <tk:SettingsCard x:Uid="DeviceNameCard">
                 <tk:SettingsCard.HeaderIcon>
                     <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE975;" />
@@ -74,37 +75,6 @@
                         Content="Restore Default" />
                 </StackPanel>
             </tk:SettingsCard>
-
-            <tk:SettingsExpander x:Uid="NetworkPortsExpander">
-                <tk:SettingsExpander.HeaderIcon>
-                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE839;" />
-                </tk:SettingsExpander.HeaderIcon>
-                <tk:SettingsExpander.Header>
-                    <TextBlock x:Uid="NetworkPortsLabel" Text="Network Ports" />
-                </tk:SettingsExpander.Header>
-                <tk:SettingsExpander.Items>
-                    <tk:SettingsCard x:Uid="DiscoveryPortCard">
-                        <tk:SettingsCard.Header>
-                            <TextBlock x:Uid="DiscoveryPortLabel" Text="Discovery Port" />
-                        </tk:SettingsCard.Header>
-                        <NumberBox
-                            Width="100"
-                            SpinButtonPlacementMode="Hidden"
-                            Value="{x:Bind ViewModel.DiscoveryPort, Mode=TwoWay}" />
-                    </tk:SettingsCard>
-                    <tk:SettingsCard x:Uid="SenderDiscoveryPortCard">
-                        <tk:SettingsCard.Header>
-                            <TextBlock x:Uid="SenderDiscoveryPortLabel" Text="Sender Discovery Port" />
-                        </tk:SettingsCard.Header>
-                        <NumberBox
-                            Width="100"
-                            SpinButtonPlacementMode="Hidden"
-                            Value="{x:Bind ViewModel.SenderDiscoveryPort, Mode=TwoWay}" />
-                    </tk:SettingsCard>
-                </tk:SettingsExpander.Items>
-            </tk:SettingsExpander>
-
-
 
             <tk:SettingsCard>
                 <tk:SettingsCard.HeaderIcon>
@@ -148,6 +118,7 @@
                 </ComboBox>
             </tk:SettingsCard>
 
+            <TextBlock x:Uid="SettingsGroupStartup" Margin="0,24,0,8" Style="{ThemeResource BodyStrongTextBlockStyle}" Text="Startup" />
             <tk:SettingsCard x:Uid="ShowOnStartupCard">
                 <tk:SettingsCard.HeaderIcon>
                     <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE7E8;" />
@@ -178,6 +149,78 @@
                     Glyph="&#xE8A7;" />
             </tk:SettingsCard>
 
+            <TextBlock x:Uid="SettingsGroupNetwork" Margin="0,24,0,8" Style="{ThemeResource BodyStrongTextBlockStyle}" Text="Network" />
+            <tk:SettingsExpander x:Uid="NetworkPortsExpander">
+                <tk:SettingsExpander.HeaderIcon>
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE839;" />
+                </tk:SettingsExpander.HeaderIcon>
+                <tk:SettingsExpander.Header>
+                    <TextBlock x:Uid="NetworkPortsLabel" Text="Network Ports" />
+                </tk:SettingsExpander.Header>
+                <tk:SettingsExpander.Items>
+                    <tk:SettingsCard x:Uid="DiscoveryPortCard">
+                        <tk:SettingsCard.Header>
+                            <TextBlock x:Uid="DiscoveryPortLabel" Text="Discovery Port" />
+                        </tk:SettingsCard.Header>
+                        <NumberBox
+                            Width="100"
+                            SpinButtonPlacementMode="Hidden"
+                            Value="{x:Bind ViewModel.DiscoveryPort, Mode=TwoWay}" />
+                    </tk:SettingsCard>
+                    <tk:SettingsCard x:Uid="SenderDiscoveryPortCard">
+                        <tk:SettingsCard.Header>
+                            <TextBlock x:Uid="SenderDiscoveryPortLabel" Text="Sender Discovery Port" />
+                        </tk:SettingsCard.Header>
+                        <NumberBox
+                            Width="100"
+                            SpinButtonPlacementMode="Hidden"
+                            Value="{x:Bind ViewModel.SenderDiscoveryPort, Mode=TwoWay}" />
+                    </tk:SettingsCard>
+                </tk:SettingsExpander.Items>
+            </tk:SettingsExpander>
+
+            <TextBlock x:Uid="SettingsGroupTroubleshooting" Margin="0,24,0,8" Style="{ThemeResource BodyStrongTextBlockStyle}" Text="Troubleshooting" />
+            <tk:SettingsCard
+                x:Uid="OpenLogFolderCard"
+                Command="{x:Bind ViewModel.OpenLogFolderCommand}"
+                IsClickEnabled="True">
+                <tk:SettingsCard.HeaderIcon>
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8B7;" />
+                </tk:SettingsCard.HeaderIcon>
+                <tk:SettingsCard.Header>
+                    <TextBlock x:Uid="OpenLogFolderLabel" Text="Open Logs Folder" />
+                </tk:SettingsCard.Header>
+                <tk:SettingsCard.Description>
+                    <TextBlock x:Uid="OpenLogFolderDesc" Text="View application log files for troubleshooting." />
+                </tk:SettingsCard.Description>
+                <FontIcon
+                    FontFamily="Segoe Fluent Icons"
+                    FontSize="14"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Glyph="&#xE8A7;" />
+            </tk:SettingsCard>
+            
+            <tk:SettingsCard
+                x:Uid="ClearLogsCard"
+                Command="{x:Bind ViewModel.ClearLogsCommand}"
+                IsClickEnabled="True">
+                <tk:SettingsCard.HeaderIcon>
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74D;" />
+                </tk:SettingsCard.HeaderIcon>
+                <tk:SettingsCard.Header>
+                    <TextBlock x:Uid="ClearLogsLabel" Text="Clear Logs" />
+                </tk:SettingsCard.Header>
+                <tk:SettingsCard.Description>
+                    <TextBlock x:Uid="ClearLogsDesc" Text="Delete all stored log files." />
+                </tk:SettingsCard.Description>
+                <FontIcon
+                    FontFamily="Segoe Fluent Icons"
+                    FontSize="14"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Glyph="&#xE8A7;" />
+            </tk:SettingsCard>
+
+            <TextBlock x:Uid="SettingsGroupAbout" Margin="0,24,0,8" Style="{ThemeResource BodyStrongTextBlockStyle}" Text="About" />
             <tk:SettingsCard
                 x:Uid="DownloadAndroidCard"
                 Command="{x:Bind ViewModel.DownloadAndroidCommand}"

@@ -6,6 +6,8 @@ using Microsoft.Windows.AppLifecycle;
 using Windows.ApplicationModel.Activation;
 using System.Runtime.InteropServices;
 
+using Serilog;
+
 namespace CarpeCast;
 
 public static class Program
@@ -21,7 +23,17 @@ public static class Program
     [STAThread]
     static async Task<int> Main(string[] args)
     {
-        WinRT.ComWrappersSupport.InitializeComWrappers();
+        var logPath = System.IO.Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path, "Logs", "log.txt");
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.Debug()
+            .WriteTo.File(logPath, rollingInterval: RollingInterval.Day)
+            .CreateLogger();
+
+        try
+        {
+            Log.Information("Starting CarpeCast");
+            WinRT.ComWrappersSupport.InitializeComWrappers();
 
         bool isRedirect = await DecideRedirection();
         if (!isRedirect)
@@ -33,6 +45,17 @@ public static class Program
                 SynchronizationContext.SetSynchronizationContext(context);
                 new App();
             });
+        }
+
+        }
+        catch (Exception ex)
+        {
+            Log.Fatal(ex, "CarpeCast terminated unexpectedly");
+            return 1;
+        }
+        finally
+        {
+            Log.CloseAndFlush();
         }
 
         return 0;

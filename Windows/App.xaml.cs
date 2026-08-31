@@ -11,6 +11,8 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Serilog;
 using CarpeCast.Services;
 using CarpeCast.ViewModels;
 
@@ -36,6 +38,21 @@ public partial class App : Application
         }
 
         InitializeComponent();
+
+        this.UnhandledException += App_UnhandledException;
+        TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+    }
+
+    private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+    {
+        Log.Fatal(e.Exception, "Unhandled UI Exception");
+        e.Handled = true; // Attempt to keep running, or log and crash
+    }
+
+    private void TaskScheduler_UnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        Log.Fatal(e.Exception, "Unobserved Task Exception");
+        e.SetObserved();
     }
 
     /// <summary>
@@ -61,6 +78,12 @@ public partial class App : Application
     private static IServiceProvider ConfigureServices()
     {
         var services = new ServiceCollection();
+
+        services.AddLogging(loggingBuilder =>
+        {
+            loggingBuilder.ClearProviders();
+            loggingBuilder.AddSerilog(dispose: true);
+        });
 
         // Services
         services.AddSingleton<ISettingsService, SettingsService>();

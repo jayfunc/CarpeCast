@@ -140,6 +140,44 @@ struct SettingsView: View {
                             .foregroundColor(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
+                    Section(header: Text(localized("Troubleshooting")).font(.headline).padding(.top, 15)) {
+                        Button(action: {
+                            if let logDir = FileLogger.shared.getLogDirectory() {
+                                NSWorkspace.shared.open(logDir)
+                            }
+                        }) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(localized("Open Logs Folder"))
+                                Text(localized("View application log files for troubleshooting."))
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .buttonStyle(PlainButtonStyle())
+
+                        Button(action: {
+                            let logDir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!.appendingPathComponent("CarpeCast/Logs")
+                            do {
+                                let files = try FileManager.default.contentsOfDirectory(at: logDir, includingPropertiesForKeys: nil)
+                                for file in files {
+                                    try FileManager.default.removeItem(at: file)
+                                }
+                            } catch {
+                                cLog("Failed to clear logs: \(error)")
+                            }
+                        }) {
+                            VStack(alignment: .leading) {
+                                Text(localized("Clear Logs"))
+                                    .font(.body)
+                                Text(localized("Delete all stored log files."))
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding(.top, 10)
+                    }
+                    .padding(.bottom, 15)
 
                     Section(header: Text(localized("Recommended")).font(.headline).padding(.top, 15)) {
                         Link(localized("Download CarpeCast for Windows"), destination: URL(string: "https://github.com/jayfunc/CarpeCast")!)
@@ -361,6 +399,11 @@ func getLocalizedString(_ key: String, language: String) -> String {
         case "Waiting for Windows client to connect...": return "正在等待 Windows 端連接..."
         case "System Permissions": return "系統權限"
         case "Please grant Automation permissions in System Settings -> Privacy & Security to allow CarpeCast to control playback.": return "請在「系統設定 -> 隱私權與安全性 -> 自動化」中授予權限，以允許 CarpeCast 控制播放。"
+        case "Troubleshooting": return "疑難排解"
+        case "Open Logs Folder": return "開啟記錄資料夾"
+        case "View application log files for troubleshooting.": return "檢視應用程式記錄檔以排查問題。"
+        case "Clear Logs": return "清除記錄"
+        case "Delete all stored log files.": return "刪除所有已儲存的記錄檔。"
         case "Recommended": return "推薦"
         case "Download CarpeCast for Windows": return "下載 Windows 版 CarpeCast"
         case "Download BetterLyrics": return "下載 BetterLyrics"
@@ -399,6 +442,11 @@ func getLocalizedString(_ key: String, language: String) -> String {
         case "Waiting for Windows client to connect...": return "正在等待 Windows 端连接..."
         case "System Permissions": return "系统权限"
         case "Please grant Automation permissions in System Settings -> Privacy & Security to allow CarpeCast to control playback.": return "请在“系统设置 -> 隐私与安全性 -> 自动化”中授予权限，以允许 CarpeCast 控制媒体播放。"
+        case "Troubleshooting": return "疑难解答"
+        case "Open Logs Folder": return "打开日志文件夹"
+        case "View application log files for troubleshooting.": return "查看应用程序日志文件以排查问题。"
+        case "Clear Logs": return "清空日志"
+        case "Delete all stored log files.": return "删除所有已保存的日志文件。"
         case "Recommended": return "推荐板块"
         case "Download CarpeCast for Windows": return "下载 Windows 版 CarpeCast"
         case "Download BetterLyrics": return "下载 BetterLyrics"
@@ -437,6 +485,11 @@ func getLocalizedString(_ key: String, language: String) -> String {
         case "Waiting for Windows client to connect...": return "Windowsクライアントの接続を待機中..."
         case "System Permissions": return "システム権限"
         case "Please grant Automation permissions in System Settings -> Privacy & Security to allow CarpeCast to control playback.": return "CarpeCastによる再生制御を許可するには、「システム設定 -> プライバシーとセキュリティ -> オートメーション」で権限を付与してください。"
+        case "Troubleshooting": return "トラブルシューティング"
+        case "Open Logs Folder": return "ログフォルダーを開く"
+        case "View application log files for troubleshooting.": return "トラブルシューティングのためにアプリケーションのログファイルを表示します。"
+        case "Clear Logs": return "ログをクリア"
+        case "Delete all stored log files.": return "保存されているすべてのログファイルを削除します。"
         case "Recommended": return "おすすめ"
         case "Download CarpeCast for Windows": return "Windows版CarpeCastをダウンロード"
         case "Download BetterLyrics": return "BetterLyricsをダウンロード"

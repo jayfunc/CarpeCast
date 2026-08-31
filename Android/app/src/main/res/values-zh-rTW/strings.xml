@@ -1,7 +1,8 @@
-﻿<resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
     <string name="app_name">拾音</string>
 
-    <!-- Player Strings -->
+    
     <string name="no_media_playing">暫無媒體播放</string>
     <string name="unknown_artist">未知歌手</string>
     <string name="unknown_album">未知專輯</string>
@@ -10,19 +11,19 @@
     <string name="status_stopped">已停止</string>
     <string name="app_name_placeholder">音樂</string>
 
-    <!-- Device Status Strings -->
+    
     <string name="syncing_to_pc">正在同步至電腦: %1$s</string>
     <string name="waiting_for_pc">正在等待電腦端連線...</string>
     <string name="connection_status">連線狀態</string>
     <string name="grant_service_permission">授予通知監聽權限</string>
     <string name="disconnect">斷開連線</string>
 
-    <!-- Bottom Navigation -->
+    
     <string name="nav_player">播放控制</string>
     <string name="nav_devices">設備狀態</string>
     <string name="nav_settings">設定</string>
 
-    <!-- Settings -->
+    
     <string name="settings_title">設定</string>
     <string name="settings_network">網路</string>
     <string name="settings_theme">外觀主題</string>
@@ -64,9 +65,9 @@
     <string name="settings_auto_start">自動啟動</string>
     <string name="settings_auto_start_desc">允許應用程式在背景執行並隨系統啟動</string>
 
-    <!-- Foreground Service Notification -->
+    
     <string name="notification_channel_name">背景同步</string>
     <string name="notification_channel_desc">保持媒體同步在背景持續執行</string>
     <string name="notification_title_idle">等待連線…</string>
     <string name="notification_title_connected">已連線：%1$s</string>
-</resources>
+<string name="settings_troubleshooting">疑難排解</string><string name="settings_open_log_folder">檢視記錄檔</string><string name="settings_open_log_folder_desc">檢視應用程式記錄檔以排查問題。</string><string name="settings_clear_logs">清除記錄</string><string name="settings_clear_logs_desc">刪除所有已儲存的記錄檔。</string><string name="logs_cleared">記錄已清除。</string></resources>

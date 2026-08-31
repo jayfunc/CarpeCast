@@ -15,6 +15,7 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.wifi.WifiManager
+import com.jayfunc.carpecast.FileLogger
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -95,7 +96,7 @@ class MediaSyncService : NotificationListenerService() {
                 try {
                     updateControllers(mediaSessionManager.getActiveSessions(componentName))
                 } catch (e: SecurityException) {
-                    android.util.Log.e("MediaSyncService", "Missing permission to control media", e)
+                    FileLogger.e("MediaSyncService", "Missing permission to control media", e)
                 }
             }
         }
@@ -170,7 +171,7 @@ class MediaSyncService : NotificationListenerService() {
                 .build()
             cm.requestNetwork(request, networkCallback!!)
         } catch (e: Exception) {
-            Log.w(TAG, "requestNetwork failed: $e")
+            FileLogger.w(TAG, "requestNetwork failed: $e")
         }
 
         // ACTION_SCREEN_ON: send burst of packets the moment screen turns on
@@ -241,7 +242,7 @@ class MediaSyncService : NotificationListenerService() {
 
             updateControllers(mediaSessionManager.getActiveSessions(componentName))
         } catch (e: SecurityException) {
-            Log.e(TAG, "Missing permission to control media", e)
+            FileLogger.e(TAG, "Missing permission to control media", e)
         }
     }
 

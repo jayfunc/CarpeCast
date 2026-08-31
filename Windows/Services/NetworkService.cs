@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using CarpeCast.Models;
+using Microsoft.Extensions.Logging;
 
 namespace CarpeCast.Services;
 
@@ -32,6 +33,7 @@ public class NetworkService : INetworkService
     }
 
     private readonly ISettingsService _settings;
+    private readonly ILogger<NetworkService> _logger;
     private CancellationTokenSource? _cts;
     private UdpClient? _dataClient;
     private UdpClient? _discoveryClient;
@@ -44,13 +46,15 @@ public class NetworkService : INetworkService
     public event EventHandler<SenderDiscoveredEventArgs>? SenderDiscovered;
     public event EventHandler<SenderDiscoveredEventArgs>? SenderLost;
 
-    public NetworkService(ISettingsService settings)
+    public NetworkService(ISettingsService settings, ILogger<NetworkService> logger)
     {
         _settings = settings;
+        _logger = logger;
     }
 
     public void StartListening()
     {
+        _logger.LogInformation("NetworkService is starting to listen...");
         StopListening();
         _cts = new CancellationTokenSource();
 

@@ -131,7 +131,7 @@ class NetworkManager: ObservableObject {
                 }
             }
         } else {
-            print("Failed to bind discovery socket")
+            cLog("Failed to bind discovery socket")
         }
     }
     
@@ -170,7 +170,7 @@ class NetworkManager: ObservableObject {
                 }
             }
         } else {
-            print("Failed to bind command socket")
+            cLog("Failed to bind command socket")
         }
     }
     
@@ -210,7 +210,7 @@ class NetworkManager: ObservableObject {
             let artworkArrived = !m.albumArtBase64.isEmpty &&
                 m.albumArtBase64 != self.lastProcessedAlbumArtSource
             if trackChanged || artworkArrived {
-                // Track changed â€” recompress art and attach it this packet
+                // Track changed â€?recompress art and attach it this packet
                 self.lastSentTrackKey = trackKey
                 self.lastProcessedAlbumArtSource = m.albumArtBase64
                 self.cachedAlbumArtBase64 = ""
@@ -305,7 +305,7 @@ class NetworkManager: ObservableObject {
                 NSLog("[CarpeCast] Sending albumArt in %d chunks, total length: %d, retries remaining: %d", chunkCount, self.cachedAlbumArtBase64.count, self.albumArtRetriesRemaining)
                 return
             }
-            // If track hasn't changed, omit albumArt key entirely â€” Windows keeps the cached image image
+            // If track hasn't changed, omit albumArt key entirely â€?Windows keeps the cached image image
             
             if let data = try? JSONSerialization.data(withJSONObject: dict, options: []) {
                 sock.send(data: data, to: device.ip, port: UInt16(device.port))

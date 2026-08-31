@@ -127,6 +127,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        FileLogger.init(this)
 
         val prefs = getSharedPreferences("settings", MODE_PRIVATE)
         val currentTheme = prefs.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
@@ -980,6 +982,75 @@ fun SettingsScreen(onNavigateToSources: () -> Unit) {
                 icon = R.drawable.ic_settings,
                 position = SettingItemPosition.Bottom
             ) { showSenderDiscoveryPortDialog = true }
+        }
+
+        var showLogFilesDialog by remember { mutableStateOf(false) }
+
+        SettingsGroup(title = stringResource(R.string.settings_troubleshooting)) {
+            SettingItem(
+                title = stringResource(R.string.settings_open_log_folder),
+                desc = stringResource(R.string.settings_open_log_folder_desc),
+                icon = R.drawable.ic_settings,
+                position = SettingItemPosition.Top
+            ) {
+                showLogFilesDialog = true
+            }
+            SettingItem(
+                title = stringResource(R.string.settings_clear_logs),
+                desc = stringResource(R.string.settings_clear_logs_desc),
+                icon = R.drawable.ic_settings,
+                position = SettingItemPosition.Bottom
+            ) {
+                val logDir = java.io.File(context.getExternalFilesDir(null), "Logs")
+                if (logDir.exists()) {
+                    logDir.listFiles()?.forEach { it.delete() }
+                    android.widget.Toast.makeText(context, context.getString(R.string.logs_cleared), android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        
+        if (showLogFilesDialog) {
+            val logDir = java.io.File(context.getExternalFilesDir(null), "Logs")
+            val files = logDir.listFiles { _, name -> name.startsWith("log-") && name.endsWith(".txt") }
+                ?.sortedByDescending { it.name } ?: emptyList()
+                
+            if (files.isEmpty()) {
+                android.widget.Toast.makeText(context, "No log files found", android.widget.Toast.LENGTH_SHORT).show()
+                showLogFilesDialog = false
+            } else {
+                val options = files.map { it.name to it.absolutePath }
+                SelectionDialog(
+                    title = stringResource(R.string.settings_open_log_folder),
+                    options = options,
+                    selectedValue = "",
+                    onDismiss = { showLogFilesDialog = false },
+                    onSelect = { selectedPath ->
+                        showLogFilesDialog = false
+                        val logFile = java.io.File(selectedPath)
+                        try {
+                            val uri = androidx.core.content.FileProvider.getUriForFile(
+                                context,
+                                "${context.packageName}.fileprovider",
+                                logFile
+                            )
+                            val intent = Intent(Intent.ACTION_VIEW)
+                            intent.setDataAndType(uri, "text/plain")
+                            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+                            if (intent.resolveActivity(context.packageManager) != null) {
+                                context.startActivity(intent)
+                            } else {
+                                val shareIntent = Intent(Intent.ACTION_SEND)
+                                shareIntent.type = "text/plain"
+                                shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+                                shareIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                context.startActivity(Intent.createChooser(shareIntent, "Share Log File"))
+                            }
+                        } catch (e: Exception) {
+                            android.widget.Toast.makeText(context, "Log file at: ${logFile.absolutePath}", android.widget.Toast.LENGTH_LONG).show()
+                        }
+                    }
+                )
+            }
         }
 
         SettingsGroup(title = stringResource(R.string.settings_recommended)) {

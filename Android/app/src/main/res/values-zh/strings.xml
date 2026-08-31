@@ -1,7 +1,8 @@
-﻿<resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
     <string name="app_name">拾音</string>
 
-    <!-- Player Strings -->
+    
     <string name="no_media_playing">暂无媒体播放</string>
     <string name="unknown_artist">未知歌手</string>
     <string name="unknown_album">未知专辑</string>
@@ -10,19 +11,19 @@
     <string name="status_stopped">已停止</string>
     <string name="app_name_placeholder">音乐</string>
 
-    <!-- Device Status Strings -->
+    
     <string name="syncing_to_pc">正在同步至电脑: %1$s</string>
     <string name="waiting_for_pc">正在等待电脑端连接...</string>
     <string name="connection_status">连接状态</string>
     <string name="grant_service_permission">授予通知监听权限</string>
     <string name="disconnect">断开连接</string>
 
-    <!-- Bottom Navigation -->
+    
     <string name="nav_player">播放控制</string>
     <string name="nav_devices">设备状态</string>
     <string name="nav_settings">设置</string>
 
-    <!-- Settings -->
+    
     <string name="settings_title">设置</string>
     <string name="settings_network">网络</string>
     <string name="settings_theme">外观主题</string>
@@ -64,7 +65,14 @@
     <string name="settings_auto_start">自启动</string>
     <string name="settings_auto_start_desc">允许应用在后台运行并随系统启动</string>
 
-    <!-- Foreground Service Notification -->
+    <string name="settings_troubleshooting">疑难解答</string>
+    <string name="settings_open_log_folder">查看日志文件</string>
+    <string name="settings_open_log_folder_desc">查看应用程序日志文件以排查问题。</string>
+    <string name="settings_clear_logs">清空日志</string>
+    <string name="settings_clear_logs_desc">删除所有已保存的日志文件。</string>
+    <string name="logs_cleared">日志已清空。</string>
+
+    
     <string name="notification_channel_name">后台同步</string>
     <string name="notification_channel_desc">保持媒体同步在后台持续运行</string>
     <string name="notification_title_idle">等待连接…</string>
