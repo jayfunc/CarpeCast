@@ -204,7 +204,19 @@ class MediaManager: ObservableObject {
                 end if
 
                 if track_name is "" and application "Music" is running then
-                    -- Removed Apple Music polling to prevent random track skipping bug
+                    tell application "Music"
+                        if player state is playing or player state is paused then
+                            set track_name to name of current track
+                            set track_artist to artist of current track
+                            set track_album to album of current track
+                            if player state is playing then
+                                set is_playing to "true"
+                            end if
+                            set track_duration to duration of current track
+                            set track_position to player position
+                            set source_bundle_id to "com.apple.Music"
+                        end if
+                    end tell
                 end if
             on error
                 -- ignore
