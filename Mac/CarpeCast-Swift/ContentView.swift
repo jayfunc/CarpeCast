@@ -25,7 +25,7 @@ struct DevicesView: View {
                     HStack {
                         VStack(alignment: .leading) {
                             Text(device.name).fontWeight(.bold)
-                            Text("\(device.ip):\(device.port) - \(device.type)")
+                            Text("\(device.ip):\(device.port) - \(localized(device.type))")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -408,6 +408,9 @@ func getLocalizedString(_ key: String, language: String) -> String {
         case "Recommended": return "推薦"
         case "Download CarpeCast for Windows": return "下載 Windows 版 CarpeCast"
         case "Download BetterLyrics": return "下載 BetterLyrics"
+        case "Desktop": return "桌面裝置"
+        case "Phone": return "手機"
+        case "Tablet": return "平板電腦"
         case "Light": return "淺色"
         case "Dark": return "深色"
         case "System": return "跟隨系統"
@@ -451,6 +454,9 @@ func getLocalizedString(_ key: String, language: String) -> String {
         case "Recommended": return "推荐板块"
         case "Download CarpeCast for Windows": return "下载 Windows 版 CarpeCast"
         case "Download BetterLyrics": return "下载 BetterLyrics"
+        case "Desktop": return "桌面设备"
+        case "Phone": return "手机"
+        case "Tablet": return "平板电脑"
         case "Light": return "浅色"
         case "Dark": return "深色"
         case "System": return "跟随系统"
@@ -494,6 +500,9 @@ func getLocalizedString(_ key: String, language: String) -> String {
         case "Recommended": return "おすすめ"
         case "Download CarpeCast for Windows": return "Windows版CarpeCastをダウンロード"
         case "Download BetterLyrics": return "BetterLyricsをダウンロード"
+        case "Desktop": return "デスクトップ"
+        case "Phone": return "スマートフォン"
+        case "Tablet": return "タブレット"
         case "Light": return "ライト"
         case "Dark": return "ダーク"
         case "System": return "システム"

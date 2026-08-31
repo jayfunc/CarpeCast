@@ -77,4 +77,4 @@
     <string name="notification_channel_desc">保持媒体同步在后台持续运行</string>
     <string name="notification_title_idle">等待连接…</string>
     <string name="notification_title_connected">已连接：%1$s</string>
-</resources>
+<string name="device_desktop">桌面设备</string><string name="device_phone">手机</string><string name="device_tablet">平板电脑</string><string name="device_tv">电视</string><string name="device_laptop">笔记本</string></resources>

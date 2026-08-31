@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     x:Class="CarpeCast.Views.DevicesPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -74,7 +74,7 @@
                                     <TextBlock
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         Style="{ThemeResource CaptionTextBlockStyle}"
-                                        Text="{x:Bind DeviceType, Mode=OneWay}" />
+                                        Text="{x:Bind LocalizedDeviceType, Mode=OneWay}" />
                                     <TextBlock
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         Style="{ThemeResource CaptionTextBlockStyle}"

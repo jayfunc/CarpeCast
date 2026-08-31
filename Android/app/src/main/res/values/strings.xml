@@ -77,4 +77,4 @@
     <string name="notification_channel_desc">Keeps media sync running in the background</string>
     <string name="notification_title_idle">Waiting for connection…</string>
     <string name="notification_title_connected">Connected: %1$s</string>
-</resources>
+<string name="device_desktop">Desktop</string><string name="device_phone">Phone</string><string name="device_tablet">Tablet</string><string name="device_tv">TV</string><string name="device_laptop">Laptop</string></resources>

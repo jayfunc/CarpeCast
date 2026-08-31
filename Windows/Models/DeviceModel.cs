@@ -20,6 +20,16 @@ public partial class DeviceModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(IconGlyph))]
     public partial string DeviceType { get; set; } = string.Empty;
 
+    public string LocalizedDeviceType
+    {
+        get
+        {
+            var loader = new Microsoft.Windows.ApplicationModel.Resources.ResourceLoader();
+            var val = loader.GetString("Device" + DeviceType);
+            return string.IsNullOrEmpty(val) ? DeviceType : val;
+        }
+    }
+
     public string IconGlyph
     {
         get

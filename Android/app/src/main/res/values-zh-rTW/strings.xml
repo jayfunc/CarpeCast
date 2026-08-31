@@ -70,4 +70,4 @@
     <string name="notification_channel_desc">保持媒體同步在背景持續執行</string>
     <string name="notification_title_idle">等待連線…</string>
     <string name="notification_title_connected">已連線：%1$s</string>
-<string name="settings_troubleshooting">疑難排解</string><string name="settings_open_log_folder">檢視記錄檔</string><string name="settings_open_log_folder_desc">檢視應用程式記錄檔以排查問題。</string><string name="settings_clear_logs">清除記錄</string><string name="settings_clear_logs_desc">刪除所有已儲存的記錄檔。</string><string name="logs_cleared">記錄已清除。</string></resources>
+<string name="settings_troubleshooting">疑難排解</string><string name="settings_open_log_folder">檢視記錄檔</string><string name="settings_open_log_folder_desc">檢視應用程式記錄檔以排查問題。</string><string name="settings_clear_logs">清除記錄</string><string name="settings_clear_logs_desc">刪除所有已儲存的記錄檔。</string><string name="logs_cleared">記錄已清除。</string><string name="device_desktop">桌面裝置</string><string name="device_phone">手機</string><string name="device_tablet">平板電腦</string><string name="device_tv">電視</string><string name="device_laptop">筆記型電腦</string></resources>

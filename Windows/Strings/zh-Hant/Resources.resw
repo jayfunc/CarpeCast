@@ -69,7 +69,7 @@
   <data name="DevicesTitle.Text" xml:space="preserve"><value>設備狀態</value></data>
   <data name="DevicesDescription.Text" xml:space="preserve"><value /></data>
   <data name="DevicesWaiting.Text" xml:space="preserve"><value>等待連線中...</value></data>
-  <data name="DevicesDisconnect.Text" xml:space="preserve"><value>斷開連線</value></data>
+  <data name="DevicesDisconnect.Text" xml:space="preserve"><value>中斷連線</value></data>
   <data name="RestoreDefaultBtn.Content" xml:space="preserve"><value>恢復預設</value></data>
   <data name="RestartPromptInfoBar.Title" xml:space="preserve"><value>需要重啟</value></data>
   <data name="RestartPromptInfoBar.Message" xml:space="preserve"><value>部分設定需要在重啟應用程式後才會生效。</value></data>
@@ -90,4 +90,4 @@
   <data name="ClearLogsDesc.Text" xml:space="preserve">
     <value>刪除所有已儲存的記錄檔。</value>
   </data>
-<data name="SettingsGroupGeneral.Text" xml:space="preserve"><value>一般</value></data><data name="SettingsGroupStartup.Text" xml:space="preserve"><value>啟動</value></data><data name="SettingsGroupNetwork.Text" xml:space="preserve"><value>網路</value></data><data name="SettingsGroupTroubleshooting.Text" xml:space="preserve"><value>疑難排解</value></data><data name="SettingsGroupAbout.Text" xml:space="preserve"><value>關於</value></data></root>
+<data name="SettingsGroupGeneral.Text" xml:space="preserve"><value>一般</value></data><data name="SettingsGroupStartup.Text" xml:space="preserve"><value>啟動</value></data><data name="SettingsGroupNetwork.Text" xml:space="preserve"><value>網路</value></data><data name="SettingsGroupTroubleshooting.Text" xml:space="preserve"><value>疑難排解</value></data><data name="SettingsGroupAbout.Text" xml:space="preserve"><value>關於</value></data><data name="DeviceDesktop" xml:space="preserve"><value>桌面裝置</value></data><data name="DevicePhone" xml:space="preserve"><value>手機</value></data><data name="DeviceTablet" xml:space="preserve"><value>平板電腦</value></data><data name="DeviceTV" xml:space="preserve"><value>電視</value></data><data name="DeviceLaptop" xml:space="preserve"><value>筆記型電腦</value></data><data name="DevicesConnect.Text" xml:space="preserve"><value>連線</value></data><data name="OpenLogFolderLabel.Text" xml:space="preserve"><value>檢視記錄</value></data><data name="OpenLogFolderDesc.Text" xml:space="preserve"><value>檢視應用程式記錄檔以排查問題。</value></data></root>

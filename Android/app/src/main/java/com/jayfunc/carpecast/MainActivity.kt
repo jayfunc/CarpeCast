@@ -120,6 +120,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
+
+@Composable
+fun getLocalizedDeviceType(type: String): String {
+    return when (type.lowercase()) {
+        "desktop" -> stringResource(R.string.device_desktop)
+        "phone" -> stringResource(R.string.device_phone)
+        "tablet" -> stringResource(R.string.device_tablet)
+        "laptop" -> stringResource(R.string.device_laptop)
+        "tv" -> stringResource(R.string.device_tv)
+        else -> type
+    }
+}
+
 class MainActivity : AppCompatActivity() {
 
     private val requestNotificationPermission =
@@ -713,7 +726,7 @@ fun DevicesScreen(state: MediaState) {
                             ) {
                                 Text(text = pcName, style = MaterialTheme.typography.titleMedium)
                                 Text(
-                                    text = "$osVersion • $ip",
+                                    text = "${getLocalizedDeviceType(deviceType)} • $osVersion • $ip",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
